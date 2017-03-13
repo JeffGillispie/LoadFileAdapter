@@ -41,7 +41,7 @@ namespace LoadFileAdapter.Builders
                         DocumentBuilderArgs args = DocumentBuilderArgs.GetOptArgs(pageRecords, e.PathPrefix, e.TextRepresentativeSetting);
                         Document doc = BuildDocument(args);
                         string key = doc.Metadata[IMAGE_KEY_FIELD];
-                        //docs.Add(key, doc);
+                        docs.Add(key, doc);
                     }
                     // clear docPages and add new first page
                     pageRecords = new List<string[]>();
