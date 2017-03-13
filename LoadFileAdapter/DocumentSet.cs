@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter
 {
-    public class DocumentSet : IEnumerable
+    public class DocumentSet : IEnumerable<Document>
     {
         private List<Document> docs = new List<Document>();
         
         public void AddDocuments(List<Document> docs)
         {
-            this.docs = docs;
+            this.docs.AddRange(docs);            
         }
 
         public Document this[int index]
@@ -28,7 +28,7 @@ namespace LoadFileAdapter
                 this.docs[index] = value;
             }
         }
-
+        /*
         public Document First()
         {
             return this.docs.First();
@@ -73,10 +73,18 @@ namespace LoadFileAdapter
                 }
             }
         }        
+        */
 
-        public IEnumerator GetEnumerator()
+
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            return new DocEnumerator(this.docs);
+            //return new DocEnumerator(this.docs);
+            return this.docs.GetEnumerator();
+        }
+
+        IEnumerator<Document> IEnumerable<Document>.GetEnumerator()
+        {
+            return this.docs.GetEnumerator();
         }
     }
 }

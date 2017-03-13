@@ -66,6 +66,11 @@ namespace LoadFileAdapter
         public void SetParent(Document parent)
         {
             this.parent = parent;
+
+            if (parent.children == null)
+            {
+                parent.children = new List<Document>();
+            }
             // now add this document as a child to the parent
             if (!parent.Children.Contains(this))
                 parent.Children.Add(this);

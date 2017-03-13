@@ -24,11 +24,7 @@ namespace LoadFileAdapter.Builders
         private const int NATIVE_OFFSET_INDEX = 5;
         internal const string KEY_FIELD = "DocID";
         internal const string VOLUME_NAME_FIELD = "Volume Name";
-        internal const string PAGE_COUNT_FIELD = "Page Count";
-        internal const string RELATION_TYPE_FIELD = "Family Relationship Type";
-        internal const string PARENT_RELATIONSHIP_TYPE = "Parent";
-        internal const string CHILD_RELATIONSHIP_TYPE = "Child";
-        private const string STAND_ALONE_RELATIONSHIP_TYPE = "Stand Alone";
+        internal const string PAGE_COUNT_FIELD = "Page Count";        
         private const char VOLUME_TRIM_START = '@';
         private const char FILE_PATH_DELIM = '\\';        
 
@@ -48,6 +44,7 @@ namespace LoadFileAdapter.Builders
             List<string[]> pageRecords = new List<string[]>();
             string[] nativeRecord = null;
             Document lastParent = null;
+            string lastBreak = String.Empty;
             // build the documents
             foreach (string[] record in e.Records)
             {
@@ -65,10 +62,10 @@ namespace LoadFileAdapter.Builders
                             DocumentBuilderArgs args = DocumentBuilderArgs.GetLfpArgs(pageRecords, nativeRecord, e.PathPrefix, e.TextRepresentativeSetting);
                             Document doc = BuildDocument(args);
                             string key = doc.Metadata[KEY_FIELD];
-                            BoundaryFlag docBreak = (BoundaryFlag)Enum.Parse(typeof(BoundaryFlag), record[IMAGE_BOUNDARY_FLAG_INDEX]);
+                            BoundaryFlag docBreak = (BoundaryFlag)Enum.Parse(typeof(BoundaryFlag), lastBreak);
                             // check if document is a child
                             if (docBreak.Equals(BoundaryFlag.C))
-                            {                                
+                            {   
                                 doc.SetParent(lastParent);
                             }
                             else
@@ -82,6 +79,7 @@ namespace LoadFileAdapter.Builders
                         // clear docPages and add new first page
                         pageRecords = new List<string[]>();
                         pageRecords.Add(record);
+                        lastBreak = record[IMAGE_BOUNDARY_FLAG_INDEX];
                         // check if native belongs to this doc
                         // this is a guard against the native appearing before the first image
                         if (nativeRecord != null && !nativeRecord[KEY_INDEX].Equals(record[KEY_INDEX]))
@@ -120,15 +118,8 @@ namespace LoadFileAdapter.Builders
             {
                 lastDoc.SetParent(lastParent);
             }
-            docs.Add(lastKey, lastDoc);
-            // update relationship metadata for stand alone documents
-            foreach (var kvp in docs)
-            {
-                if (kvp.Value.Children == null && kvp.Value.Metadata[RELATION_TYPE_FIELD].Equals(PARENT_RELATIONSHIP_TYPE))
-                {
-                    kvp.Value.Metadata[RELATION_TYPE_FIELD] = STAND_ALONE_RELATIONSHIP_TYPE;
-                }
-            }
+
+            docs.Add(lastKey, lastDoc);            
             // return document list
             return docs.Values.ToList();
         }
@@ -138,20 +129,14 @@ namespace LoadFileAdapter.Builders
             // check if this doc has images or is native only then get document properties
             string[] firstPage = (e.PageRecords.Count > 0) ? e.PageRecords.First() : null;            
             string key = (e.PageRecords.Count > 0) ? firstPage[KEY_INDEX] : e.NativeRecord[KEY_INDEX];
-            string vol = (e.PageRecords.Count > 0) ? firstPage[IMAGE_VOLUME_NAME_INDEX] : e.NativeRecord[NATIVE_VOLUME_NAME_INDEX];
-            string rel = (e.PageRecords.Count == 0)
-                ? String.Empty
-                : (firstPage[IMAGE_BOUNDARY_FLAG_INDEX].Equals(BoundaryFlag.C.ToString()))
-                    ? CHILD_RELATIONSHIP_TYPE
-                    : PARENT_RELATIONSHIP_TYPE;
+            string vol = (e.PageRecords.Count > 0) ? firstPage[IMAGE_VOLUME_NAME_INDEX] : e.NativeRecord[NATIVE_VOLUME_NAME_INDEX];            
             vol = vol.TrimStart(VOLUME_TRIM_START);
             int pages = e.PageRecords.Count;
             // set document properties
             Dictionary<string, string> metadata = new Dictionary<string, string>();
             metadata.Add(KEY_FIELD, key);
             metadata.Add(VOLUME_NAME_FIELD, vol);
-            metadata.Add(PAGE_COUNT_FIELD, pages.ToString());
-            metadata.Add(RELATION_TYPE_FIELD, rel);
+            metadata.Add(PAGE_COUNT_FIELD, pages.ToString());            
             // get representatives
             HashSet<Representative> reps = getRepresentatives(e.PageRecords, e.PathPrefex, e.TextSetting, e.NativeRecord);
             Document parent = null;

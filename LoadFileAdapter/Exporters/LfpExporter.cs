@@ -127,8 +127,7 @@ namespace LoadFileAdapter.Exporters
 
         private string getDocBreakValue(Document doc)
         {
-            if (doc.Metadata.ContainsKey(Builders.LfpBuilder.RELATION_TYPE_FIELD) && 
-                doc.Metadata[Builders.LfpBuilder.RELATION_TYPE_FIELD].Equals(Builders.LfpBuilder.CHILD_RELATIONSHIP_TYPE))
+            if (doc.Parent != null)
             {
                 return Builders.LfpBuilder.BoundaryFlag.C.ToString();
             }
