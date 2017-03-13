@@ -56,7 +56,7 @@ namespace LoadFileAdapter.Builders
                 throw new Exception("The document record does not contains the correct number of fields.");
             // setup for building
             Dictionary<string, string> metadata = new Dictionary<string, string>();
-            HashSet<Representative> reps = null;
+            HashSet<Representative> reps = new HashSet<Representative>();
             // populate the metadata
             for (int i = 0; i < e.Header.Length; i++)
             {
@@ -72,19 +72,20 @@ namespace LoadFileAdapter.Builders
             // populate representatives
             if (e.RepresentativeColumnInformation != null)
             {
-                reps = new HashSet<Representative>();
-
                 foreach (SemiStructuredRepresentativeSetting info in e.RepresentativeColumnInformation)
                 {
                     SortedDictionary<string, FileInfo> files = new SortedDictionary<string, FileInfo>();
                     // this format will only have one file per rep
-                    string filePath = (String.IsNullOrEmpty(e.PathPrefex))
-                        ? metadata[info.RepresentativeColumn]
-                        : Path.Combine(e.PathPrefex, metadata[info.RepresentativeColumn].TrimStart(FILE_PATH_DELIM));                    
-                    FileInfo file = new FileInfo(filePath);
-                    files.Add(keyValue, file);
-                    Representative rep = new Representative(info.RepresentativeType, files);
-                    reps.Add(rep);
+                    if (!String.IsNullOrWhiteSpace(metadata[info.RepresentativeColumn]))
+                    {
+                        string filePath = (String.IsNullOrEmpty(e.PathPrefex))
+                            ? metadata[info.RepresentativeColumn]
+                            : Path.Combine(e.PathPrefex, metadata[info.RepresentativeColumn].TrimStart(FILE_PATH_DELIM));
+                        FileInfo file = new FileInfo(filePath);
+                        files.Add(keyValue, file);
+                        Representative rep = new Representative(info.RepresentativeType, files);
+                        reps.Add(rep);
+                    }
                 }
             }
             // default values
