@@ -17,11 +17,11 @@ namespace LoadFileAdapter.Builders
         private const int FOLDER_BREAK_INDEX = 5;
         private const int PAGE_COUNT_INDEX = 6;
         private const string TRUE_VALUE = "Y";
-        private const string IMAGE_KEY_FIELD = "DocID";
-        private const string VOLUME_NAME_FIELD = "Volume Name";
-        private const string PAGE_COUNT_FIELD = "Page Count";
-        private const string BOX_BREAK_FIELD = "Box Break";
-        private const string FOLDER_BREAK_FIELD = "Folder Break";
+        internal const string IMAGE_KEY_FIELD = "DocID";
+        internal const string VOLUME_NAME_FIELD = "Volume Name";
+        internal const string PAGE_COUNT_FIELD = "Page Count";
+        internal const string BOX_BREAK_FIELD = "Box Break";
+        internal const string FOLDER_BREAK_FIELD = "Folder Break";
         private const char FILE_PATH_DELIM = '\\';
         
         public List<Document> BuildDocuments(DocumentSetBuilderArgs e)

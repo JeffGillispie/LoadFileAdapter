@@ -22,12 +22,12 @@ namespace LoadFileAdapter.Builders
         private const int NATIVE_FILE_PATH_INDEX = 3;
         private const int NATIVE_FILE_NAME_INDEX = 4;
         private const int NATIVE_OFFSET_INDEX = 5;
-        private const string KEY_FIELD = "DocID";
-        private const string VOLUME_NAME_FIELD = "Volume Name";
-        private const string PAGE_COUNT_FIELD = "Page Count";
-        private const string RELATION_TYPE_FIELD = "Family Relationship Type";
-        private const string PARENT_RELATIONSHIP_TYPE = "Parent";
-        private const string CHILD_RELATIONSHIP_TYPE = "Child";
+        internal const string KEY_FIELD = "DocID";
+        internal const string VOLUME_NAME_FIELD = "Volume Name";
+        internal const string PAGE_COUNT_FIELD = "Page Count";
+        internal const string RELATION_TYPE_FIELD = "Family Relationship Type";
+        internal const string PARENT_RELATIONSHIP_TYPE = "Parent";
+        internal const string CHILD_RELATIONSHIP_TYPE = "Child";
         private const string STAND_ALONE_RELATIONSHIP_TYPE = "Stand Alone";
         private const char VOLUME_TRIM_START = '@';
         private const char FILE_PATH_DELIM = '\\';        
@@ -37,7 +37,7 @@ namespace LoadFileAdapter.Builders
             IM, OF
         }
 
-        private enum BoundaryFlag
+        internal enum BoundaryFlag
         {
             D, C
         }

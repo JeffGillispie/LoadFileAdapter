@@ -10,9 +10,7 @@ namespace LoadFileAdapter
     public class DocumentSet : IEnumerable
     {
         private List<Document> docs = new List<Document>();
-
-        //public List<Document> Documents { get { return this.docs; } }
-
+        
         public void AddDocuments(List<Document> docs)
         {
             this.docs = docs;

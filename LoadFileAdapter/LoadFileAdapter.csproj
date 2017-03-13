@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BatesNumber.cs" />
     <Compile Include="Builders\Builder.cs" />
     <Compile Include="Builders\DocumentBuilderArgs.cs" />
     <Compile Include="Builders\DocumentSetBuilderArgs.cs" />

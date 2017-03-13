@@ -66,6 +66,7 @@ namespace LoadFileAdapter.Exporters
                         (counter == 0) ? imageRep.Files.Count.ToString() : FALSE_VALUE
                         );
                     pageRecords.Add(pageRecord);
+                    counter++;
                 }
             }
 
