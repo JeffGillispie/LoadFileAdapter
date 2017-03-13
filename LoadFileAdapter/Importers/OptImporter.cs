@@ -16,7 +16,7 @@ namespace LoadFileAdapter.Importers
 
         public DocumentSet ImportDocuments(FileInfo optFile, Encoding encoding, StructuredRepresentativeSetting textSetting)
         {
-            Delimiters delimiters = Delimiters.COMMA_DELIMITED;            
+            Delimiters delimiters = Delimiters.COMMA_DELIMITED;
             List<string[]> records = parser.Parse(optFile, delimiters, encoding);
             DocumentSetBuilderArgs args = DocumentSetBuilderArgs.GetImageSetArgs(records, optFile.Directory.FullName, textSetting);
             List<Document> documents = builder.BuildDocuments(args);

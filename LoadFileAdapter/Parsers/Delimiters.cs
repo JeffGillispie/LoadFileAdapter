@@ -8,24 +8,24 @@ namespace LoadFileAdapter.Parsers
 {
     public class Delimiters
     {
-        private char fieldSeparator;
-        private char textQualifier;
-        private char newRecord;
-        private char escapeCharacter;
-        private char flattenedNewLine;
-
-        public char FieldSeparator { get { return this.FieldSeparator; } }
-        public char TextQualifier { get { return this.TextQualifier; } }
-        public char NewRecord {  get { return this.NewRecord; } }
-        public char EscapeCharacter { get { return this.EscapeCharacter; } }
-        public char FlattenedNewLine { get { return this.FlattenedNewLine; } }
-
+        private char fieldSeparator = ',';
+        private char textQualifier = '\0';
+        private char newRecord = '\n';
+        private char escapeCharacter = '\0';
+        private char flattenedNewLine = '\0';
+        
+        public char FieldSeparator { get { return this.fieldSeparator; } }
+        public char TextQualifier { get { return this.textQualifier; } }
+        public char NewRecord { get { return this.newRecord; } }
+        public char EscapeCharacter { get { return this.escapeCharacter; } }
+        public char FlattenedNewLine { get { return this.flattenedNewLine; } }
+        
         public static Delimiters COMMA_QUOTE = of(',', '"', '\n', '"', '\0');
         public static Delimiters COMMA_DELIMITED = of(',', '\0', '\n', '\0', '\0');
         public static Delimiters TAB_DELIMITED = of('\t', '\0', '\n', '\0', '\0');
         public static Delimiters PIPE_CARET = of('|', '^', '\n', '^', '\0');
         public static Delimiters CONCORDANCE = of((char)20, (char)254, '\n', (char)254, (char)174);
-
+        
         public static Delimiters of(char fieldSeparator, char textQualifer, char newRecord, char escapeCharacter, char flattenedNewLine)
         {
             return new Delimiters(fieldSeparator, textQualifer, newRecord, escapeCharacter, flattenedNewLine);
@@ -53,7 +53,6 @@ namespace LoadFileAdapter.Parsers
                 throw new Exception("The field separator and the escape character can not have the same value.");
             else if (this.escapeCharacter == this.newRecord)
                 throw new Exception("The escape character and the new record delimiter can not have the same value.");
-        }
-
+        }        
     }
 }

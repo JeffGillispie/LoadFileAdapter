@@ -77,7 +77,7 @@ namespace LoadFileAdapter.Exporters
 
                 counter++;
             }
-
+            
             return sb.ToString();
         }
     }
