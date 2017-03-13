@@ -21,7 +21,7 @@ namespace LoadFileAdapter.Importers
             DocumentSetBuilderArgs args = DocumentSetBuilderArgs.GetTextDelimitedArgs(records, hasHeader, keyColName, parentColName, childColName, childSeparator, repColInfo, file.Directory.FullName);
             List<Document> documents = builder.BuildDocuments(args);
             DocumentSet docSet = new DocumentSet();
-            docSet.SetDocuments(documents);
+            docSet.AddDocuments(documents);
             return docSet;
         }
     }

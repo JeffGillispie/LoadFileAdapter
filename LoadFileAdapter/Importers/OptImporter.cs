@@ -21,7 +21,7 @@ namespace LoadFileAdapter.Importers
             DocumentSetBuilderArgs args = DocumentSetBuilderArgs.GetImageSetArgs(records, optFile.Directory.FullName, textSetting);
             List<Document> documents = builder.BuildDocuments(args);
             DocumentSet docSet = new DocumentSet();
-            docSet.SetDocuments(documents);
+            docSet.AddDocuments(documents);
             return docSet;
         }
     }

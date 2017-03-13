@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class LfpExporter
+    public class LfpExporter : Exporter
     {
         private static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
             { ".TIF", 2 },
@@ -15,7 +15,7 @@ namespace LoadFileAdapter.Exporters
             { ".PDF", 7 }
         };
 
-        public void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName)
+        public void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName, Parsers.Delimiters delimiters)
         {
             bool append = false;
 
