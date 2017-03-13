@@ -75,8 +75,8 @@ namespace LoadFileAdapter.Builders
             metadata.Add(IMAGE_KEY_FIELD, key);
             metadata.Add(VOLUME_NAME_FIELD, vol);
             metadata.Add(PAGE_COUNT_FIELD, pages.ToString());
-            metadata.Add(BOX_BREAK_FIELD, box);
-            metadata.Add(FOLDER_BREAK_FIELD, dir);
+            //metadata.Add(BOX_BREAK_FIELD, box); // extraneous meta
+            //metadata.Add(FOLDER_BREAK_FIELD, dir); // extraneous meta
             // build the representatives
             Representative imageRep = getImageRepresentative(e.PageRecords, e.PathPrefex);          
             Representative textRep = getTextRepresentative(e.PageRecords, e.PathPrefex, e.TextSetting);
