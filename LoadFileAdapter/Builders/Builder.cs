@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    interface Builder
+    public interface Builder
     {
         List<Document> BuildDocuments(DocumentSetBuilderArgs e);
         Document BuildDocument(DocumentBuilderArgs e);
