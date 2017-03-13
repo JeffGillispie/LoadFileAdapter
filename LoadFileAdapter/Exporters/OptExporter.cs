@@ -8,12 +8,12 @@ using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class OptExporter
+    public class OptExporter : Exporter
     {
         private const string TRUE_VALUE = "Y";
         private const string FALSE_VALUE = "";
 
-        public void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName)
+        public void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName, Parsers.Delimiters delimiters)
         {
             bool append = false;
 

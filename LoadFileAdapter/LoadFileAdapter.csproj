@@ -46,8 +46,10 @@
     <Compile Include="Builders\DocumentSetBuilderArgs.cs" />
     <Compile Include="Builders\SemiStructuredRepresentativeSetting.cs" />
     <Compile Include="DocumentSet.cs" />
+    <Compile Include="Exporters\Exporter.cs" />
     <Compile Include="Exporters\LfpExporter.cs" />
     <Compile Include="Exporters\OptExporter.cs" />
+    <Compile Include="Exporters\TextDelimitedExporter.cs" />
     <Compile Include="Importers\LfpImporter.cs" />
     <Compile Include="Importers\OptImporter.cs" />
     <Compile Include="Importers\TextDelimitedImporter.cs" />

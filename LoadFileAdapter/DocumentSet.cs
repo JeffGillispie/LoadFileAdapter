@@ -29,6 +29,16 @@ namespace LoadFileAdapter
             }
         }
 
+        public Document First()
+        {
+            return this.docs.First();
+        }
+
+        public Document Last()
+        {
+            return this.docs.Last();
+        }
+
         private class DocEnumerator : IEnumerator
         {
             public List<Document> docs;
