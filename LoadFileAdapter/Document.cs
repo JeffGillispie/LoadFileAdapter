@@ -80,10 +80,10 @@ namespace LoadFileAdapter
         {
             return new Document(
                 (string)this.key.Clone(), 
-                (Document)this.parent.Clone(), 
-                new List<Document>(this.children), 
-                new Dictionary<string, string>(this.metadata), 
-                new HashSet<Representative>(this.representatives)
+                (this.parent == null) ? null : (Document)this.parent.Clone(), 
+                (this.children == null) ? null : new List<Document>(this.children), 
+                (this.metadata == null) ? null : new Dictionary<string, string>(this.metadata), 
+                (this.representatives == null) ? null : new HashSet<Representative>(this.representatives)
                 );
         }
         
