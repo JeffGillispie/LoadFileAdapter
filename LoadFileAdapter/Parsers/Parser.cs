@@ -54,9 +54,9 @@ namespace LoadFileAdapter.Parsers
             // if this is not a qualified field then scan through to the next field separator
             else if (currentChar != delimiters.TextQualifier)
             {
-                int endIndex = line.IndexOf(delimiters.TextQualifier, currentIndex);
+                int endIndex = line.IndexOf(delimiters.FieldSeparator, currentIndex);
                 endIndex = (endIndex < 0) ? line.Length : endIndex;
-                fieldValue.Append(line.Substring(currentIndex, endIndex));
+                fieldValue.Append(line.Substring(currentIndex, endIndex - currentIndex));
                 currentIndex = endIndex;
             }
             // otherwise this field must be text qualified 
