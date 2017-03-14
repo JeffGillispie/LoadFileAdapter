@@ -23,7 +23,12 @@ namespace LoadFileAdapter
             
             if (this.imageCount != -1)
             {
-                countValues();
+                this.imageCount = -1;
+                this.textCount = -1;
+                this.nativeCount = -1;
+                this.parentCount = -1;
+                this.childCount = -1;
+                this.standAloneCount = -1;
             }
         }
 

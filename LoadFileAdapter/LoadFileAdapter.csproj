@@ -71,6 +71,8 @@
     <Compile Include="Representative.cs" />
     <Compile Include="Builders\StructuredRepresentativeSetting.cs" />
     <Compile Include="Builders\TextDelimitedBuilder.cs" />
+    <Compile Include="Transformers\MetaDataEdit.cs" />
+    <Compile Include="Transformers\MetaDataTransformer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

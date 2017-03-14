@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter
 {
-    public class Document
+    public class Document : ICloneable
     {
         private string key;
         private Document parent;
@@ -74,6 +74,27 @@ namespace LoadFileAdapter
             // now add this document as a child to the parent
             if (!parent.Children.Contains(this))
                 parent.Children.Add(this);
-        }                   
+        }
+        
+        public object Clone()
+        {
+            return new Document(
+                (string)this.key.Clone(), 
+                (Document)this.parent.Clone(), 
+                new List<Document>(this.children), 
+                new Dictionary<string, string>(this.metadata), 
+                new HashSet<Representative>(this.representatives)
+                );
+        }
+        
+        public void Transform(Transformers.MetaDataEdit edit)
+        {
+            Document doc = edit.Transform(this);
+            this.key = doc.Key;
+            this.parent = doc.Parent;
+            this.children = doc.Children;
+            this.metadata = doc.Metadata;
+            this.representatives = doc.Representatives;
+        }
     }
 }
