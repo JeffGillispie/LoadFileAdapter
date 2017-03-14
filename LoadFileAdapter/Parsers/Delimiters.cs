@@ -8,11 +8,12 @@ namespace LoadFileAdapter.Parsers
 {
     public class Delimiters
     {
+        public const char Null = '\0';
         private char fieldSeparator = ',';
-        private char textQualifier = '\0';
+        private char textQualifier = Null;
         private char newRecord = '\n';
-        private char escapeCharacter = '\0';
-        private char flattenedNewLine = '\0';
+        private char escapeCharacter = Null;
+        private char flattenedNewLine = Null;
         
         public char FieldSeparator { get { return this.fieldSeparator; } }
         public char TextQualifier { get { return this.textQualifier; } }
@@ -20,10 +21,10 @@ namespace LoadFileAdapter.Parsers
         public char EscapeCharacter { get { return this.escapeCharacter; } }
         public char FlattenedNewLine { get { return this.flattenedNewLine; } }
         
-        public static Delimiters COMMA_QUOTE = of(',', '"', '\n', '"', '\0');
-        public static Delimiters COMMA_DELIMITED = of(',', '\0', '\n', '\0', '\0');
-        public static Delimiters TAB_DELIMITED = of('\t', '\0', '\n', '\0', '\0');
-        public static Delimiters PIPE_CARET = of('|', '^', '\n', '^', '\0');
+        public static Delimiters COMMA_QUOTE = of(',', '"', '\n', '"', Null);
+        public static Delimiters COMMA_DELIMITED = of(',', Null, '\n', Null, Null);
+        public static Delimiters TAB_DELIMITED = of('\t', Null, '\n', Null, Null);
+        public static Delimiters PIPE_CARET = of('|', '^', '\n', '^', Null);
         public static Delimiters CONCORDANCE = of((char)20, (char)254, '\n', (char)254, (char)174);
         
         public static Delimiters of(char fieldSeparator, char textQualifer, char newRecord, char escapeCharacter, char flattenedNewLine)

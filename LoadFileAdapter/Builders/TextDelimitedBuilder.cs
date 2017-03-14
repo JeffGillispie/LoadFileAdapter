@@ -74,15 +74,14 @@ namespace LoadFileAdapter.Builders
             {
                 foreach (SemiStructuredRepresentativeSetting info in e.RepresentativeColumnInformation)
                 {
-                    SortedDictionary<string, FileInfo> files = new SortedDictionary<string, FileInfo>();
+                    SortedDictionary<string, string> files = new SortedDictionary<string, string>();
                     // this format will only have one file per rep
                     if (!String.IsNullOrWhiteSpace(metadata[info.RepresentativeColumn]))
                     {
                         string filePath = (String.IsNullOrEmpty(e.PathPrefex))
                             ? metadata[info.RepresentativeColumn]
-                            : Path.Combine(e.PathPrefex, metadata[info.RepresentativeColumn].TrimStart(FILE_PATH_DELIM));
-                        FileInfo file = new FileInfo(filePath);
-                        files.Add(keyValue, file);
+                            : Path.Combine(e.PathPrefex, metadata[info.RepresentativeColumn].TrimStart(FILE_PATH_DELIM));                        
+                        files.Add(keyValue, filePath);
                         Representative rep = new Representative(info.RepresentativeType, files);
                         reps.Add(rep);
                     }

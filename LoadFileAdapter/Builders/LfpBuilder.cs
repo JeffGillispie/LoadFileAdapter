@@ -148,7 +148,7 @@ namespace LoadFileAdapter.Builders
         {
             if (pageRecords.Count > 0)
             {
-                SortedDictionary<string, FileInfo> imageFiles = new SortedDictionary<string, FileInfo>();
+                SortedDictionary<string, string> imageFiles = new SortedDictionary<string, string>();
                 // get image files
                 foreach (string[] page in pageRecords)
                 {
@@ -160,9 +160,8 @@ namespace LoadFileAdapter.Builders
                         string filePath = String.IsNullOrEmpty(pathPrefix)
                             ? page[IMAGE_FILE_PATH_INDEX]
                             : Path.Combine(pathPrefix, page[IMAGE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
-                        filePath = Path.Combine(filePath, page[IMAGE_FILE_NAME_INDEX]);
-                        FileInfo imageFile = new FileInfo(filePath);
-                        imageFiles.Add(imageKey, imageFile);
+                        filePath = Path.Combine(filePath, page[IMAGE_FILE_NAME_INDEX]);                        
+                        imageFiles.Add(imageKey, filePath);
                     }
                 }
                 // set image rep
@@ -182,14 +181,13 @@ namespace LoadFileAdapter.Builders
             }
             else
             {
-                SortedDictionary<string, FileInfo> nativeFiles = new SortedDictionary<string, FileInfo>();
+                SortedDictionary<string, string> nativeFiles = new SortedDictionary<string, string>();
                 string nativeKey = nativeRecord[KEY_INDEX];
-                string filePath = String.IsNullOrEmpty(pathPrefix)
+                string nativePath = String.IsNullOrEmpty(pathPrefix)
                     ? nativeRecord[NATIVE_FILE_PATH_INDEX]
                     : Path.Combine(pathPrefix, nativeRecord[NATIVE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
-                filePath = Path.Combine(filePath, nativeRecord[NATIVE_FILE_NAME_INDEX]);
-                FileInfo nativeFile = new FileInfo(filePath);
-                nativeFiles.Add(nativeKey, nativeFile);
+                nativePath = Path.Combine(nativePath, nativeRecord[NATIVE_FILE_NAME_INDEX]);                
+                nativeFiles.Add(nativeKey, nativePath);
                 return new Representative(Representative.Type.Native, nativeFiles);
             }
         }
@@ -199,7 +197,7 @@ namespace LoadFileAdapter.Builders
             StructuredRepresentativeSetting.TextLevel textLevel = (textSetting != null)
                 ? textSetting.RepresentativeTextLevel
                 : StructuredRepresentativeSetting.TextLevel.None;
-            SortedDictionary<string, FileInfo> textFiles = new SortedDictionary<string, FileInfo>();
+            SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
 
             switch(textLevel)
             {
@@ -212,9 +210,8 @@ namespace LoadFileAdapter.Builders
                         string pageTextPath = String.IsNullOrEmpty(pathPrefix)
                             ? page[IMAGE_FILE_PATH_INDEX]
                             : Path.Combine(pathPrefix, page[IMAGE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
-                        pageTextPath = Path.Combine(pageTextPath, page[IMAGE_FILE_NAME_INDEX]);
-                        FileInfo pageTextFile = new FileInfo(pageTextPath);
-                        textFiles.Add(pageTextKey, pageTextFile);
+                        pageTextPath = Path.Combine(pageTextPath, page[IMAGE_FILE_NAME_INDEX]);                        
+                        textFiles.Add(pageTextKey, pageTextPath);
                     }
                     return new Representative(Representative.Type.Text, textFiles);
                 case StructuredRepresentativeSetting.TextLevel.Doc:
@@ -223,9 +220,8 @@ namespace LoadFileAdapter.Builders
                     string docTextPath = String.IsNullOrEmpty(pathPrefix)
                         ? docRecord[IMAGE_FILE_PATH_INDEX]
                         : Path.Combine(pathPrefix, docRecord[IMAGE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
-                    docTextPath = Path.Combine(docTextPath, docRecord[IMAGE_FILE_NAME_INDEX]);
-                    FileInfo docTextFile = new FileInfo(docTextPath);
-                    textFiles.Add(docTextKey, docTextFile);
+                    docTextPath = Path.Combine(docTextPath, docRecord[IMAGE_FILE_NAME_INDEX]);                    
+                    textFiles.Add(docTextKey, docTextPath);
                     return new Representative(Representative.Type.Text, textFiles);
                 default:
                     return null;

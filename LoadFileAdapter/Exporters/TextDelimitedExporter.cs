@@ -39,9 +39,18 @@ namespace LoadFileAdapter.Exporters
                     delimiters.TextQualifier.ToString(),
                     String.Format("{0}{1}", delimiters.EscapeCharacter, delimiters.TextQualifier)
                     );
-                sb.Append(delimiters.TextQualifier);
+
+                if (delimiters.TextQualifier != Parsers.Delimiters.Null)
+                {
+                    sb.Append(delimiters.TextQualifier);
+                }
+
                 sb.Append(value);
-                sb.Append(delimiters.TextQualifier);
+
+                if (delimiters.TextQualifier != Parsers.Delimiters.Null)
+                {
+                    sb.Append(delimiters.TextQualifier);
+                }
 
                 if (counter < fieldCount)
                 {
@@ -66,9 +75,18 @@ namespace LoadFileAdapter.Exporters
                     delimiters.TextQualifier.ToString(), 
                     String.Format("{0}{1}", delimiters.EscapeCharacter, delimiters.TextQualifier)
                     );
-                sb.Append(delimiters.TextQualifier);
+
+                if (delimiters.TextQualifier != Parsers.Delimiters.Null)
+                {
+                    sb.Append(delimiters.TextQualifier);
+                }
+
                 sb.Append(value);
-                sb.Append(delimiters.TextQualifier);
+
+                if (delimiters.TextQualifier != Parsers.Delimiters.Null)
+                {
+                    sb.Append(delimiters.TextQualifier);
+                }
 
                 if (counter < fieldCount)
                 {

@@ -55,11 +55,11 @@ namespace LoadFileAdapter.Exporters
 
                 foreach (var kvp in imageRep.Files)
                 {
-                    // ImageKey,VolumeName,FullPath,DocBreak,BoxBreak,FolderBreak,PageCount
+                    // ImageKey,VolumeName,FullPath,DocBreak,BoxBreak,FolderBreak,PageCount                    
                     string pageRecord = String.Format("{0},{1},{2},{3},{4},{5},{6}", 
                         kvp.Key, 
                         volName, 
-                        kvp.Value.FullName, 
+                        kvp.Value, 
                         (counter == 0) ? TRUE_VALUE : FALSE_VALUE,
                         FALSE_VALUE,
                         FALSE_VALUE,

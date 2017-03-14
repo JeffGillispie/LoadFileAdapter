@@ -92,22 +92,21 @@ namespace LoadFileAdapter.Builders
 
         private Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
         {
-            SortedDictionary<string, FileInfo> imageFiles = new SortedDictionary<string, FileInfo>();
+            SortedDictionary<string, string> imageFiles = new SortedDictionary<string, string>();
             // add image files
             pageRecords.ForEach(page => {
                 string imageKey = page[IMAGE_KEY_INDEX];
-                string filePath = (String.IsNullOrEmpty(pathPrefix))
+                string imagePath = (String.IsNullOrEmpty(pathPrefix))
                     ? page[FULL_PATH_INDEX]
-                    : Path.Combine(pathPrefix, page[FULL_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
-                FileInfo imageFile = new FileInfo(filePath);
-                imageFiles.Add(imageKey, imageFile);
+                    : Path.Combine(pathPrefix, page[FULL_PATH_INDEX].TrimStart(FILE_PATH_DELIM));                
+                imageFiles.Add(imageKey, imagePath);
             });
             return new Representative(Representative.Type.Image, imageFiles);
         }
 
         private Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting)
         {
-            SortedDictionary<string, FileInfo> textFiles = new SortedDictionary<string, FileInfo>();
+            SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
             StructuredRepresentativeSetting.TextLevel textLevel = (textSetting != null)
                 ? textSetting.RepresentativeTextLevel
                 : StructuredRepresentativeSetting.TextLevel.None;
@@ -120,22 +119,20 @@ namespace LoadFileAdapter.Builders
                 case StructuredRepresentativeSetting.TextLevel.Page:
                     pageRecords.ForEach(page => {
                         string pageTextKey = page[IMAGE_KEY_INDEX];
-                        string pageTextFilePath = textSetting.GetTextPathFromImagePath(page[FULL_PATH_INDEX]);
-                        pageTextFilePath = String.IsNullOrEmpty(pathPrefix)
-                            ? pageTextFilePath
-                            : Path.Combine(pathPrefix, pageTextFilePath.TrimStart(FILE_PATH_DELIM));
-                        FileInfo pageTextFile = new FileInfo(pageTextFilePath);
-                        textFiles.Add(pageTextKey, pageTextFile);
+                        string pageTextPath = textSetting.GetTextPathFromImagePath(page[FULL_PATH_INDEX]);
+                        pageTextPath = String.IsNullOrEmpty(pathPrefix)
+                            ? pageTextPath
+                            : Path.Combine(pathPrefix, pageTextPath.TrimStart(FILE_PATH_DELIM));                        
+                        textFiles.Add(pageTextKey, pageTextPath);
                     });
                     break;
                 case StructuredRepresentativeSetting.TextLevel.Doc:
                     string docTextKey = pageRecords.First()[IMAGE_KEY_INDEX];
-                    string docTextFilePath = textSetting.GetTextPathFromImagePath(pageRecords.First()[FULL_PATH_INDEX]);
-                    docTextFilePath = String.IsNullOrEmpty(pathPrefix)
-                            ? docTextFilePath
-                            : Path.Combine(pathPrefix, docTextFilePath.TrimStart(FILE_PATH_DELIM));
-                    FileInfo docTextFile = new FileInfo(docTextFilePath);
-                    textFiles.Add(docTextKey, docTextFile);
+                    string docTextPath = textSetting.GetTextPathFromImagePath(pageRecords.First()[FULL_PATH_INDEX]);
+                    docTextPath = String.IsNullOrEmpty(pathPrefix)
+                            ? docTextPath
+                            : Path.Combine(pathPrefix, docTextPath.TrimStart(FILE_PATH_DELIM));                    
+                    textFiles.Add(docTextKey, docTextPath);
                     break;
                 default:
                     // do nothing here

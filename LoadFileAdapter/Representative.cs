@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LoadFileAdapter
 {
@@ -15,9 +10,9 @@ namespace LoadFileAdapter
         }
 
         private Type type;
-        private SortedDictionary<string, FileInfo> files;
+        private SortedDictionary<string, string> files;
 
-        public Representative(Type type, SortedDictionary<string, FileInfo> files)
+        public Representative(Type type, SortedDictionary<string, string> files)
         {
             this.type = type;
             this.files = files;
@@ -31,7 +26,7 @@ namespace LoadFileAdapter
             }            
         }
 
-        public SortedDictionary<string, FileInfo> Files
+        public SortedDictionary<string, string> Files
         {
             get
             {

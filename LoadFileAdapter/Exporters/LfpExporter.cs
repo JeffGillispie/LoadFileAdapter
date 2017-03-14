@@ -60,21 +60,22 @@ namespace LoadFileAdapter.Exporters
                 foreach (var kvp in imageRep.Files)
                 {
                     BatesNumber batesNumber = new BatesNumber(kvp.Key);
-                    string ext = Path.GetExtension(kvp.Value.FullName).ToUpper();
+                    string ext = Path.GetExtension(kvp.Value).ToUpper();
 
                     for (int i = 0; i < iterations; i++)
                     {
                         // IM,IMAGEKEY,DOCBREAK,OFFSET,@VOLUME;FILE\PATH;IMAGE.FILE;TYPE,ROTATION
                         int offset = (iterations > 1) ? i + 1 : i;
                         string docBreak = (counter == 0) ? getDocBreakValue(document) : String.Empty;
-                        
+                        string fileName = Path.GetFileName(kvp.Value);
+                        string directory = kvp.Value.Substring(0, kvp.Value.Length - fileName.Length - 1);
                         string pageRecord = String.Format("IM,{0},{1},{2},@{3};{4};{5};{6},0", 
                             batesNumber.Value,
                             docBreak,
                             offset,
                             volName,
-                            kvp.Value.Directory.FullName,
-                            kvp.Value.Name,
+                            directory,
+                            fileName,
                             ImageFileTypes[ext]
                             );
 
@@ -103,11 +104,15 @@ namespace LoadFileAdapter.Exporters
         private string getNativeRecord(Document document, string volName, Representative nativeRep)
         {
             // OF,IMAGEKEY,@VOLUME;FILE\PATH;IMAGE.FILE,1
+            string fileName = Path.GetFileName(nativeRep.Files.First().Value);
+            string directory = nativeRep.Files.First().Value;
+            directory = directory.Substring(0, directory.Length - fileName.Length - 1);
+
             return String.Format("OF,{0},@{1},{2},{3},1",
                 document.Key,
                 volName,
-                nativeRep.Files.First().Value.Directory.FullName,
-                nativeRep.Files.First().Value.Name
+                directory,
+                fileName
                 );
         }
 
