@@ -34,14 +34,14 @@ namespace LoadFileAdapter.Parsers
 
             while (startIndex < line.Length)
             {
-                string fieldValue = parseField(line, startIndex, delimiters);
+                string fieldValue = parseField(line, ref startIndex, delimiters);
                 fieldValues.Add(fieldValue);
             }
 
             return fieldValues.ToArray();
         }
 
-        protected string parseField(string line, Int32 startIndex, Delimiters delimiters)
+        protected string parseField(string line, ref Int32 startIndex, Delimiters delimiters)
         {
             StringBuilder fieldValue = new StringBuilder();
             int currentIndex = startIndex;
@@ -81,7 +81,7 @@ namespace LoadFileAdapter.Parsers
                     else if (currentChar == delimiters.TextQualifier && (nextChar == null || nextChar == delimiters.FieldSeparator))
                     {
                         currentIndex++;
-                        continue;
+                        break;
                     }
                     // append to field value
                     else
