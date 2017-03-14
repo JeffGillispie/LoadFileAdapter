@@ -55,17 +55,17 @@ namespace LoadFileAdapter.Exporters
             {
                 int counter = 0;
                 int iterations = getOffsetIterations(document, imageRep);
-
-                
+                                
                 foreach (var kvp in imageRep.Files)
                 {
                     BatesNumber batesNumber = new BatesNumber(kvp.Key);
                     string ext = Path.GetExtension(kvp.Value).ToUpper();
+                    int i = (iterations == 0) ? 0 : 1;
 
-                    for (int i = 0; i < iterations; i++)
+                    for (; i <= iterations; i++)
                     {
                         // IM,IMAGEKEY,DOCBREAK,OFFSET,@VOLUME;FILE\PATH;IMAGE.FILE;TYPE,ROTATION
-                        int offset = (iterations > 1) ? i + 1 : i;
+                        int offset = i;
                         string docBreak = (counter == 0) ? getDocBreakValue(document) : String.Empty;
                         string fileName = Path.GetFileName(kvp.Value);
                         string directory = kvp.Value.Substring(0, kvp.Value.Length - fileName.Length - 1);
@@ -125,6 +125,11 @@ namespace LoadFileAdapter.Exporters
             if (doc.Metadata.ContainsKey(Builders.LfpBuilder.PAGE_COUNT_FIELD))
             {
                 int.TryParse(doc.Metadata[Builders.LfpBuilder.PAGE_COUNT_FIELD], out iterations);                
+            }
+
+            if (iterations == rep.Files.Count)
+            {
+                iterations = 0;
             }
 
             return iterations;
