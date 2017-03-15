@@ -11,7 +11,7 @@ namespace LoadFileAdapter.Importers
 {
     public class TextDelimitedImporter
     {
-        Parser parser = new Parser();
+        TextDelimitedParser parser = new TextDelimitedParser();
         Builder builder = new TextDelimitedBuilder();
 
         public DocumentSet ImportDocuments(FileInfo file, Encoding encoding, Delimiters delims, bool hasHeader, string keyColName, 

@@ -98,6 +98,11 @@ namespace LoadFileAdapter.Transformers
         {
             Document doc = (Document)document.Clone();
 
+            if (!doc.Metadata.ContainsKey(this.fieldName))
+            {
+                doc.Metadata.Add(this.fieldName, String.Empty);
+            }
+
             if (hasEdit(doc))
             {
                 // get orig value

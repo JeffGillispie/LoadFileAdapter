@@ -11,7 +11,7 @@ namespace LoadFileAdapter.Importers
 {
     public class OptImporter
     {
-        private Parser parser = new Parser();
+        private TextDelimitedParser parser = new TextDelimitedParser();
         private Builder builder = new OptBuilder();
 
         public DocumentSet ImportDocuments(FileInfo optFile, Encoding encoding, StructuredRepresentativeSetting textSetting)

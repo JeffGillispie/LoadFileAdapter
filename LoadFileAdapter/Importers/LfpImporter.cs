@@ -16,7 +16,8 @@ namespace LoadFileAdapter.Importers
 
         public DocumentSet ImportDocuments(FileInfo lfpFile, Encoding encoding, StructuredRepresentativeSetting textSetting)
         {
-            List<string[]> records = parser.Parse(lfpFile, encoding);
+            Delimiters delimiters = null;
+            List<string[]> records = parser.Parse(lfpFile, delimiters, encoding);
             DocumentSetBuilderArgs args = DocumentSetBuilderArgs.GetImageSetArgs(records, lfpFile.Directory.FullName, textSetting);
             List<Document> documents = builder.BuildDocuments(args);
             DocumentSet docSet = new DocumentSet();
