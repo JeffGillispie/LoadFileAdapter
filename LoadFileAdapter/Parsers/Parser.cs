@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LoadFileAdapter.Parsers
 {
-    public interface Parser
+    public interface Parser<T, S, R> 
+        where T: ParseFileParameters
+        where S: ParseReaderParameters
+        where R: ParseLineParameters
     {
-        List<string[]> Parse(FileInfo file, Delimiters delimiters, Encoding encoding);
-
-        string[] ParseLine(string line, Delimiters delimiters);
+        List<string[]> Parse(T parameters);
+        List<string[]> Parse(S parameters);
+        string[] ParseLine(R parameters);
     }
 }

@@ -5,34 +5,46 @@ using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class TextDelimitedParser : Parser
+    public class TextDelimitedParser : Parser<TextDelimitedParseFileParameters, TextDelimitedParseReaderParameters, TextDelimitedParseLineParameters>
     {
-        public List<string[]> Parse(FileInfo file, Delimiters delimiters, Encoding encoding)
-        {
-            List<string[]> records = new List<string[]>();
+        public List<string[]> Parse(TextDelimitedParseFileParameters parameters)
+        {            
             bool detectEncoding = true;
+            List<string[]> records = null;
 
-            using (StreamReader reader = new StreamReader(file.FullName, encoding, detectEncoding))
+            using (StreamReader reader = new StreamReader(parameters.File.FullName, parameters.Encoding, detectEncoding))
             {
-                while (reader.EndOfStream == false)
-                {
-                    string line = reader.ReadLine();
-                    string[] fieldValues = ParseLine(line, delimiters);
-                    records.Add(fieldValues);
-                }
+                TextDelimitedParseReaderParameters readerParameters = new TextDelimitedParseReaderParameters(reader, parameters.Delimiters);
+                records = Parse(readerParameters);
             }
 
             return records;
         }
 
-        public string[] ParseLine(string line, Delimiters delimiters)
+        public List<string[]> Parse(TextDelimitedParseReaderParameters parameters)
+        {
+            List<string[]> records = new List<string[]>();
+
+            string line = String.Empty;
+
+            while ((line = parameters.Reader.ReadLine()) != null)
+            {
+                TextDelimitedParseLineParameters lineParameters = new TextDelimitedParseLineParameters(line, parameters.Delimiters);
+                string[] record = ParseLine(lineParameters);
+                records.Add(record);
+            }
+
+            return records;
+        }
+
+        public string[] ParseLine(TextDelimitedParseLineParameters parameters)
         {
             List<string> fieldValues = new List<string>();
             Int32 startIndex = 0;
 
-            while (startIndex < line.Length)
+            while (startIndex < parameters.Line.Length)
             {
-                string fieldValue = parseField(line, ref startIndex, delimiters);
+                string fieldValue = parseField(parameters.Line, ref startIndex, parameters.Delimiters);
                 fieldValues.Add(fieldValue);
             }
 

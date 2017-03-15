@@ -1,33 +1,43 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class LfpParser : Parser
+    public class LfpParser : Parser<ParseFileParameters, ParseReaderParameters, ParseLineParameters>
     {
-        public List<string[]> Parse(FileInfo lfpFile, Delimiters delimiters, Encoding encoding)
-        {
-            List<string[]> records = new List<string[]>();
+        public List<string[]> Parse(ParseFileParameters parameters)
+        {            
             bool detectEncoding = true;
+            List<string[]> records = null;
 
-            using (TextReader reader = new StreamReader(lfpFile.FullName, encoding, detectEncoding))
+            using (TextReader reader = new StreamReader(parameters.File.FullName, parameters.Encoding, detectEncoding))
             {
-                string line = string.Empty;
-                                
-                while ((line = reader.ReadLine()) != null)
-                {                
-                    string[] record = ParseLine(line, null);
-                    records.Add(record);
-                }
+                ParseReaderParameters readerParameters = new ParseReaderParameters(reader);
+                records = Parse(readerParameters);
             }
 
             return records;
         }
 
-        public string[] ParseLine(string line, Delimiters delimiters)
-        {
-            return line.Split(new char[] { ';', ',' });
+        public List<string[]> Parse(ParseReaderParameters parameters)
+        {            
+            List<string[]> records = new List<string[]>();                
+            string line = String.Empty;
+
+            while ((line = parameters.Reader.ReadLine()) != null)
+            {
+                ParseLineParameters lineParameters = new ParseLineParameters(line);
+                string[] record = ParseLine(lineParameters);
+                records.Add(record);
+            }            
+
+            return records;
         }
+
+        public string[] ParseLine(ParseLineParameters parameters)
+        {
+            return parameters.Line.Split(new char[] { ';', ',' });
+        }                
     }
 }
