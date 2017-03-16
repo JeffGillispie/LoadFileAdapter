@@ -2,38 +2,42 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class LfpExporter : Exporter
+    public class LfpExporter : Exporter<ImageExportFileSetting, ImageExportWriterSetting>
     {
-        private static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
+        protected static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
             { ".TIF", 2 },
             { ".JPG", 4 },
             { ".PDF", 7 }
         };
 
-        public void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName, Parsers.Delimiters delimiters)
+        public void Export(ImageExportFileSetting args)
         {
             bool append = false;
 
-            using (StreamWriter writer = new StreamWriter(file.FullName, append, encoding))
+            using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
             {
-                foreach (Document document in documents)
+                ImageExportWriterSetting writerArgs = new ImageExportWriterSetting(writer, args.Documents, args.VolumeName);
+                Export(writerArgs);
+            }
+        }
+
+        public void Export(ImageExportWriterSetting args)
+        {
+            foreach (Document document in args.Documents)
+            {
+                List<string> pages = getPageRecords(document, args.VolumeName);
+                // write pages
+                foreach (string page in pages)
                 {
-                    List<string> pages = getPageRecords(document, volumeName);
-                    // write pages
-                    foreach (string page in pages)
-                    {
-                        writer.WriteLine(page);
-                    }
+                    args.Writer.WriteLine(page);
                 }
             }
         }
 
-        private List<string> getPageRecords(Document document, string volName)
+        protected List<string> getPageRecords(Document document, string volName)
         {
             List<string> pageRecords = new List<string>();
             Representative imageRep = null;
@@ -101,14 +105,14 @@ namespace LoadFileAdapter.Exporters
             return pageRecords;
         }
 
-        private string getNativeRecord(Document document, string volName, Representative nativeRep)
+        protected string getNativeRecord(Document document, string volName, Representative nativeRep)
         {
             // OF,IMAGEKEY,@VOLUME;FILE\PATH;IMAGE.FILE,1
             string fileName = Path.GetFileName(nativeRep.Files.First().Value);
             string directory = nativeRep.Files.First().Value;
             directory = directory.Substring(0, directory.Length - fileName.Length - 1);
 
-            return String.Format("OF,{0},@{1},{2},{3},1",
+            return String.Format("OF,{0},@{1};{2};{3},1",
                 document.Key,
                 volName,
                 directory,
@@ -116,7 +120,7 @@ namespace LoadFileAdapter.Exporters
                 );
         }
 
-        private int getOffsetIterations(Document doc, Representative rep)
+        protected int getOffsetIterations(Document doc, Representative rep)
         {
             int iterations = 1;
             // check if the page count is greater than represntative file count
@@ -135,7 +139,7 @@ namespace LoadFileAdapter.Exporters
             return iterations;
         }
 
-        private string getDocBreakValue(Document doc)
+        protected string getDocBreakValue(Document doc)
         {
             if (doc.Parent != null)
             {

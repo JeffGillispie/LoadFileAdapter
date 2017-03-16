@@ -3,12 +3,12 @@
 namespace LoadFileAdapter.Parsers
 {
     public interface Parser<T, S, R> 
-        where T: ParseFileParameters
-        where S: ParseReaderParameters
-        where R: ParseLineParameters
+        where T: ParseFileSetting
+        where S: ParseReaderSetting
+        where R: ParseLineSetting
     {
-        List<string[]> Parse(T parameters);
-        List<string[]> Parse(S parameters);
-        string[] ParseLine(R parameters);
+        List<string[]> Parse(T args);
+        List<string[]> Parse(S args);
+        string[] ParseLine(R args);
     }
 }

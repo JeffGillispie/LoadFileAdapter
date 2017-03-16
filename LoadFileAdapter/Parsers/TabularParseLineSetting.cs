@@ -1,14 +1,13 @@
-﻿using System.IO;
-
+﻿
 namespace LoadFileAdapter.Parsers
 {
-    public class TextDelimitedParseReaderParameters : ParseReaderParameters
+    public class TabularParseLineSetting : ParseLineSetting
     {
         private Delimiters delimiters;
 
         public Delimiters Delimiters { get { return delimiters; } }
 
-        public TextDelimitedParseReaderParameters(TextReader reader, Delimiters delimiters) : base(reader)
+        public TabularParseLineSetting(string line, Delimiters delimiters) : base(line)
         {
             this.delimiters = delimiters;
         }

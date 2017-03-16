@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    public class OptBuilder : Builder
+    public class OptBuilder : Builder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting>
     {
         private const int IMAGE_KEY_INDEX = 0;
         private const int VOLUME_NAME_INDEX = 1;
@@ -24,22 +22,22 @@ namespace LoadFileAdapter.Builders
         internal const string FOLDER_BREAK_FIELD = "Folder Break";
         private const char FILE_PATH_DELIM = '\\';
         
-        public List<Document> BuildDocuments(DocumentSetBuilderArgs e)
+        public List<Document> BuildDocuments(ImageBuildDocumentsSetting args)
         {   
             // setup for building         
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
             List<string[]> pageRecords = new List<string[]>();
             // build the documents
-            foreach (string[] record in e.Records)
+            foreach (string[] record in args.Records)
             {
                 // check for a doc break
                 if (record[DOC_BREAK_INDEX].ToUpper().Equals(TRUE_VALUE))
                 {
                     // send data to make a document
                     if (pageRecords.Count > 0)
-                    {
-                        DocumentBuilderArgs args = DocumentBuilderArgs.GetOptArgs(pageRecords, e.PathPrefix, e.TextRepresentativeSetting);
-                        Document doc = BuildDocument(args);
+                    {                        
+                        ImageBuildDocumentSetting docArgs = new ImageBuildDocumentSetting(pageRecords, args.TextSetting, args.PathPrefix);
+                        Document doc = BuildDocument(docArgs);
                         string key = doc.Metadata[IMAGE_KEY_FIELD];
                         docs.Add(key, doc);
                     }
@@ -53,23 +51,23 @@ namespace LoadFileAdapter.Builders
                     pageRecords.Add(record);
                 }
             }
-            // add last doc to the collection
-            DocumentBuilderArgs lastArgs = DocumentBuilderArgs.GetOptArgs(pageRecords, e.PathPrefix, e.TextRepresentativeSetting);
+            // add last doc to the collection            
+            ImageBuildDocumentSetting lastArgs = new ImageBuildDocumentSetting(pageRecords, args.TextSetting, args.PathPrefix);
             Document lastDoc = BuildDocument(lastArgs);
             string lastKey = lastDoc.Metadata[IMAGE_KEY_FIELD];
             docs.Add(lastKey, lastDoc);
             return docs.Values.ToList();
         }
 
-        public Document BuildDocument(DocumentBuilderArgs e)
+        public Document BuildDocument(ImageBuildDocumentSetting args)
         {            
             // get document properties
-            string[] pageOne = e.PageRecords.First();
+            string[] pageOne = args.PageRecords.First();
             string key = pageOne[IMAGE_KEY_INDEX];
             string vol = pageOne[VOLUME_NAME_INDEX];
             string box = pageOne[BOX_BREAK_INDEX];
             string dir = pageOne[FOLDER_BREAK_INDEX];
-            int pages = e.PageRecords.Count;
+            int pages = args.PageRecords.Count;
             // set document properties
             Dictionary<string, string> metadata = new Dictionary<string, string>();
             metadata.Add(IMAGE_KEY_FIELD, key);
@@ -78,8 +76,8 @@ namespace LoadFileAdapter.Builders
             //metadata.Add(BOX_BREAK_FIELD, box); // extraneous meta
             //metadata.Add(FOLDER_BREAK_FIELD, dir); // extraneous meta
             // build the representatives
-            Representative imageRep = getImageRepresentative(e.PageRecords, e.PathPrefex);          
-            Representative textRep = getTextRepresentative(e.PageRecords, e.PathPrefex, e.TextSetting);
+            Representative imageRep = getImageRepresentative(args.PageRecords, args.PathPrefix);          
+            Representative textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSetting);
             HashSet<Representative> reps = new HashSet<Representative>();
             reps.Add(imageRep);
             if (textRep.Files.Count > 0)

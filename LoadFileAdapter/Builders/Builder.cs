@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LoadFileAdapter.Builders
 {
-    public interface Builder
+    public interface Builder<T, S>
+        where T: BuildDocumentsSetting
+        where S: BuildDocumentSetting
     {
-        List<Document> BuildDocuments(DocumentSetBuilderArgs e);
-        Document BuildDocument(DocumentBuilderArgs e);
+        List<Document> BuildDocuments(T args);
+        Document BuildDocument(S args);
     }
 }

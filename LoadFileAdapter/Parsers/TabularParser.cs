@@ -5,31 +5,31 @@ using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class TextDelimitedParser : Parser<TextDelimitedParseFileParameters, TextDelimitedParseReaderParameters, TextDelimitedParseLineParameters>
+    public class TabularParser : Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting>
     {
-        public List<string[]> Parse(TextDelimitedParseFileParameters parameters)
+        public virtual List<string[]> Parse(TabularParseFileSetting args)
         {            
             bool detectEncoding = true;
             List<string[]> records = null;
 
-            using (StreamReader reader = new StreamReader(parameters.File.FullName, parameters.Encoding, detectEncoding))
+            using (StreamReader reader = new StreamReader(args.File.FullName, args.Encoding, detectEncoding))
             {
-                TextDelimitedParseReaderParameters readerParameters = new TextDelimitedParseReaderParameters(reader, parameters.Delimiters);
-                records = Parse(readerParameters);
+                TabularParseReaderSetting readerArgs = new TabularParseReaderSetting(reader, args.Delimiters);
+                records = Parse(readerArgs);
             }
 
             return records;
         }
 
-        public List<string[]> Parse(TextDelimitedParseReaderParameters parameters)
+        public virtual List<string[]> Parse(TabularParseReaderSetting args)
         {
             List<string[]> records = new List<string[]>();
 
             string line = String.Empty;
 
-            while ((line = parameters.Reader.ReadLine()) != null)
+            while ((line = args.Reader.ReadLine()) != null)
             {
-                TextDelimitedParseLineParameters lineParameters = new TextDelimitedParseLineParameters(line, parameters.Delimiters);
+                TabularParseLineSetting lineParameters = new TabularParseLineSetting(line, args.Delimiters);
                 string[] record = ParseLine(lineParameters);
                 records.Add(record);
             }
@@ -37,21 +37,21 @@ namespace LoadFileAdapter.Parsers
             return records;
         }
 
-        public string[] ParseLine(TextDelimitedParseLineParameters parameters)
+        public string[] ParseLine(TabularParseLineSetting args)
         {
             List<string> fieldValues = new List<string>();
-            Int32 startIndex = 0;
+            int startIndex = 0;
 
-            while (startIndex < parameters.Line.Length)
+            while (startIndex < args.Line.Length)
             {
-                string fieldValue = parseField(parameters.Line, ref startIndex, parameters.Delimiters);
+                string fieldValue = parseField(args.Line, ref startIndex, args.Delimiters);
                 fieldValues.Add(fieldValue);
             }
 
             return fieldValues.ToArray();
         }
 
-        protected string parseField(string line, ref Int32 startIndex, Delimiters delimiters)
+        protected string parseField(string line, ref int startIndex, Delimiters delimiters)
         {
             StringBuilder fieldValue = new StringBuilder();
             int currentIndex = startIndex;

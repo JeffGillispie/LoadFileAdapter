@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter
 {
-    public class DocumentSet : IEnumerable<Document>
+    public class DocumentCollection : IEnumerable<Document>
     {
         private List<Document> docs = new List<Document>();
         private int imageCount = -1;
@@ -16,20 +16,27 @@ namespace LoadFileAdapter
         private int parentCount = -1;
         private int childCount = -1;
         private int standAloneCount = -1;
-        
-        public void AddDocuments(IEnumerable<Document> docs)
+
+        public DocumentCollection()
         {
-            this.docs.AddRange(docs);
-            
-            if (this.imageCount != -1)
-            {
-                this.imageCount = -1;
-                this.textCount = -1;
-                this.nativeCount = -1;
-                this.parentCount = -1;
-                this.childCount = -1;
-                this.standAloneCount = -1;
-            }
+
+        }
+
+        public DocumentCollection(IEnumerable<Document> documents)
+        {
+            AddRange(documents);
+        }
+
+        public void Add(Document doc)
+        {
+            this.docs.Add(doc);
+            propertyReset();
+        }
+
+        public void AddRange(IEnumerable<Document> documents)
+        {
+            this.docs.AddRange(documents);
+            propertyReset();            
         }
 
         public int Count
@@ -139,6 +146,19 @@ namespace LoadFileAdapter
         IEnumerator<Document> IEnumerable<Document>.GetEnumerator()
         {
             return this.docs.GetEnumerator();
+        }
+
+        private void propertyReset()
+        {
+            if (this.imageCount != -1)
+            {
+                this.imageCount = -1;
+                this.textCount = -1;
+                this.nativeCount = -1;
+                this.parentCount = -1;
+                this.childCount = -1;
+                this.standAloneCount = -1;
+            }
         }
 
         private void countValues()

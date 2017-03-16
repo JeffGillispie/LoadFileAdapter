@@ -1,37 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class OptExporter : Exporter
+    public class OptExporter : Exporter<ImageExportFileSetting, ImageExportWriterSetting>
     {
         private const string TRUE_VALUE = "Y";
         private const string FALSE_VALUE = "";
 
-        public void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName, Parsers.Delimiters delimiters)
+        public void Export(ImageExportFileSetting args)
         {
             bool append = false;
 
-            using (StreamWriter writer = new StreamWriter(file.FullName, append, encoding))
+            using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
             {
-                foreach (Document document in documents)
+                ImageExportWriterSetting writerArgs = new ImageExportWriterSetting(writer, args.Documents, args.VolumeName);
+                Export(writerArgs);
+            }
+        }
+
+        public void Export(ImageExportWriterSetting args)
+        {
+            foreach (Document document in args.Documents)
+            {
+                List<string> pages = getPageRecords(document, args.VolumeName);
+                // write pages
+                foreach (string page in pages)
                 {
-                    List<string> pages = getPageRecords(document, volumeName);
-                    // write pages
-                    foreach (string page in pages)
-                    {
-                        writer.WriteLine(page);
-                    }
+                    args.Writer.WriteLine(page);
                 }
             }
         }
 
-        private List<string> getPageRecords(Document document, string volName)
+        protected List<string> getPageRecords(Document document, string volName)
         {
             Representative imageRep = null;
             List<string> pageRecords = new List<string>();

@@ -3,13 +3,13 @@ using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class TextDelimitedParseFileParameters : ParseFileParameters
+    public class TabularParseFileSetting : ParseFileSetting
     {
         private Delimiters delimiters;
 
         public Delimiters Delimiters { get { return delimiters; } }
 
-        public TextDelimitedParseFileParameters(FileInfo file, Encoding encoding, Delimiters delimiters) : base(file, encoding)
+        public TabularParseFileSetting(FileInfo file, Encoding encoding, Delimiters delimiters) : base(file, encoding)
         {
             this.delimiters = delimiters;
         }

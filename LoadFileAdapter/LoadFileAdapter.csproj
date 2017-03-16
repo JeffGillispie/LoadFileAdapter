@@ -49,40 +49,48 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatesNumber.cs" />
+    <Compile Include="Builders\BuildDocumentSetting.cs" />
+    <Compile Include="Builders\BuildDocumentsSetting.cs" />
     <Compile Include="Builders\Builder.cs" />
-    <Compile Include="Builders\DocumentBuilderArgs.cs" />
-    <Compile Include="Builders\DocumentSetBuilderArgs.cs" />
+    <Compile Include="Builders\ImageBuildDocumentSetting.cs" />
+    <Compile Include="Builders\ImageBuildDocumentsSetting.cs" />
+    <Compile Include="Builders\LfpBuildDocumentSetting.cs" />
     <Compile Include="Builders\SemiStructuredRepresentativeSetting.cs" />
-    <Compile Include="DocumentSet.cs" />
+    <Compile Include="Builders\TabularBuildDocumentSetting.cs" />
+    <Compile Include="Builders\TabularBuildDocumentsSetting.cs" />
+    <Compile Include="DocumentCollection.cs" />
     <Compile Include="Exporters\Exporter.cs" />
+    <Compile Include="Exporters\ExportFileSetting.cs" />
+    <Compile Include="Exporters\ExportWriterSetting.cs" />
+    <Compile Include="Exporters\ImageExportFileSetting.cs" />
+    <Compile Include="Exporters\ImageExportWriterSetting.cs" />
     <Compile Include="Exporters\LfpExporter.cs" />
     <Compile Include="Exporters\OptExporter.cs" />
-    <Compile Include="Exporters\TextDelimitedExporter.cs" />
+    <Compile Include="Exporters\TabularExporter.cs" />
+    <Compile Include="Exporters\TabularExportFileSetting.cs" />
+    <Compile Include="Exporters\TabularExportWriterSetting.cs" />
     <Compile Include="Importers\LfpImporter.cs" />
     <Compile Include="Importers\OptImporter.cs" />
-    <Compile Include="Importers\TextDelimitedImporter.cs" />
+    <Compile Include="Importers\TabularImporter.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Builders\LfpBuilder.cs" />
     <Compile Include="Builders\OptBuilder.cs" />
     <Compile Include="Parsers\LfpParser.cs" />
-    <Compile Include="Parsers\ParseLineParameters.cs" />
-    <Compile Include="Parsers\ParseReaderParameters.cs" />
-    <Compile Include="Parsers\TextDelimitedParseLineParameters.cs" />
-    <Compile Include="Parsers\TextDelimitedParseFileParameters.cs" />
+    <Compile Include="Parsers\ParseLineSetting.cs" />
+    <Compile Include="Parsers\ParseReaderSetting.cs" />
+    <Compile Include="Parsers\TabularParseLineSetting.cs" />
+    <Compile Include="Parsers\TabularParseFileSetting.cs" />
     <Compile Include="Parsers\Parser.cs" />
-    <Compile Include="Parsers\ParseFileParameters.cs" />
-    <Compile Include="Parsers\TextDelimitedParser.cs" />
-    <Compile Include="Parsers\TextDelimitedParseReaderParameters.cs" />
+    <Compile Include="Parsers\ParseFileSetting.cs" />
+    <Compile Include="Parsers\TabularParser.cs" />
+    <Compile Include="Parsers\TabularParseReaderSetting.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Representative.cs" />
     <Compile Include="Builders\StructuredRepresentativeSetting.cs" />
-    <Compile Include="Builders\TextDelimitedBuilder.cs" />
+    <Compile Include="Builders\TabularBuilder.cs" />
     <Compile Include="Transformers\MetaDataEdit.cs" />
     <Compile Include="Transformers\MetaDataTransformer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

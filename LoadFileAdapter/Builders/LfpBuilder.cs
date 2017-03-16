@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    public class LfpBuilder : Builder
+    public class LfpBuilder : Builder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting>
     {
         private const int TOKEN_INDEX = 0;
         private const int KEY_INDEX = 1;
@@ -38,7 +36,7 @@ namespace LoadFileAdapter.Builders
             D, C
         }
         
-        public List<Document> BuildDocuments(DocumentSetBuilderArgs e)
+        public List<Document> BuildDocuments(ImageBuildDocumentsSetting args)
         {
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
             List<string[]> pageRecords = new List<string[]>();
@@ -46,7 +44,7 @@ namespace LoadFileAdapter.Builders
             Document lastParent = null;
             string lastBreak = String.Empty;
             // build the documents
-            foreach (string[] record in e.Records)
+            foreach (string[] record in args.Records)
             {
                 Token token = (Token)Enum.Parse(typeof(Token), record[TOKEN_INDEX]);
                 // determine if the line is an image or native
@@ -58,9 +56,9 @@ namespace LoadFileAdapter.Builders
                         // send data to make a document if there is data to send
                         // this is a guard against the first line in the list
                         if (pageRecords.Count > 0)
-                        {
-                            DocumentBuilderArgs args = DocumentBuilderArgs.GetLfpArgs(pageRecords, nativeRecord, e.PathPrefix, e.TextRepresentativeSetting);
-                            Document doc = BuildDocument(args);
+                        {                            
+                            LfpBuildDocumentSetting docArgs = new LfpBuildDocumentSetting(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
+                            Document doc = BuildDocument(docArgs);
                             string key = doc.Metadata[KEY_FIELD];
                             BoundaryFlag docBreak = (BoundaryFlag)Enum.Parse(typeof(BoundaryFlag), lastBreak);
                             // check if document is a child
@@ -99,8 +97,8 @@ namespace LoadFileAdapter.Builders
                     // it should be null after an image line with a doc break is read that doesn't match the key
                     // if it is not null then the native has no corresponding images so send the data to make a document
                     if (nativeRecord != null)
-                    {
-                        DocumentBuilderArgs nativeArgs = DocumentBuilderArgs.GetLfpArgs(pageRecords, nativeRecord, e.PathPrefix, e.TextRepresentativeSetting);
+                    {                        
+                        LfpBuildDocumentSetting nativeArgs = new LfpBuildDocumentSetting(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
                         Document doc = BuildDocument(nativeArgs);
                         string key = doc.Metadata[KEY_FIELD];
                         docs.Add(key, doc);
@@ -109,8 +107,8 @@ namespace LoadFileAdapter.Builders
                     nativeRecord = record;
                 }
             }
-            // add last doc to the collection
-            DocumentBuilderArgs lastArgs = DocumentBuilderArgs.GetLfpArgs(pageRecords, nativeRecord, e.PathPrefix, e.TextRepresentativeSetting);
+            // add last doc to the collection            
+            LfpBuildDocumentSetting lastArgs = new LfpBuildDocumentSetting(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
             Document lastDoc = BuildDocument(lastArgs);
             string lastKey = lastDoc.Metadata[KEY_FIELD];
             // check if a relationship needs to be set
@@ -124,21 +122,21 @@ namespace LoadFileAdapter.Builders
             return docs.Values.ToList();
         }
 
-        public Document BuildDocument(DocumentBuilderArgs e)
+        public Document BuildDocument(LfpBuildDocumentSetting args)
         {
             // check if this doc has images or is native only then get document properties
-            string[] firstPage = (e.PageRecords.Count > 0) ? e.PageRecords.First() : null;            
-            string key = (e.PageRecords.Count > 0) ? firstPage[KEY_INDEX] : e.NativeRecord[KEY_INDEX];
-            string vol = (e.PageRecords.Count > 0) ? firstPage[IMAGE_VOLUME_NAME_INDEX] : e.NativeRecord[NATIVE_VOLUME_NAME_INDEX];            
+            string[] firstPage = (args.PageRecords.Count > 0) ? args.PageRecords.First() : null;            
+            string key = (args.PageRecords.Count > 0) ? firstPage[KEY_INDEX] : args.NativeRecord[KEY_INDEX];
+            string vol = (args.PageRecords.Count > 0) ? firstPage[IMAGE_VOLUME_NAME_INDEX] : args.NativeRecord[NATIVE_VOLUME_NAME_INDEX];            
             vol = vol.TrimStart(VOLUME_TRIM_START);
-            int pages = e.PageRecords.Count;
+            int pages = args.PageRecords.Count;
             // set document properties
             Dictionary<string, string> metadata = new Dictionary<string, string>();
             metadata.Add(KEY_FIELD, key);
             metadata.Add(VOLUME_NAME_FIELD, vol);
             metadata.Add(PAGE_COUNT_FIELD, pages.ToString());            
             // get representatives
-            HashSet<Representative> reps = getRepresentatives(e.PageRecords, e.PathPrefex, e.TextSetting, e.NativeRecord);
+            HashSet<Representative> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSetting, args.NativeRecord);
             Document parent = null;
             List<Document> children = null;
             return new Document(key, parent, children, metadata, reps);

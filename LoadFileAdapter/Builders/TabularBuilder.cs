@@ -2,36 +2,34 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    public class TextDelimitedBuilder : Builder
+    public class TabularBuilder : Builder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting>
     {
         private const char FILE_PATH_DELIM = '\\';
         private const string DEFAULT_CHILD_SEPARATOR = ";";
 
-        public List<Document> BuildDocuments(DocumentSetBuilderArgs e)
+        public List<Document> BuildDocuments(TabularBuildDocumentsSetting args)
         {
-            string[] header = GetHeader(e.Records.First(), e.HasHeader);
+            string[] header = GetHeader(args.Records.First(), args.HasHeader);
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
             Dictionary<string, Document> paternity = new Dictionary<string, Document>();
-            string childSeparator = (String.IsNullOrWhiteSpace(e.ChildColumnDelimiter)) ? DEFAULT_CHILD_SEPARATOR : e.ChildColumnDelimiter;
+            string childSeparator = (String.IsNullOrWhiteSpace(args.ChildColumnDelimiter)) ? DEFAULT_CHILD_SEPARATOR : args.ChildColumnDelimiter;
             // build the documents
-            for (int i = 0; i < e.Records.Count; i++)
+            for (int i = 0; i < args.Records.Count; i++)
             {
-                string[] record = e.Records[i];
+                string[] record = args.Records[i];
                 // check if we need to skip this line
-                if (e.HasHeader && i == 0)
+                if (args.HasHeader && i == 0)
                 {
                     continue; // skip header line
                 }
-                // build a document
-                DocumentBuilderArgs args = DocumentBuilderArgs.GetTextDelimitedArgs(record, header, e.KeyColumnName, e.RepresentativeColumnInfo, e.PathPrefix);
-                Document doc = BuildDocument(args);
+                // build a document                
+                TabularBuildDocumentSetting docArgs = new TabularBuildDocumentSetting(record, header, args.KeyColumnName, args.RepresentativeColumnInfo, args.PathPrefix);
+                Document doc = BuildDocument(docArgs);
                 // set the parent and child values
-                settleFamilyDrama(e.ParentColumnName, e.ChildColumnName, childSeparator, doc, docs, paternity);
+                settleFamilyDrama(args.ParentColumnName, args.ChildColumnName, childSeparator, doc, docs, paternity);
                 // add the document to the collection
                 docs.Add(doc.Key, doc);
             }
@@ -49,38 +47,38 @@ namespace LoadFileAdapter.Builders
             return docs.Values.ToList();
         }
 
-        public Document BuildDocument(DocumentBuilderArgs e)
+        public Document BuildDocument(TabularBuildDocumentSetting args)
         {
             // validate the field count
-            if (e.Header.Length != e.DocumentRecord.Length)
+            if (args.Header.Length != args.Record.Length)
                 throw new Exception("The document record does not contains the correct number of fields.");
             // setup for building
             Dictionary<string, string> metadata = new Dictionary<string, string>();
             HashSet<Representative> reps = new HashSet<Representative>();
             // populate the metadata
-            for (int i = 0; i < e.Header.Length; i++)
+            for (int i = 0; i < args.Header.Length; i++)
             {
-                string fieldName = e.Header[i];
-                string fieldValue = e.DocumentRecord[i];                
+                string fieldName = args.Header[i];
+                string fieldValue = args.Record[i];                
                 metadata.Add(fieldName, fieldValue);
             }
 
             // populate key, if there is no key column name the value in the first column is expected to be the key
-            string keyValue = (String.IsNullOrEmpty(e.KeyColumnName))
-                ? e.DocumentRecord.First()
-                : metadata[e.KeyColumnName];
+            string keyValue = (String.IsNullOrEmpty(args.KeyColumnName))
+                ? args.Record.First()
+                : metadata[args.KeyColumnName];
             // populate representatives
-            if (e.RepresentativeColumnInformation != null)
+            if (args.RepresentativeColumnInfo != null)
             {
-                foreach (SemiStructuredRepresentativeSetting info in e.RepresentativeColumnInformation)
+                foreach (SemiStructuredRepresentativeSetting info in args.RepresentativeColumnInfo)
                 {
                     SortedDictionary<string, string> files = new SortedDictionary<string, string>();
                     // this format will only have one file per rep
                     if (!String.IsNullOrWhiteSpace(metadata[info.RepresentativeColumn]))
                     {
-                        string filePath = (String.IsNullOrEmpty(e.PathPrefex))
+                        string filePath = (String.IsNullOrEmpty(args.PathPrefix))
                             ? metadata[info.RepresentativeColumn]
-                            : Path.Combine(e.PathPrefex, metadata[info.RepresentativeColumn].TrimStart(FILE_PATH_DELIM));                        
+                            : Path.Combine(args.PathPrefix, metadata[info.RepresentativeColumn].TrimStart(FILE_PATH_DELIM));                        
                         files.Add(keyValue, filePath);
                         Representative rep = new Representative(info.RepresentativeType, files);
                         reps.Add(rep);

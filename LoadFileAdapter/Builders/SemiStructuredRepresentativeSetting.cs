@@ -14,13 +14,9 @@ namespace LoadFileAdapter.Builders
         public string RepresentativeColumn { get { return this.repCol; } }
         public Representative.Type RepresentativeType { get { return this.repType; } }
 
-        public void SetColumn(string name)
+        public SemiStructuredRepresentativeSetting(string column, Representative.Type type)
         {
-            this.repCol = name;
-        }
-
-        public void SetType(Representative.Type type)
-        {
+            this.repCol = column;
             this.repType = type;
         }
     }

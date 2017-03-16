@@ -9,14 +9,14 @@ namespace LoadFileAdapter.Transformers
 {
     public class MetaDataTransformer
     {
-        public void Transform(DocumentSet docs, MetaDataEdit[] edits)
+        public void Transform(DocumentCollection docs, MetaDataEdit[] edits)
         {
             foreach (Document doc in docs)
             {
                 foreach (MetaDataEdit edit in edits)
                 {
                     doc.Transform(edit);
-                    doc = edit.Transform(doc);
+                    //doc = edit.Transform(doc);
                 }
             }
         }        

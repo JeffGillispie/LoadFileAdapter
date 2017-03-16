@@ -1,32 +1,36 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class TextDelimitedExporter : Exporter
+    public class TabularExporter : Exporter<TabularExportFileSetting, TabularExportWriterSetting>
     {
-        public void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName, Parsers.Delimiters delimiters)
+        public void Export(TabularExportFileSetting args)
         {
             bool append = false;
 
-            using (StreamWriter writer = new StreamWriter(file.FullName, append, encoding))
+            using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
             {
-                string header = getHeader(documents, delimiters);
-                writer.WriteLine(header);
-
-                foreach (Document document in documents)
-                {
-                    string record = getRecord(document, delimiters);
-                    writer.WriteLine(record);
-                }
+                TabularExportWriterSetting writerArgs = new TabularExportWriterSetting(writer, args.Documents, args.Delimiters);
+                Export(writerArgs);
             }
         }
 
-        private string getHeader(DocumentSet docs, Parsers.Delimiters delimiters)
+        public void Export(TabularExportWriterSetting args)
+        {
+            string header = getHeader(args.Documents, args.Delimiters);
+            args.Writer.WriteLine(header);
+
+            foreach (Document document in args.Documents)
+            {
+                string record = getRecord(document, args.Delimiters);
+                args.Writer.WriteLine(record);
+            }
+        }
+
+        protected string getHeader(DocumentCollection docs, Parsers.Delimiters delimiters)
         {
             Document doc = docs.First();
             StringBuilder sb = new StringBuilder();
@@ -63,7 +67,7 @@ namespace LoadFileAdapter.Exporters
             return sb.ToString();
         }
 
-        private string getRecord(Document doc, Parsers.Delimiters delimiters)
+        protected string getRecord(Document doc, Parsers.Delimiters delimiters)
         {
             StringBuilder sb = new StringBuilder();
             int fieldCount = doc.Metadata.Count;

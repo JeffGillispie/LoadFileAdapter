@@ -8,19 +8,32 @@ namespace LoadFileAdapter.Importers
 {
     public class OptImporter
     {
-        private Parser<TextDelimitedParseFileParameters, TextDelimitedParseReaderParameters, TextDelimitedParseLineParameters> parser = new TextDelimitedParser();
-        private Builder builder = new OptBuilder();
+        private Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser;
+        private Builder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder;
 
-        public DocumentSet Import(FileInfo optFile, Encoding encoding, StructuredRepresentativeSetting textSetting)
+        public OptImporter()
+        {
+            this.parser = new TabularParser();
+            this.builder = new OptBuilder();
+        }
+
+        public OptImporter(
+            Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser, 
+            Builder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder)
+        {
+            this.parser = parser;
+            this.builder = builder;
+        }
+
+        public DocumentCollection Import(FileInfo optFile, Encoding encoding, StructuredRepresentativeSetting textSetting)
         {
             Delimiters delimiters = Delimiters.COMMA_DELIMITED;
-            TextDelimitedParseFileParameters parameters = new TextDelimitedParseFileParameters(optFile, encoding, delimiters);
-            List<string[]> records = parser.Parse(parameters);
-            DocumentSetBuilderArgs args = DocumentSetBuilderArgs.GetImageSetArgs(records, optFile.Directory.FullName, textSetting);
-            List<Document> documents = builder.BuildDocuments(args);
-            DocumentSet docSet = new DocumentSet();
-            docSet.AddDocuments(documents);
-            return docSet;
+            TabularParseFileSetting parameters = new TabularParseFileSetting(optFile, encoding, delimiters);
+            List<string[]> records = parser.Parse(parameters);            
+            ImageBuildDocumentsSetting args = new ImageBuildDocumentsSetting(records, optFile.Directory.FullName, textSetting);
+            List<Document> documentList = builder.BuildDocuments(args);
+            DocumentCollection documents = new DocumentCollection(documentList);            
+            return documents;
         }
     }
 }

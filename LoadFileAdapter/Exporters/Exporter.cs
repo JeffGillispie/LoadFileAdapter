@@ -1,14 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Exporters
 {
-    public interface Exporter
+    public interface Exporter<T, S> 
+        where T: ExportFileSetting
+        where S: ExportWriterSetting
     {
-        void Export(DocumentSet documents, FileInfo file, Encoding encoding, string volumeName, Parsers.Delimiters delimiters);
+        void Export(T args);
+        void Export(S args);
     }
 }

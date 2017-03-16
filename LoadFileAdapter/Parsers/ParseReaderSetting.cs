@@ -2,13 +2,13 @@
 
 namespace LoadFileAdapter.Parsers
 {
-    public class ParseReaderParameters
+    public class ParseReaderSetting
     {
         private TextReader reader;
 
         public TextReader Reader { get { return reader; } }
 
-        public ParseReaderParameters(TextReader reader)
+        public ParseReaderSetting(TextReader reader)
         {
             this.reader = reader;
         }

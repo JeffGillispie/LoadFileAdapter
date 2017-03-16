@@ -1,13 +1,13 @@
 ﻿
 namespace LoadFileAdapter.Parsers
 {
-    public class ParseLineParameters
+    public class ParseLineSetting
     {
         private string line;
 
         public string Line { get { return line; } }
 
-        public ParseLineParameters(string line)
+        public ParseLineSetting(string line)
         {
             this.line = line;
         }
