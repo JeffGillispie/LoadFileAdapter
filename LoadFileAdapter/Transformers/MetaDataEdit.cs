@@ -1,92 +1,65 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Transformers
 {
     public class MetaDataEdit
     {
         private string fieldName = String.Empty;
-        private string findText = String.Empty;
+        private Regex findText = null;
         private string replaceText = String.Empty;
-        private bool useRegex = false;
-        private bool useRegexMatchCase = false;
-        private bool useRegexSearchRightToLeft;
+        private bool useRegex = false;        
         private string alternateDestinationField = String.Empty;
         private string prependField = String.Empty;
         private string appendField = String.Empty;
         private string joinDelimiter = String.Empty;
-        private string filterText = String.Empty;
-        private bool filterTextIsExactMatch = false;
-        private string filterField = String.Empty;        
+        private string filterField = String.Empty;
+        private Regex filterText = null;
+        private bool filterTextIsRegex = false;                        
         private DirectoryInfo prependDirectory = null;
 
         public string FieldName { get { return fieldName; } }
-        public string FindText { get { return findText; } }
+        public Regex FindText { get { return findText; } }
         public string ReplaceText { get { return replaceText; } }
-        public bool UseRegex { get { return useRegex; } }
-        public bool UseRegexMatchCase { get { return useRegexMatchCase; } }
-        public bool UseRegexSearchRightToLeft { get { return useRegexSearchRightToLeft; } }
+        public bool UseRegex { get { return useRegex; } }        
         public string AlternateDestinationField { get { return alternateDestinationField; } }
         public string PrependField { get { return prependField; } }
         public string AppendField { get { return appendField; } }
         public string JoinDelimiter { get { return joinDelimiter; } }
-        public string FilterText { get { return filterText; } }
-        public bool FilterTextIsExactMatch { get { return filterTextIsExactMatch; } }
-        public string FilterField { get { return filterField; } }        
+        public string FilterField { get { return filterField; } }
+        public Regex FilterText { get { return filterText; } }
+        public bool FilterTextIsRegex { get { return filterTextIsRegex; } }                
         public DirectoryInfo PrependDirectory { get { return prependDirectory; } }
 
         public MetaDataEdit( string fieldName,
-            string findText, string replaceText, bool useRegex, bool useRegexMatchCase, bool useRegexSearchRightToLeft,
+            Regex findText, string replaceText, bool useRegex,
             string alternateDestinationField, string prependField, string appendField, string joinDelimiter,
-            string filterText, bool filterTextIsExactMatch, string filterField, DirectoryInfo prependDirectory)
+            string filterField, Regex filterText, bool filterTextIsRegex, DirectoryInfo prependDirectory)
         {
             this.fieldName = fieldName;
             this.findText = findText;
             this.replaceText = replaceText;
-            this.useRegex = useRegex;
-            this.useRegexMatchCase = useRegexMatchCase;
-            this.useRegexSearchRightToLeft = useRegexSearchRightToLeft;
+            this.useRegex = useRegex;            
             this.alternateDestinationField = alternateDestinationField;
             this.prependField = prependField;
             this.appendField = appendField;
             this.joinDelimiter = joinDelimiter;
             this.filterText = filterText;
-            this.filterTextIsExactMatch = filterTextIsExactMatch;
+            this.filterTextIsRegex = filterTextIsRegex;
             this.filterField = filterField;            
             this.prependDirectory = prependDirectory;
         }
-
-        public RegexOptions GetRegexOptions()
-        {
-            RegexOptions options = RegexOptions.None;
-
-            if (UseRegexMatchCase && UseRegexSearchRightToLeft)
-                options = RegexOptions.RightToLeft;
-            else if (UseRegexMatchCase && !UseRegexSearchRightToLeft)
-                options = RegexOptions.None;
-            else if (!UseRegexMatchCase && UseRegexSearchRightToLeft)
-                options = RegexOptions.IgnoreCase | RegexOptions.RightToLeft;
-            else if (!UseRegexMatchCase && !UseRegexSearchRightToLeft)
-                options = RegexOptions.IgnoreCase;
-
-            return options;
-        }
-
+        
         public string Replace(string value)
         {
-            if (useRegex == false && !String.IsNullOrEmpty(findText))
+            if (useRegex == false && findText != null)
             {
-                return value.Replace(findText, replaceText);
+                return value.Replace(findText.ToString(), replaceText);
             }
-            else if (!String.IsNullOrEmpty(findText))
+            else if (findText != null)
             {
-                RegexOptions options = GetRegexOptions();
-                return Regex.Replace(value, findText, replaceText, options);
+                return findText.Replace(value, replaceText);                
             }
             else
             {
@@ -94,10 +67,8 @@ namespace LoadFileAdapter.Transformers
             }
         }
         
-        public Document Transform(Document document)
+        public void Transform(Document doc)
         {
-            Document doc = (Document)document.Clone();
-
             if (!doc.Metadata.ContainsKey(this.fieldName))
             {
                 doc.Metadata.Add(this.fieldName, String.Empty);
@@ -139,24 +110,22 @@ namespace LoadFileAdapter.Transformers
                     doc.Metadata[fieldName] = value;
                 }
             }
-
-            return doc;
         }
 
-        private bool hasEdit(Document doc)
+        protected bool hasEdit(Document doc)
         {
-            if (FilterField != null && !String.IsNullOrWhiteSpace(FilterField))
-            {
-                if (FilterTextIsExactMatch)
+            if (FilterField != null && !String.IsNullOrWhiteSpace(FilterField) && doc.Metadata.ContainsKey(FilterField) && FilterText != null)
+            {                
+                if (FilterTextIsRegex)
                 {
-                    if (!doc.Metadata[FilterField].Equals(FilterText))
+                    if (FilterText.IsMatch(doc.Metadata[FilterField]) == false)
                     {
                         return false;
                     }
                 }
                 else
                 {
-                    if (!doc.Metadata[FilterField].ToString().Contains(FilterText))
+                    if (doc.Metadata[FilterField].Equals(FilterText.ToString()) == false)
                     {
                         return false;
                     }

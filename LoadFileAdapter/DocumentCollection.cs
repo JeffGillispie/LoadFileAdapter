@@ -9,7 +9,7 @@ namespace LoadFileAdapter
 {
     public class DocumentCollection : IEnumerable<Document>
     {
-        private List<Document> docs = new List<Document>();
+        private List<Document> docs = new List<Document>();        
         private int imageCount = -1;
         private int textCount = -1;
         private int nativeCount = -1;

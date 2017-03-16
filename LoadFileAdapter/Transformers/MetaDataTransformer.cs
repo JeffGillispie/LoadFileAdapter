@@ -15,8 +15,7 @@ namespace LoadFileAdapter.Transformers
             {
                 foreach (MetaDataEdit edit in edits)
                 {
-                    doc.Transform(edit);
-                    //doc = edit.Transform(doc);
+                    edit.Transform(doc);
                 }
             }
         }        
