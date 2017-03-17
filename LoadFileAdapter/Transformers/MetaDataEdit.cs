@@ -4,83 +4,50 @@ using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Transformers
 {
-    public class MetaDataEdit
+    public class MetaDataEdit : Edit
     {
-        private string fieldName = String.Empty;
-        private Regex findText = null;
-        private string replaceText = String.Empty;
-        private bool useRegex = false;        
+        private string fieldName = String.Empty;        
         private string alternateDestinationField = String.Empty;
         private string prependField = String.Empty;
         private string appendField = String.Empty;
-        private string joinDelimiter = String.Empty;
-        private string filterField = String.Empty;
-        private Regex filterText = null;
-        private bool filterTextIsRegex = false;                        
+        private string joinDelimiter = String.Empty;        
         private DirectoryInfo prependDirectory = null;
 
-        public string FieldName { get { return fieldName; } }
-        public Regex FindText { get { return findText; } }
-        public string ReplaceText { get { return replaceText; } }
-        public bool UseRegex { get { return useRegex; } }        
+        public string FieldName { get { return fieldName; } }        
         public string AlternateDestinationField { get { return alternateDestinationField; } }
         public string PrependField { get { return prependField; } }
         public string AppendField { get { return appendField; } }
-        public string JoinDelimiter { get { return joinDelimiter; } }
-        public string FilterField { get { return filterField; } }
-        public Regex FilterText { get { return filterText; } }
-        public bool FilterTextIsRegex { get { return filterTextIsRegex; } }                
+        public string JoinDelimiter { get { return joinDelimiter; } }        
         public DirectoryInfo PrependDirectory { get { return prependDirectory; } }
 
         public MetaDataEdit( string fieldName,
-            Regex findText, string replaceText, bool useRegex,
+            Regex findText, string replaceText,
             string alternateDestinationField, string prependField, string appendField, string joinDelimiter,
-            string filterField, Regex filterText, bool filterTextIsRegex, DirectoryInfo prependDirectory)
+            string filterField, Regex filterText, DirectoryInfo prependDirectory) :
+            base(findText, replaceText, filterField, filterText)
         {
-            this.fieldName = fieldName;
-            this.findText = findText;
-            this.replaceText = replaceText;
-            this.useRegex = useRegex;            
+            this.fieldName = fieldName;            
             this.alternateDestinationField = alternateDestinationField;
             this.prependField = prependField;
             this.appendField = appendField;
-            this.joinDelimiter = joinDelimiter;
-            this.filterText = filterText;
-            this.filterTextIsRegex = filterTextIsRegex;
-            this.filterField = filterField;            
+            this.joinDelimiter = joinDelimiter;            
             this.prependDirectory = prependDirectory;
         }
-        
-        public string Replace(string value)
-        {
-            if (useRegex == false && findText != null)
-            {
-                return value.Replace(findText.ToString(), replaceText);
-            }
-            else if (findText != null)
-            {
-                return findText.Replace(value, replaceText);                
-            }
-            else
-            {
-                return value;
-            }
-        }
-        
-        public void Transform(Document doc)
+                        
+        public override void Transform(Document doc)
         {
             if (!doc.Metadata.ContainsKey(this.fieldName))
             {
                 doc.Metadata.Add(this.fieldName, String.Empty);
             }
 
-            if (hasEdit(doc))
+            if (base.hasEdit(doc))
             {
                 // get orig value
                 string value = doc.Metadata[FieldName];
 
                 // perform find / replace
-                value = Replace(value);
+                value = base.Replace(value);
 
                 // append if set
                 if (!String.IsNullOrWhiteSpace(AppendField))
@@ -110,29 +77,6 @@ namespace LoadFileAdapter.Transformers
                     doc.Metadata[fieldName] = value;
                 }
             }
-        }
-
-        protected bool hasEdit(Document doc)
-        {
-            if (FilterField != null && !String.IsNullOrWhiteSpace(FilterField) && doc.Metadata.ContainsKey(FilterField) && FilterText != null)
-            {                
-                if (FilterTextIsRegex)
-                {
-                    if (FilterText.IsMatch(doc.Metadata[FilterField]) == false)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if (doc.Metadata[FilterField].Equals(FilterText.ToString()) == false)
-                    {
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
+        }        
     }
 }
