@@ -89,8 +89,10 @@
     <Compile Include="Representative.cs" />
     <Compile Include="Builders\StructuredRepresentativeSetting.cs" />
     <Compile Include="Builders\TabularBuilder.cs" />
+    <Compile Include="Transformers\Edit.cs" />
     <Compile Include="Transformers\MetaDataEdit.cs" />
-    <Compile Include="Transformers\MetaDataTransformer.cs" />
+    <Compile Include="Transformers\Transformer.cs" />
+    <Compile Include="Transformers\RepresentativeEdit.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LoadFileAdapter
 {
@@ -73,7 +69,14 @@ namespace LoadFileAdapter
             }
             // now add this document as a child to the parent
             if (!parent.Children.Contains(this))
+            {
                 parent.Children.Add(this);
-        }        
+            }
+        }
+        
+        public void SetRepresentatives(HashSet<Representative> reps)
+        {
+            this.representatives = reps;
+        }
     }
 }
