@@ -4,7 +4,7 @@ using System.IO;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class LfpParser : Parser<ParseFileSetting, ParseReaderSetting, ParseLineSetting>
+    public class LfpParser : IParser<ParseFileSetting, ParseReaderSetting, ParseLineSetting>
     {
         public virtual List<string[]> Parse(ParseFileSetting args)
         {            

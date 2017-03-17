@@ -3,7 +3,7 @@ using System.Text;
 
 namespace LoadFileAdapter.Exporters
 {
-    public interface Exporter<T, S> 
+    public interface IExporter<T, S> 
         where T: ExportFileSetting
         where S: ExportWriterSetting
     {

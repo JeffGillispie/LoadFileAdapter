@@ -1,99 +1,109 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter
 {
     public class BatesNumber
     {
-        private String _value;
-        private String _prefix;
-        private int _number;
-        private int _numberLength;
-        private String _suffixDelimiter;
-        private int _suffix;
-        private int _suffixLength;
-        private bool _hasSuffix;
-        private bool _hasPrefix;
-        private bool _hasDelim;
+        private string value = String.Empty;
+        private string prefix = String.Empty;
+        private int number = 0;
+        private int numberLength = 0;
+        private string suffixDelimiter = String.Empty;
+        private int suffix = 0;
+        private int suffixLength = 0;
+        private bool hasSuffix = false;
+        private bool hasPrefix = false;
+        private bool hasDelim = false;
 
-        public String Value { get { return _value; } }
-        public String Prefix { get { if (_hasPrefix) return _prefix; else return String.Empty; } }
-        public int Number { get { return _number; } }
-        public String SuffixDelimiter { get { if (_hasDelim) return _suffixDelimiter; else return String.Empty; } }
-        public int Suffix { get { if (_hasSuffix) return _suffix; else return 0; } }
-        public bool HasSuffix { get { return _hasSuffix; } }
-        public bool HasPrefix { get { return _hasPrefix; } }
-        public bool HasDelim { get { return _hasDelim; } }
-        public String NumberAsString { get { return _number.ToString().PadLeft(_numberLength, '0'); } }
-        public String SuffixAsString { get { return _suffixDelimiter + _suffix.ToString().PadLeft(_suffixLength, '0'); } }
+        public string Value { get { return value; } }
+        public string Prefix { get { if (hasPrefix) return prefix; else return String.Empty; } }
+        public int Number { get { return number; } }
+        public string SuffixDelimiter { get { if (hasDelim) return suffixDelimiter; else return String.Empty; } }
+        public int Suffix { get { if (hasSuffix) return suffix; else return 0; } }
+        public bool HasSuffix { get { return hasSuffix; } }
+        public bool HasPrefix { get { return hasPrefix; } }
+        public bool HasDelim { get { return hasDelim; } }
+        public string NumberAsString { get { return number.ToString().PadLeft(numberLength, '0'); } }
+        public string SuffixAsString { get { return suffixDelimiter + suffix.ToString().PadLeft(suffixLength, '0'); } }
 
-        public BatesNumber(String batesNumber)
+        public BatesNumber(string batesNumber)
         {
-            List<String> numericSequences = new List<String>();
+            List<string> numericSequences = new List<string>();
             MatchCollection matches = Regex.Matches(batesNumber, @"\d+", RegexOptions.None);
             numericSequences = matches.Cast<Match>().Select(match => match.Value).ToList();
 
             if (numericSequences.Count == 1)
             {
-                if (batesNumber.Substring(batesNumber.Length - numericSequences[0].Length, numericSequences[0].Length) == numericSequences[0])
+                if (batesNumber.Substring(
+                        batesNumber.Length - numericSequences[0].Length, 
+                        numericSequences[0].Length
+                    ) == numericSequences[0])
                 {
-                    _value = batesNumber;
-                    _number = int.Parse(numericSequences[0]);
-                    _numberLength = numericSequences[0].Length;
-                    _hasDelim = false;
-                    _hasSuffix = false;
+                    value = batesNumber;
+                    number = int.Parse(numericSequences[0]);
+                    numberLength = numericSequences[0].Length;
+                    hasDelim = false;
+                    hasSuffix = false;
 
                     if (batesNumber == numericSequences[0])
                     {
-                        _hasPrefix = false;
+                        hasPrefix = false;
                     }
                     else
                     {
-                        _hasPrefix = true;
-                        _prefix = batesNumber.Substring(0, batesNumber.Length - numericSequences[0].Length);
+                        hasPrefix = true;
+                        prefix = batesNumber.Substring(0, batesNumber.Length - numericSequences[0].Length);
                     }
                 }
                 else
                 {
                     throw new Exception(String.Format(
-                        "BatesNumber Exception: The numberic sequence {0} in the bates number {1} is not in the correct position, it should be at the end of the value.",
+                        "BatesNumber Exception: The numberic sequence {0} in the bates number {1} is not in the correct position, " +
+                        "it should be at the end of the value.",
                         numericSequences[0], batesNumber));
                 }
             }
             else if (numericSequences.Count >= 2)
             {
-                String lastSequence = numericSequences[numericSequences.Count - 1];
-                String suspectedSuffix = batesNumber.Substring(batesNumber.Length - lastSequence.Length, lastSequence.Length);
-                String suspectedDelim = batesNumber.Substring(batesNumber.Length - lastSequence.Length - 1, 1);
-                String nextToLastSequence = numericSequences[numericSequences.Count - 2];
-                String suspectedNumber = batesNumber.Substring(batesNumber.Length - lastSequence.Length - 1 - nextToLastSequence.Length, nextToLastSequence.Length);
-                String suspectedPrefix = batesNumber.Substring(0, batesNumber.Length - lastSequence.Length - 1 - nextToLastSequence.Length);
+                string lastSequence = numericSequences[numericSequences.Count - 1];
+                string suspectedSuffix = batesNumber.Substring(
+                    batesNumber.Length - lastSequence.Length, 
+                    lastSequence.Length);
+                string suspectedDelim = batesNumber.Substring(
+                    batesNumber.Length - lastSequence.Length - 1, 
+                    1);
+                string nextToLastSequence = numericSequences[numericSequences.Count - 2];
+                string suspectedNumber = batesNumber.Substring(
+                    batesNumber.Length - lastSequence.Length - 1 - nextToLastSequence.Length, 
+                    nextToLastSequence.Length);
+                string suspectedPrefix = batesNumber.Substring(
+                    0, 
+                    batesNumber.Length - lastSequence.Length - 1 - nextToLastSequence.Length);
 
                 if (lastSequence == suspectedSuffix &&
                     nextToLastSequence == suspectedNumber &&
                     (suspectedDelim == "." || suspectedDelim == "-" || suspectedDelim == "_"))
                 {
-                    _value = batesNumber;
-                    _number = int.Parse(suspectedNumber);
-                    _numberLength = suspectedNumber.Length;
-                    _suffix = int.Parse(suspectedSuffix);
-                    _suffixLength = suspectedSuffix.Length;
-                    _suffixDelimiter = suspectedDelim;
-                    _hasDelim = true;
-                    _hasSuffix = true;
+                    value = batesNumber;
+                    number = int.Parse(suspectedNumber);
+                    numberLength = suspectedNumber.Length;
+                    suffix = int.Parse(suspectedSuffix);
+                    suffixLength = suspectedSuffix.Length;
+                    suffixDelimiter = suspectedDelim;
+                    hasDelim = true;
+                    hasSuffix = true;
 
                     if (!String.IsNullOrWhiteSpace(suspectedPrefix))
                     {
-                        _hasPrefix = true;
-                        _prefix = suspectedPrefix;
+                        hasPrefix = true;
+                        prefix = suspectedPrefix;
                     }
                     else
                     {
-                        _hasPrefix = false;
+                        hasPrefix = false;
                     }
                 }
                 else
@@ -122,7 +132,9 @@ namespace LoadFileAdapter
             }
             else
             {
-                throw new Exception(String.Format("BatesNumber Exception: No numberic sequences were detected in the bates number {1}.", batesNumber));
+                throw new Exception(String.Format(
+                    "BatesNumber Exception: No numberic sequences were detected in the bates number {1}.", 
+                    batesNumber));
             }
         }
 
@@ -142,16 +154,16 @@ namespace LoadFileAdapter
 
         public void IterateNumber()
         {
-            _number++;
-            _hasSuffix = false;
-            _value = String.Format("{0}{1}", Prefix, Number.ToString().PadLeft(_numberLength, '0'));
+            number++;
+            hasSuffix = false;
+            value = String.Format("{0}{1}", Prefix, Number.ToString().PadLeft(numberLength, '0'));
         }
 
         public void DecreaseNumber()
         {
-            _number--;
-            _hasSuffix = false;
-            _value = String.Format("{0}{1}", Prefix, Number.ToString().PadLeft(_numberLength, '0'));
+            number--;
+            hasSuffix = false;
+            value = String.Format("{0}{1}", Prefix, Number.ToString().PadLeft(numberLength, '0'));
         }
     }
 }

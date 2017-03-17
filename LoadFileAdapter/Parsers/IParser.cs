@@ -2,7 +2,7 @@
 
 namespace LoadFileAdapter.Parsers
 {
-    public interface Parser<T, S, R> 
+    public interface IParser<T, S, R> 
         where T: ParseFileSetting
         where S: ParseReaderSetting
         where R: ParseLineSetting

@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class LfpExporter : Exporter<ImageExportFileSetting, ImageExportWriterSetting>
+    public class LfpExporter : IExporter<ImageExportFileSetting, ImageExportWriterSetting>
     {
         protected static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
             { ".TIF", 2 },

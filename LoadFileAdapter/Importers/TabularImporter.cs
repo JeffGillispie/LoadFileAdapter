@@ -8,8 +8,8 @@ namespace LoadFileAdapter.Importers
 {
     public class TabularImporter
     {
-        Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser;
-        Builder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting> builder;
+        IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser;
+        IBuilder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting> builder;
 
         public TabularImporter()
         {
@@ -18,8 +18,8 @@ namespace LoadFileAdapter.Importers
         }
 
         public TabularImporter(
-            Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser, 
-            Builder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting> builder)
+            IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser, 
+            IBuilder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting> builder)
         {
             this.parser = parser;
             this.builder = builder;

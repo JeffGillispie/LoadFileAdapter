@@ -2,7 +2,7 @@
 
 namespace LoadFileAdapter.Builders
 {
-    public interface Builder<T, S>
+    public interface IBuilder<T, S>
         where T: BuildDocumentsSetting
         where S: BuildDocumentSetting
     {

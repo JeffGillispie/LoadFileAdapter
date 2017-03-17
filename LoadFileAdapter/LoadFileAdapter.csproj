@@ -51,7 +51,7 @@
     <Compile Include="BatesNumber.cs" />
     <Compile Include="Builders\BuildDocumentSetting.cs" />
     <Compile Include="Builders\BuildDocumentsSetting.cs" />
-    <Compile Include="Builders\Builder.cs" />
+    <Compile Include="Builders\IBuilder.cs" />
     <Compile Include="Builders\ImageBuildDocumentSetting.cs" />
     <Compile Include="Builders\ImageBuildDocumentsSetting.cs" />
     <Compile Include="Builders\LfpBuildDocumentSetting.cs" />
@@ -59,7 +59,7 @@
     <Compile Include="Builders\TabularBuildDocumentSetting.cs" />
     <Compile Include="Builders\TabularBuildDocumentsSetting.cs" />
     <Compile Include="DocumentCollection.cs" />
-    <Compile Include="Exporters\Exporter.cs" />
+    <Compile Include="Exporters\IExporter.cs" />
     <Compile Include="Exporters\ExportFileSetting.cs" />
     <Compile Include="Exporters\ExportWriterSetting.cs" />
     <Compile Include="Exporters\ImageExportFileSetting.cs" />
@@ -81,7 +81,7 @@
     <Compile Include="Parsers\ParseReaderSetting.cs" />
     <Compile Include="Parsers\TabularParseLineSetting.cs" />
     <Compile Include="Parsers\TabularParseFileSetting.cs" />
-    <Compile Include="Parsers\Parser.cs" />
+    <Compile Include="Parsers\IParser.cs" />
     <Compile Include="Parsers\ParseFileSetting.cs" />
     <Compile Include="Parsers\TabularParser.cs" />
     <Compile Include="Parsers\TabularParseReaderSetting.cs" />

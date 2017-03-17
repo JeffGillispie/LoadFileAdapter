@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
-    public class TabularBuilder : Builder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting>
+    public class TabularBuilder : IBuilder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting>
     {
         private const char FILE_PATH_DELIM = '\\';
         private const string DEFAULT_CHILD_SEPARATOR = ";";

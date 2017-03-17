@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
-    public class LfpBuilder : Builder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting>
+    public class LfpBuilder : IBuilder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting>
     {
         private const int TOKEN_INDEX = 0;
         private const int KEY_INDEX = 1;

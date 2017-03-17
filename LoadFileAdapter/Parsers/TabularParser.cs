@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class TabularParser : Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting>
+    public class TabularParser : IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting>
     {
         public virtual List<string[]> Parse(TabularParseFileSetting args)
         {            

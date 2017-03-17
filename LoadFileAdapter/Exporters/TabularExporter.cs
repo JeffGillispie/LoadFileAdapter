@@ -5,7 +5,7 @@ using System.Text;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class TabularExporter : Exporter<TabularExportFileSetting, TabularExportWriterSetting>
+    public class TabularExporter : IExporter<TabularExportFileSetting, TabularExportWriterSetting>
     {
         public void Export(TabularExportFileSetting args)
         {

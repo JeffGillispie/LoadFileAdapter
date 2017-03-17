@@ -8,8 +8,8 @@ namespace LoadFileAdapter.Importers
 {
     public class OptImporter
     {
-        private Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser;
-        private Builder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder;
+        private IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser;
+        private IBuilder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder;
 
         public OptImporter()
         {
@@ -18,8 +18,8 @@ namespace LoadFileAdapter.Importers
         }
 
         public OptImporter(
-            Parser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser, 
-            Builder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder)
+            IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser, 
+            IBuilder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder)
         {
             this.parser = parser;
             this.builder = builder;

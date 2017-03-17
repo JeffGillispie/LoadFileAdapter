@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
-    public class OptBuilder : Builder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting>
+    public class OptBuilder : IBuilder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting>
     {
         private const int IMAGE_KEY_INDEX = 0;
         private const int VOLUME_NAME_INDEX = 1;

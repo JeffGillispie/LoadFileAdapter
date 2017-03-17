@@ -4,7 +4,7 @@ using System.IO;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class OptExporter : Exporter<ImageExportFileSetting, ImageExportWriterSetting>
+    public class OptExporter : IExporter<ImageExportFileSetting, ImageExportWriterSetting>
     {
         private const string TRUE_VALUE = "Y";
         private const string FALSE_VALUE = "";

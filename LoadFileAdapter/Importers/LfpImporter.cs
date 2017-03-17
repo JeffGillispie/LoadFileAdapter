@@ -9,8 +9,8 @@ namespace LoadFileAdapter.Importers
 {
     public class LfpImporter
     {
-        private Parser<ParseFileSetting, ParseReaderSetting, ParseLineSetting> parser;
-        private Builder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting> builder;
+        private IParser<ParseFileSetting, ParseReaderSetting, ParseLineSetting> parser;
+        private IBuilder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting> builder;
         
         public LfpImporter()
         {
@@ -19,8 +19,8 @@ namespace LoadFileAdapter.Importers
         }
 
         public LfpImporter(
-            Parser<ParseFileSetting, ParseReaderSetting, ParseLineSetting> parser, 
-            Builder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting> builder)
+            IParser<ParseFileSetting, ParseReaderSetting, ParseLineSetting> parser, 
+            IBuilder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting> builder)
         {
             this.parser = parser;
             this.builder = builder;
