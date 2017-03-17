@@ -10,7 +10,11 @@ namespace LoadFileAdapter
         private Dictionary<string, string> metadata;
         private HashSet<Representative> representatives;
 
-        public Document(string key, Document parent, List<Document> children, Dictionary<string, string> metadata, HashSet<Representative> representatives)
+        public Document(string key, 
+            Document parent, 
+            List<Document> children, 
+            Dictionary<string, string> metadata, 
+            HashSet<Representative> representatives)
         {
             this.key = key;
             this.parent = parent;
@@ -67,7 +71,7 @@ namespace LoadFileAdapter
             {
                 parent.children = new List<Document>();
             }
-            // now add this document as a child to the parent
+            
             if (!parent.Children.Contains(this))
             {
                 parent.Children.Add(this);

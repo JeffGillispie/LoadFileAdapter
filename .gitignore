@@ -1,0 +1,6 @@
+.vs/
+packages/
+LoadFileAdapter/bin/
+LoadFileAdapter/obj/
+LoadFileAdapterTests/
+TestResults/
