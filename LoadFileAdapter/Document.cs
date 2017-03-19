@@ -113,6 +113,8 @@ namespace LoadFileAdapter
         /// <param name="parent">The parent document.</param>
         public void SetParent(Document parent)
         {
+            // this setter was added to support the creation of document
+            // collections in the builders
             this.parent = parent;
 
             if (parent.children == null)
@@ -132,6 +134,7 @@ namespace LoadFileAdapter
         /// <param name="reps">A set of all file representations of the document.</param>
         public void SetRepresentatives(HashSet<Representative> reps)
         {
+            // this setter was added to support transformations
             this.representatives = reps;
         }        
     }
