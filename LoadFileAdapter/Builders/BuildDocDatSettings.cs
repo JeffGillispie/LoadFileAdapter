@@ -2,7 +2,7 @@
 
 namespace LoadFileAdapter.Builders
 {
-    public class DatBuildDocSettings : BuildDocSettings
+    public class BuildDocDatSettings : BuildDocSettings
     {
         private string[] record;
         private string[] header;
@@ -14,7 +14,7 @@ namespace LoadFileAdapter.Builders
         public string KeyColumnName { get { return keyColName; } }
         public List<LinkFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
 
-        public DatBuildDocSettings(string[] record, string[] header, string keyColName, 
+        public BuildDocDatSettings(string[] record, string[] header, string keyColName, 
             List<LinkFileSettings> repColInfo, string pathPrefix) :
             base(pathPrefix)
         {

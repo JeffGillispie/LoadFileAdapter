@@ -2,7 +2,7 @@
 
 namespace LoadFileAdapter.Builders
 {
-    public class ImageBuildDocSettings : BuildDocSettings
+    public class BuildDocImageSettings : BuildDocSettings
     {
         private List<string[]> pageRecords;
         private StructuredRepresentativeSetting textRepSetting;
@@ -10,7 +10,7 @@ namespace LoadFileAdapter.Builders
         public List<string[]> PageRecords { get { return pageRecords; } }
         public StructuredRepresentativeSetting TextSetting { get { return textRepSetting; } }
 
-        public ImageBuildDocSettings(List<string[]> pageRecords, StructuredRepresentativeSetting textRepSetting, string pathPrefix) :
+        public BuildDocImageSettings(List<string[]> pageRecords, StructuredRepresentativeSetting textRepSetting, string pathPrefix) :
             base(pathPrefix)
         {
             this.pageRecords = pageRecords;

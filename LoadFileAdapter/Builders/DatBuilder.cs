@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
-    public class DatBuilder : IBuilder<DatBuildDocCollectionSettings, DatBuildDocSettings>
+    public class DatBuilder : IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings>
     {
         private const char FILE_PATH_DELIM = '\\';
         private const string DEFAULT_CHILD_SEPARATOR = ";";
 
-        public List<Document> BuildDocuments(DatBuildDocCollectionSettings args)
+        public List<Document> BuildDocuments(BuildDocCollectionDatSettings args)
         {
             string[] header = GetHeader(args.Records.First(), args.HasHeader);
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
@@ -26,7 +26,7 @@ namespace LoadFileAdapter.Builders
                     continue; // skip header line
                 }
                 // build a document                
-                DatBuildDocSettings docArgs = new DatBuildDocSettings(record, header, args.KeyColumnName, args.RepresentativeColumnInfo, args.PathPrefix);
+                BuildDocDatSettings docArgs = new BuildDocDatSettings(record, header, args.KeyColumnName, args.RepresentativeColumnInfo, args.PathPrefix);
                 Document doc = BuildDocument(docArgs);
                 // set the parent and child values
                 settleFamilyDrama(args.ParentColumnName, args.ChildColumnName, childSeparator, doc, docs, paternity);
@@ -47,7 +47,7 @@ namespace LoadFileAdapter.Builders
             return docs.Values.ToList();
         }
 
-        public Document BuildDocument(DatBuildDocSettings args)
+        public Document BuildDocument(BuildDocDatSettings args)
         {
             // validate the field count
             if (args.Header.Length != args.Record.Length)

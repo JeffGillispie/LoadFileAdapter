@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    public class DatBuildDocCollectionSettings : BuildDocCollectionSettings
+    public class BuildDocCollectionDatSettings : BuildDocCollectionSettings
     {
         private bool hasHeader;
         private string keyColName;
@@ -22,7 +22,7 @@ namespace LoadFileAdapter.Builders
         public string ChildColumnDelimiter { get { return childColDelim; } }
         public List<LinkFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
 
-        public DatBuildDocCollectionSettings(List<string[]> records, string pathPrefix, 
+        public BuildDocCollectionDatSettings(List<string[]> records, string pathPrefix, 
             bool hasHeader, string keyColName, string parentColName, string childColName, string childColDelim,
             List<LinkFileSettings> repColInfo) :
             base(records, pathPrefix)
