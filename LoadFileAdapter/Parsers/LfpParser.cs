@@ -4,30 +4,30 @@ using System.IO;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class LfpParser : IParser<ParseFileSetting, ParseReaderSetting, ParseLineSetting>
+    public class LfpParser : IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings>
     {
-        public virtual List<string[]> Parse(ParseFileSetting args)
+        public virtual List<string[]> Parse(ParseFileSettings args)
         {            
             bool detectEncoding = true;
             List<string[]> records = null;
 
             using (TextReader reader = new StreamReader(args.File.FullName, args.Encoding, detectEncoding))
             {
-                ParseReaderSetting readerArgs = new ParseReaderSetting(reader);
+                ParseReaderSettings readerArgs = new ParseReaderSettings(reader);
                 records = Parse(readerArgs);
             }
 
             return records;
         }
 
-        public virtual List<string[]> Parse(ParseReaderSetting args)
+        public virtual List<string[]> Parse(ParseReaderSettings args)
         {            
             List<string[]> records = new List<string[]>();                
             string line = String.Empty;
 
             while ((line = args.Reader.ReadLine()) != null)
             {
-                ParseLineSetting lineParameters = new ParseLineSetting(line);
+                ParseLineSettings lineParameters = new ParseLineSettings(line);
                 string[] record = ParseLine(lineParameters);
                 records.Add(record);
             }            
@@ -35,7 +35,7 @@ namespace LoadFileAdapter.Parsers
             return records;
         }
 
-        public string[] ParseLine(ParseLineSetting args)
+        public string[] ParseLine(ParseLineSettings args)
         {
             return args.Line.Split(new char[] { ';', ',' });
         }                

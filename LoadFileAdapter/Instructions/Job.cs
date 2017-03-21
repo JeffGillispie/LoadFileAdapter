@@ -50,7 +50,7 @@ namespace LoadFileAdapter.Instructions
             if (this.Import.GetType().Equals(typeof(DatImport)))
             {
                 DatImport import = (DatImport)this.Import;
-                TabularImporter importer = new TabularImporter();
+                DatImporter importer = new DatImporter();
                 return importer.Import(import.File, import.Encoding, import.Delimiters.GetDelimiters(), import.HasHeader,
                     import.KeyColumnName, import.ParentColumnName, import.ChildColumnName, import.ChildColumnDelimiter,
                     import.LinkedFiles.Select(f => f.GetSetting()).ToList());

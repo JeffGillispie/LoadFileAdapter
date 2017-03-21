@@ -5,23 +5,23 @@ using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class TabularParser : IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting>
+    public class DatParser : IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings>
     {
-        public virtual List<string[]> Parse(TabularParseFileSetting args)
+        public virtual List<string[]> Parse(ParseFileDatSettings args)
         {            
             bool detectEncoding = true;
             List<string[]> records = null;
 
             using (StreamReader reader = new StreamReader(args.File.FullName, args.Encoding, detectEncoding))
             {
-                TabularParseReaderSetting readerArgs = new TabularParseReaderSetting(reader, args.Delimiters);
+                ParseReaderDatSettings readerArgs = new ParseReaderDatSettings(reader, args.Delimiters);
                 records = Parse(readerArgs);
             }
 
             return records;
         }
 
-        public virtual List<string[]> Parse(TabularParseReaderSetting args)
+        public virtual List<string[]> Parse(ParseReaderDatSettings args)
         {
             List<string[]> records = new List<string[]>();
 
@@ -29,7 +29,7 @@ namespace LoadFileAdapter.Parsers
 
             while ((line = args.Reader.ReadLine()) != null)
             {
-                TabularParseLineSetting lineParameters = new TabularParseLineSetting(line, args.Delimiters);
+                ParseLineDatSettings lineParameters = new ParseLineDatSettings(line, args.Delimiters);
                 string[] record = ParseLine(lineParameters);
                 records.Add(record);
             }
@@ -37,7 +37,7 @@ namespace LoadFileAdapter.Parsers
             return records;
         }
 
-        public string[] ParseLine(TabularParseLineSetting args)
+        public string[] ParseLine(ParseLineDatSettings args)
         {
             List<string> fieldValues = new List<string>();
             int startIndex = 0;

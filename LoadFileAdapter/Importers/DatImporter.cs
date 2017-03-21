@@ -6,19 +6,19 @@ using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Importers
 {
-    public class TabularImporter
+    public class DatImporter
     {
-        IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser;
+        IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser;
         IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder;
 
-        public TabularImporter()
+        public DatImporter()
         {
-            this.parser = new TabularParser();
+            this.parser = new DatParser();
             this.builder = new DatBuilder();
         }
 
-        public TabularImporter(
-            IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser, 
+        public DatImporter(
+            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser, 
             IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder)
         {
             this.parser = parser;
@@ -28,7 +28,7 @@ namespace LoadFileAdapter.Importers
         public DocumentCollection Import(FileInfo file, Encoding encoding, Delimiters delims, bool hasHeader, string keyColName, 
             string parentColName, string childColName, string childSeparator, List<LinkFileSettings> repColInfo)
         {
-            TabularParseFileSetting parameters = new TabularParseFileSetting(file, encoding, delims);
+            ParseFileDatSettings parameters = new ParseFileDatSettings(file, encoding, delims);
             List<string[]> records = parser.Parse(parameters);            
             BuildDocCollectionDatSettings args = new BuildDocCollectionDatSettings(
                 records, file.Directory.FullName, hasHeader, keyColName, parentColName, childColName, childSeparator, repColInfo);

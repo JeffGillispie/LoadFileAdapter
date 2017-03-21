@@ -2,13 +2,13 @@
 
 namespace LoadFileAdapter.Parsers
 {
-    public class TabularParseReaderSetting : ParseReaderSetting
+    public class ParseReaderDatSettings : ParseReaderSettings
     {
         private Delimiters delimiters;
 
         public Delimiters Delimiters { get { return delimiters; } }
 
-        public TabularParseReaderSetting(TextReader reader, Delimiters delimiters) : base(reader)
+        public ParseReaderDatSettings(TextReader reader, Delimiters delimiters) : base(reader)
         {
             this.delimiters = delimiters;
         }

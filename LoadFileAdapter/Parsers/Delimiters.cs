@@ -2,23 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Parsers
 {
+    [DataContract]
     public class Delimiters
     {
         public const char Null = '\0';
-        private char fieldSeparator = ',';
-        private char textQualifier = Null;
+        [DataMember]
+        private readonly char fieldSeparator = ',';
+        [DataMember]
+        private readonly char textQualifier = Null;
         private char newRecord = '\n';
         private char escapeCharacter = Null;
         private char flattenedNewLine = Null;
         
-        public char FieldSeparator { get { return this.fieldSeparator; } }
-        public char TextQualifier { get { return this.textQualifier; } }
-        public char NewRecord { get { return this.newRecord; } }
-        public char EscapeCharacter { get { return this.escapeCharacter; } }
+        
+        public char FieldSeparator { get { return this.fieldSeparator; } }        
+        public char TextQualifier { get { return this.textQualifier; } }        
+        public char NewRecord { get { return this.newRecord; } }        
+        public char EscapeCharacter { get { return this.escapeCharacter; } }        
         public char FlattenedNewLine { get { return this.flattenedNewLine; } }
         
         public static Delimiters COMMA_QUOTE = of(',', '"', '\n', '"', Null);

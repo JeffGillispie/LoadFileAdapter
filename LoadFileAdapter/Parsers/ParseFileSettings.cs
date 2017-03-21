@@ -3,7 +3,7 @@ using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
-    public class ParseFileSetting
+    public class ParseFileSettings
     {
         private FileInfo file;
         private Encoding encoding;
@@ -11,7 +11,7 @@ namespace LoadFileAdapter.Parsers
         public FileInfo File { get { return file; } }
         public Encoding Encoding { get { return encoding; } }
 
-        public ParseFileSetting(FileInfo file, Encoding encoding)
+        public ParseFileSettings(FileInfo file, Encoding encoding)
         {
             this.file = file;
             this.encoding = encoding;
