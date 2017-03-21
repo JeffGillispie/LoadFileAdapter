@@ -9,7 +9,7 @@ namespace LoadFileAdapter.Transformers
         private string replaceText = String.Empty;        
         private string filterField = String.Empty;
         private Regex filterText = null;
-        
+ 
         public Regex FindText { get { return findText; } }
         public string ReplaceText { get { return replaceText; } }        
         public string FilterField { get { return filterField; } }

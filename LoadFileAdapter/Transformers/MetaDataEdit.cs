@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Transformers
-{
+{    
     public class MetaDataEdit : Edit
     {
         private string fieldName = String.Empty;        
@@ -12,7 +12,7 @@ namespace LoadFileAdapter.Transformers
         private string appendField = String.Empty;
         private string joinDelimiter = String.Empty;        
         private DirectoryInfo prependDirectory = null;
-
+        
         public string FieldName { get { return fieldName; } }        
         public string AlternateDestinationField { get { return alternateDestinationField; } }
         public string PrependField { get { return prependField; } }
