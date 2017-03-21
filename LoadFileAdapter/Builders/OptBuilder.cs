@@ -102,19 +102,19 @@ namespace LoadFileAdapter.Builders
             return new LinkedFile(LinkedFile.FileType.Image, imageFiles);
         }
 
-        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting)
+        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextFileSettings textSetting)
         {
             SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
-            StructuredRepresentativeSetting.TextLevel textLevel = (textSetting != null)
-                ? textSetting.RepresentativeTextLevel
-                : StructuredRepresentativeSetting.TextLevel.None;
+            TextFileSettings.TextLevel textLevel = (textSetting != null)
+                ? textSetting.FileLevel
+                : TextFileSettings.TextLevel.None;
             // add text files
             switch (textLevel)
             {
-                case StructuredRepresentativeSetting.TextLevel.None:
+                case TextFileSettings.TextLevel.None:
                     // do nothing here
                     break;
-                case StructuredRepresentativeSetting.TextLevel.Page:
+                case TextFileSettings.TextLevel.Page:
                     pageRecords.ForEach(page => {
                         string pageTextKey = page[IMAGE_KEY_INDEX];
                         string pageTextPath = textSetting.GetTextPathFromImagePath(page[FULL_PATH_INDEX]);
@@ -124,7 +124,7 @@ namespace LoadFileAdapter.Builders
                         textFiles.Add(pageTextKey, pageTextPath);
                     });
                     break;
-                case StructuredRepresentativeSetting.TextLevel.Doc:
+                case TextFileSettings.TextLevel.Doc:
                     string docTextKey = pageRecords.First()[IMAGE_KEY_INDEX];
                     string docTextPath = textSetting.GetTextPathFromImagePath(pageRecords.First()[FULL_PATH_INDEX]);
                     docTextPath = String.IsNullOrEmpty(pathPrefix)

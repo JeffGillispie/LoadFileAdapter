@@ -5,16 +5,16 @@ namespace LoadFileAdapter.Builders
     public class BuildDocImageSettings : BuildDocSettings
     {
         private List<string[]> pageRecords;
-        private StructuredRepresentativeSetting textRepSetting;
+        private TextFileSettings textSetting;
 
         public List<string[]> PageRecords { get { return pageRecords; } }
-        public StructuredRepresentativeSetting TextSetting { get { return textRepSetting; } }
+        public TextFileSettings TextSetting { get { return textSetting; } }
 
-        public BuildDocImageSettings(List<string[]> pageRecords, StructuredRepresentativeSetting textRepSetting, string pathPrefix) :
+        public BuildDocImageSettings(List<string[]> pageRecords, TextFileSettings textSetting, string pathPrefix) :
             base(pathPrefix)
         {
             this.pageRecords = pageRecords;
-            this.textRepSetting = textRepSetting;
+            this.textSetting = textSetting;
         }
     }
 }

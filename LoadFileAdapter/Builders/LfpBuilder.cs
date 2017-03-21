@@ -190,18 +190,18 @@ namespace LoadFileAdapter.Builders
             }
         }
 
-        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting)
+        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextFileSettings textSetting)
         {
-            StructuredRepresentativeSetting.TextLevel textLevel = (textSetting != null)
-                ? textSetting.RepresentativeTextLevel
-                : StructuredRepresentativeSetting.TextLevel.None;
+            TextFileSettings.TextLevel textLevel = (textSetting != null)
+                ? textSetting.FileLevel
+                : TextFileSettings.TextLevel.None;
             SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
 
             switch(textLevel)
             {
-                case StructuredRepresentativeSetting.TextLevel.None:
+                case TextFileSettings.TextLevel.None:
                     return null;
-                case StructuredRepresentativeSetting.TextLevel.Page:
+                case TextFileSettings.TextLevel.Page:
                     foreach (string[] page in pageRecords)
                     {
                         string pageTextKey = page[KEY_INDEX];
@@ -212,7 +212,7 @@ namespace LoadFileAdapter.Builders
                         textFiles.Add(pageTextKey, pageTextPath);
                     }
                     return new LinkedFile(LinkedFile.FileType.Text, textFiles);
-                case StructuredRepresentativeSetting.TextLevel.Doc:
+                case TextFileSettings.TextLevel.Doc:
                     string[] docRecord = pageRecords.First();
                     string docTextKey = docRecord[KEY_INDEX];
                     string docTextPath = String.IsNullOrEmpty(pathPrefix)
@@ -226,7 +226,7 @@ namespace LoadFileAdapter.Builders
             }
         }
 
-        private HashSet<LinkedFile> getRepresentatives(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting, string[] nativeRecord)
+        private HashSet<LinkedFile> getRepresentatives(List<string[]> pageRecords, string pathPrefix, TextFileSettings textSetting, string[] nativeRecord)
         {
             HashSet<LinkedFile> reps = new HashSet<LinkedFile>();
 

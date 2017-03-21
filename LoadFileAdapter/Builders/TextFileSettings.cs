@@ -2,9 +2,9 @@
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace LoadFileAdapter
+namespace LoadFileAdapter.Builders
 {
-    public class StructuredRepresentativeSetting
+    public class TextFileSettings
     {
         private const string TEXT_EXT = ".txt";
 
@@ -18,23 +18,23 @@ namespace LoadFileAdapter
             None, SameAsImages, AlternateLocation
         }
 
-        private TextLevel textLevel = TextLevel.None;
-        private TextLocation textLocation = TextLocation.None;        
-        private Regex textPathFind = null;
-        private string textPathReplace = String.Empty;
+        private TextLevel fileLevel = TextLevel.None;
+        private TextLocation fileLocation = TextLocation.None;        
+        private Regex pathFind = null;
+        private string pathReplace = String.Empty;
 
-        public StructuredRepresentativeSetting(TextLevel textLevel, TextLocation textLocation, Regex textPathFind, string textPathReplace)
+        public TextFileSettings(TextLevel textLevel, TextLocation textLocation, Regex textPathFind, string textPathReplace)
         {
-            this.textLevel = textLevel;
-            this.textLocation = textLocation;
-            this.textPathFind = textPathFind;
-            this.textPathReplace = textPathReplace;
+            this.fileLevel = textLevel;
+            this.fileLocation = textLocation;
+            this.pathFind = textPathFind;
+            this.pathReplace = textPathReplace;
         }
 
-        public TextLevel RepresentativeTextLevel { get { return this.textLevel; } }
-        public TextLocation RepresentativeTextLocation { get { return this.textLocation; } }
-        public Regex TextPathFind { get { return this.textPathFind; } }
-        public string TextPathReplace { get { return this.textPathReplace; } }
+        public TextLevel FileLevel { get { return this.fileLevel; } }
+        public TextLocation FileLocation { get { return this.fileLocation; } }
+        public Regex PathFind { get { return this.pathFind; } }
+        public string PathReplace { get { return this.pathReplace; } }
 
         public string GetTextPathFromImagePath(string imagePath)
         {
@@ -42,14 +42,14 @@ namespace LoadFileAdapter
             string textFolder = image.Directory.FullName;
             string textFile = Path.GetFileNameWithoutExtension(image.Name + TEXT_EXT);
 
-            switch(this.textLocation)
+            switch(this.fileLocation)
             {
                 case TextLocation.SameAsImages:
                     // nothing to replace
                     // do nothing here
                     break;
                 case TextLocation.AlternateLocation:
-                    textFolder = this.textPathFind.Replace(textFolder, this.textPathReplace);
+                    textFolder = this.pathFind.Replace(textFolder, this.pathReplace);
                     break;
                 default:
                     // do nothing here

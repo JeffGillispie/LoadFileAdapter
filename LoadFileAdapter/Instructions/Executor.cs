@@ -25,13 +25,13 @@ namespace LoadFileAdapter.Instructions
             {
                 ImgImport import = (ImgImport)instructions;
                 LfpImporter importer = new LfpImporter();
-                return importer.Import(import.File, import.Encoding, import.TextImportSetting);
+                return importer.Import(import.File, import.Encoding, import.TextSetting.GetSettings());
             }
             else if (instructions.File.Extension.ToUpper().Equals(".OPT"))
             {
                 ImgImport import = (ImgImport)instructions;
                 OptImporter importer = new OptImporter();
-                return importer.Import(import.File, import.Encoding, import.TextImportSetting);
+                return importer.Import(import.File, import.Encoding, import.TextSetting.GetSettings());
             }
             else
             {
@@ -72,7 +72,7 @@ namespace LoadFileAdapter.Instructions
         {            
             DocumentCollection docs = ImportDocs(job.Import);
             Transformer transformer = new Transformer();
-            transformer.Transform(docs, job.Edits);
+            transformer.Transform(docs, job.GetEdits());
 
             foreach (ExportInstructions export in job.Exports)
             {

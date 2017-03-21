@@ -68,13 +68,17 @@
     <Compile Include="Instructions\DatExport.cs" />
     <Compile Include="Instructions\DatImport.cs" />
     <Compile Include="Instructions\DelimitersBuilder.cs" />
+    <Compile Include="Instructions\EditBuilder.cs" />
     <Compile Include="Instructions\Executor.cs" />
     <Compile Include="Instructions\ExportInstructions.cs" />
     <Compile Include="Instructions\ImgExport.cs" />
     <Compile Include="Instructions\ImgImport.cs" />
     <Compile Include="Instructions\ImportInstructions.cs" />
     <Compile Include="Instructions\Job.cs" />
+    <Compile Include="Instructions\LinkedFileEditBuilder.cs" />
     <Compile Include="Instructions\LinkedFileSettingsBuilder.cs" />
+    <Compile Include="Instructions\MetaDataEditBuilder.cs" />
+    <Compile Include="Instructions\TextFileSettingsBuilder.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Builders\LfpBuilder.cs" />
@@ -95,7 +99,7 @@
     <Compile Include="Transformers\Edit.cs" />
     <Compile Include="Transformers\MetaDataEdit.cs" />
     <Compile Include="Transformers\Transformer.cs" />
-    <Compile Include="Transformers\RepresentativeEdit.cs" />
+    <Compile Include="Transformers\LinkedFileEdit.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

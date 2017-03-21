@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Transformers
 {
-    public class RepresentativeEdit : Edit
+    public class LinkedFileEdit : Edit
     {
         private LinkedFile.FileType targetType;
         private LinkedFile.FileType? newType;
@@ -11,7 +11,7 @@ namespace LoadFileAdapter.Transformers
         public LinkedFile.FileType TargetType { get { return targetType; } }
         public LinkedFile.FileType? NewType { get { return newType; } }
         
-        public RepresentativeEdit(
+        public LinkedFileEdit(
             LinkedFile.FileType targetType, LinkedFile.FileType? newType, 
             Regex findText, string replaceText,
             string filterField, Regex filterText) :

@@ -10,11 +10,16 @@ namespace LoadFileAdapter.Instructions
 {
     public class ImgImport : ImportInstructions
     {
-        public StructuredRepresentativeSetting TextImportSetting;
+        public TextFileSettingsBuilder TextSetting;
 
-        public ImgImport(FileInfo file, Encoding encoding, StructuredRepresentativeSetting txtRep) : base(file, encoding)
+        public ImgImport() : base(null, null)
         {
-            this.TextImportSetting = txtRep;
+
+        }
+
+        public ImgImport(FileInfo file, Encoding encoding, TextFileSettings txtSetting) : base(file, encoding)
+        {
+            this.TextSetting = new TextFileSettingsBuilder(txtSetting);
         }                
     }
 }

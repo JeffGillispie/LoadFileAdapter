@@ -9,7 +9,7 @@ namespace LoadFileAdapter.Builders
         public string[] NativeRecord { get { return nativeRecord; } }
 
         public BuildDocLfpSettings(
-            List<string[]> pageRecords, string[] nativeRecord, StructuredRepresentativeSetting textRepSetting, string pathPrefix) :
+            List<string[]> pageRecords, string[] nativeRecord, TextFileSettings textRepSetting, string pathPrefix) :
             base(pageRecords, textRepSetting, pathPrefix)
         {
             this.nativeRecord = nativeRecord;

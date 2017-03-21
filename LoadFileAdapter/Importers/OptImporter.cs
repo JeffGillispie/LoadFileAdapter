@@ -25,7 +25,7 @@ namespace LoadFileAdapter.Importers
             this.builder = builder;
         }
 
-        public DocumentCollection Import(FileInfo optFile, Encoding encoding, StructuredRepresentativeSetting textSetting)
+        public DocumentCollection Import(FileInfo optFile, Encoding encoding, TextFileSettings textSetting)
         {
             Delimiters delimiters = Delimiters.COMMA_DELIMITED;
             ParseFileDatSettings parameters = new ParseFileDatSettings(optFile, encoding, delimiters);
