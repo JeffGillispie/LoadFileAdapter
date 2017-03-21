@@ -13,18 +13,18 @@ namespace LoadFileAdapter.Builders
         private string parentColName;
         private string childColName;
         private string childColDelim;
-        private List<LinkFileSettings> repColInfo;
+        private List<LinkedFileSettings> repColInfo;
 
         public bool HasHeader { get { return hasHeader; } }
         public string KeyColumnName { get { return keyColName; } }
         public string ParentColumnName { get { return parentColName; } }
         public string ChildColumnName { get { return childColName; } }
         public string ChildColumnDelimiter { get { return childColDelim; } }
-        public List<LinkFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
+        public List<LinkedFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
 
         public BuildDocCollectionDatSettings(List<string[]> records, string pathPrefix, 
             bool hasHeader, string keyColName, string parentColName, string childColName, string childColDelim,
-            List<LinkFileSettings> repColInfo) :
+            List<LinkedFileSettings> repColInfo) :
             base(records, pathPrefix)
         {
             this.hasHeader = hasHeader;

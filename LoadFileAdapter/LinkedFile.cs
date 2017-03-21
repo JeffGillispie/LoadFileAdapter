@@ -2,23 +2,23 @@
 
 namespace LoadFileAdapter
 {
-    public class Representative
+    public class LinkedFile
     {
-        public enum Type
+        public enum FileType
         {
             Image, Native, Text
         }
 
-        private Type type;
+        private FileType type;
         private SortedDictionary<string, string> files;
 
-        public Representative(Type type, SortedDictionary<string, string> files)
+        public LinkedFile(FileType type, SortedDictionary<string, string> files)
         {
             this.type = type;
             this.files = files;
         }
 
-        public Type RepresentativeType
+        public FileType Type
         {
             get
             {

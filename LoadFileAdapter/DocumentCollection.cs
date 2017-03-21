@@ -172,17 +172,17 @@ namespace LoadFileAdapter
 
             foreach (Document doc in this.docs)
             {
-                foreach (var rep in doc.Representatives)
+                foreach (var rep in doc.LinkedFiles)
                 {
-                    if (rep.RepresentativeType == Representative.Type.Image)
+                    if (rep.Type == LinkedFile.FileType.Image)
                     {
                         imageCount += rep.Files.Count;
                     }
-                    else if (rep.RepresentativeType == Representative.Type.Native)
+                    else if (rep.Type == LinkedFile.FileType.Native)
                     {
                         nativeCount += rep.Files.Count;
                     }
-                    else if (rep.RepresentativeType == Representative.Type.Text)
+                    else if (rep.Type == LinkedFile.FileType.Text)
                     {
                         textCount += rep.Files.Count;
                     }

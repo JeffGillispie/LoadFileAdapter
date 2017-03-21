@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,51 +42,61 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatesNumber.cs" />
-    <Compile Include="Builders\BuildDocumentSetting.cs" />
-    <Compile Include="Builders\BuildDocumentsSetting.cs" />
+    <Compile Include="Builders\BuildDocSettings.cs" />
+    <Compile Include="Builders\BuildDocCollectionSettings.cs" />
     <Compile Include="Builders\IBuilder.cs" />
-    <Compile Include="Builders\ImageBuildDocumentSetting.cs" />
-    <Compile Include="Builders\ImageBuildDocumentsSetting.cs" />
-    <Compile Include="Builders\LfpBuildDocumentSetting.cs" />
-    <Compile Include="Builders\SemiStructuredRepresentativeSetting.cs" />
-    <Compile Include="Builders\TabularBuildDocumentSetting.cs" />
-    <Compile Include="Builders\TabularBuildDocumentsSetting.cs" />
+    <Compile Include="Builders\BuildDocImageSettings.cs" />
+    <Compile Include="Builders\BuildDocCollectionImageSettings.cs" />
+    <Compile Include="Builders\BuildDocLfpSettings.cs" />
+    <Compile Include="Builders\LinkedFileSettings.cs" />
+    <Compile Include="Builders\BuildDocDatSettings.cs" />
+    <Compile Include="Builders\BuildDocCollectionDatSettings.cs" />
     <Compile Include="DocumentCollection.cs" />
     <Compile Include="Exporters\IExporter.cs" />
-    <Compile Include="Exporters\ExportFileSetting.cs" />
-    <Compile Include="Exporters\ExportWriterSetting.cs" />
-    <Compile Include="Exporters\ImageExportFileSetting.cs" />
-    <Compile Include="Exporters\ImageExportWriterSetting.cs" />
+    <Compile Include="Exporters\ExportFileSettings.cs" />
+    <Compile Include="Exporters\ExportWriterSettings.cs" />
+    <Compile Include="Exporters\ExportFileImageSettings.cs" />
+    <Compile Include="Exporters\ExportWriterImageSettings.cs" />
     <Compile Include="Exporters\LfpExporter.cs" />
     <Compile Include="Exporters\OptExporter.cs" />
-    <Compile Include="Exporters\TabularExporter.cs" />
-    <Compile Include="Exporters\TabularExportFileSetting.cs" />
-    <Compile Include="Exporters\TabularExportWriterSetting.cs" />
+    <Compile Include="Exporters\DatExporter.cs" />
+    <Compile Include="Exporters\ExportFileDatSettings.cs" />
+    <Compile Include="Exporters\ExportWriterDatSettings.cs" />
     <Compile Include="Importers\LfpImporter.cs" />
     <Compile Include="Importers\OptImporter.cs" />
-    <Compile Include="Importers\TabularImporter.cs" />
+    <Compile Include="Importers\DatImporter.cs" />
+    <Compile Include="Instructions\DatExport.cs" />
+    <Compile Include="Instructions\DatImport.cs" />
+    <Compile Include="Instructions\DelimitersBuilder.cs" />
+    <Compile Include="Instructions\ExportInstructions.cs" />
+    <Compile Include="Instructions\ImgExport.cs" />
+    <Compile Include="Instructions\ImgImport.cs" />
+    <Compile Include="Instructions\ImportInstructions.cs" />
+    <Compile Include="Instructions\Job.cs" />
+    <Compile Include="Instructions\LinkedFileSettingsBuilder.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Builders\LfpBuilder.cs" />
     <Compile Include="Builders\OptBuilder.cs" />
     <Compile Include="Parsers\LfpParser.cs" />
-    <Compile Include="Parsers\ParseLineSetting.cs" />
-    <Compile Include="Parsers\ParseReaderSetting.cs" />
-    <Compile Include="Parsers\TabularParseLineSetting.cs" />
-    <Compile Include="Parsers\TabularParseFileSetting.cs" />
+    <Compile Include="Parsers\ParseLineSettings.cs" />
+    <Compile Include="Parsers\ParseReaderSettings.cs" />
+    <Compile Include="Parsers\ParseLineDatSettings.cs" />
+    <Compile Include="Parsers\ParseFileDatSettings.cs" />
     <Compile Include="Parsers\IParser.cs" />
-    <Compile Include="Parsers\ParseFileSetting.cs" />
-    <Compile Include="Parsers\TabularParser.cs" />
-    <Compile Include="Parsers\TabularParseReaderSetting.cs" />
+    <Compile Include="Parsers\ParseFileSettings.cs" />
+    <Compile Include="Parsers\DatParser.cs" />
+    <Compile Include="Parsers\ParseReaderDatSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Representative.cs" />
-    <Compile Include="Builders\StructuredRepresentativeSetting.cs" />
-    <Compile Include="Builders\TabularBuilder.cs" />
+    <Compile Include="LinkedFile.cs" />
+    <Compile Include="Builders\TextFileSettings.cs" />
+    <Compile Include="Builders\DatBuilder.cs" />
     <Compile Include="Transformers\Edit.cs" />
     <Compile Include="Transformers\MetaDataEdit.cs" />
     <Compile Include="Transformers\Transformer.cs" />
     <Compile Include="Transformers\RepresentativeEdit.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

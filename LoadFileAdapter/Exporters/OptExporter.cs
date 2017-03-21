@@ -35,12 +35,12 @@ namespace LoadFileAdapter.Exporters
 
         protected List<string> getPageRecords(Document document, string volName)
         {
-            Representative imageRep = null;
+            LinkedFile imageRep = null;
             List<string> pageRecords = new List<string>();
             // find the image representative
-            foreach (Representative rep in document.Representatives)
+            foreach (LinkedFile rep in document.LinkedFiles)
             {
-                if (rep.RepresentativeType.Equals(Representative.Type.Image))
+                if (rep.Type.Equals(LinkedFile.FileType.Image))
                 {
                     imageRep = rep;
                     break;

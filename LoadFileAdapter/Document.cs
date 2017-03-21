@@ -5,7 +5,7 @@ namespace LoadFileAdapter
     /// <summary>
     /// Represents a document from a load file. Holds the document key, parent, 
     /// a list of children, a collection of metadata key / value pairs, and a
-    /// set of all file representations of that document.
+    /// set of all linked files.
     /// </summary>
     public class Document
     {
@@ -26,9 +26,9 @@ namespace LoadFileAdapter
         /// </summary>
         private Dictionary<string, string> metadata;
         /// <summary>
-        /// The set of file representations for this document.
+        /// The set of linked files.
         /// </summary>
-        private HashSet<Representative> representatives;
+        private HashSet<LinkedFile> linkedFiles;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Document"/> class.
@@ -37,18 +37,18 @@ namespace LoadFileAdapter
         /// <param name="parent">The parent document.</param>
         /// <param name="children">A list of child documents.</param>
         /// <param name="metadata">A collection of metadata key / value pairs.</param>
-        /// <param name="representatives">A set of file representations of this document.</param>
+        /// <param name="linkedFiles">A set of linked files.</param>
         public Document(string key, 
             Document parent, 
             List<Document> children, 
             Dictionary<string, string> metadata, 
-            HashSet<Representative> representatives)
+            HashSet<LinkedFile> linkedFiles)
         {
             this.key = key;
             this.parent = parent;
             this.children = children;
             this.metadata = metadata;
-            this.representatives = representatives;
+            this.linkedFiles = linkedFiles;
         }
 
         /// <summary>
@@ -96,14 +96,14 @@ namespace LoadFileAdapter
         }
 
         /// <summary>
-        /// The set of all file representations of the document.
-        /// These can be of the type <see cref="Representative.Type"/>.
+        /// The set of linked files.
+        /// These can be of the type <see cref="LinkedFile.Type"/>.
         /// </summary>
-        public HashSet<Representative> Representatives
+        public HashSet<LinkedFile> LinkedFiles
         {
             get
             {
-                return this.representatives;
+                return this.linkedFiles;
             }
         }
 
@@ -129,13 +129,13 @@ namespace LoadFileAdapter
         }
         
         /// <summary>
-        /// Sets the representatives of the document.
+        /// Sets the linked files of the document.
         /// </summary>
-        /// <param name="reps">A set of all file representations of the document.</param>
-        public void SetRepresentatives(HashSet<Representative> reps)
+        /// <param name="linkedFiles">A set of linked files.</param>
+        public void SetLinkedFiles(HashSet<LinkedFile> linkedFiles)
         {
             // this setter was added to support transformations
-            this.representatives = reps;
+            this.linkedFiles = linkedFiles;
         }        
     }
 }

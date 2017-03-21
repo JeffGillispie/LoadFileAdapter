@@ -26,7 +26,7 @@ namespace LoadFileAdapter.Importers
         }
 
         public DocumentCollection Import(FileInfo file, Encoding encoding, Delimiters delims, bool hasHeader, string keyColName, 
-            string parentColName, string childColName, string childSeparator, List<LinkFileSettings> repColInfo)
+            string parentColName, string childColName, string childSeparator, List<LinkedFileSettings> repColInfo)
         {
             ParseFileDatSettings parameters = new ParseFileDatSettings(file, encoding, delims);
             List<string[]> records = parser.Parse(parameters);            

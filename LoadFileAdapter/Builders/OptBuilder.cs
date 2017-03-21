@@ -76,9 +76,9 @@ namespace LoadFileAdapter.Builders
             //metadata.Add(BOX_BREAK_FIELD, box); // extraneous meta
             //metadata.Add(FOLDER_BREAK_FIELD, dir); // extraneous meta
             // build the representatives
-            Representative imageRep = getImageRepresentative(args.PageRecords, args.PathPrefix);          
-            Representative textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSetting);
-            HashSet<Representative> reps = new HashSet<Representative>();
+            LinkedFile imageRep = getImageRepresentative(args.PageRecords, args.PathPrefix);          
+            LinkedFile textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSetting);
+            HashSet<LinkedFile> reps = new HashSet<LinkedFile>();
             reps.Add(imageRep);
             if (textRep.Files.Count > 0)
                 reps.Add(textRep);
@@ -88,7 +88,7 @@ namespace LoadFileAdapter.Builders
             return new Document(key, parent, children, metadata, reps);
         }
 
-        private Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
+        private LinkedFile getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
         {
             SortedDictionary<string, string> imageFiles = new SortedDictionary<string, string>();
             // add image files
@@ -99,10 +99,10 @@ namespace LoadFileAdapter.Builders
                     : Path.Combine(pathPrefix, page[FULL_PATH_INDEX].TrimStart(FILE_PATH_DELIM));                
                 imageFiles.Add(imageKey, imagePath);
             });
-            return new Representative(Representative.Type.Image, imageFiles);
+            return new LinkedFile(LinkedFile.FileType.Image, imageFiles);
         }
 
-        private Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting)
+        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting)
         {
             SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
             StructuredRepresentativeSetting.TextLevel textLevel = (textSetting != null)
@@ -137,7 +137,7 @@ namespace LoadFileAdapter.Builders
                     break;
             }
             // return a text rep
-            return new Representative(Representative.Type.Text, textFiles);
+            return new LinkedFile(LinkedFile.FileType.Text, textFiles);
         }
     }
 }

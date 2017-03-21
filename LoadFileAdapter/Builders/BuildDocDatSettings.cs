@@ -7,15 +7,15 @@ namespace LoadFileAdapter.Builders
         private string[] record;
         private string[] header;
         private string keyColName;
-        private List<LinkFileSettings> repColInfo;
+        private List<LinkedFileSettings> repColInfo;
 
         public string[] Record { get { return record; } }
         public string[] Header { get { return header; } }
         public string KeyColumnName { get { return keyColName; } }
-        public List<LinkFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
+        public List<LinkedFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
 
         public BuildDocDatSettings(string[] record, string[] header, string keyColName, 
-            List<LinkFileSettings> repColInfo, string pathPrefix) :
+            List<LinkedFileSettings> repColInfo, string pathPrefix) :
             base(pathPrefix)
         {
             this.record = record;

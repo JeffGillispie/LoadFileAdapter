@@ -5,14 +5,14 @@ namespace LoadFileAdapter.Transformers
 {
     public class RepresentativeEdit : Edit
     {
-        private Representative.Type targetType;
-        private Representative.Type? newType;
+        private LinkedFile.FileType targetType;
+        private LinkedFile.FileType? newType;
         
-        public Representative.Type TargetType { get { return targetType; } }
-        public Representative.Type? NewType { get { return newType; } }
+        public LinkedFile.FileType TargetType { get { return targetType; } }
+        public LinkedFile.FileType? NewType { get { return newType; } }
         
         public RepresentativeEdit(
-            Representative.Type targetType, Representative.Type? newType, 
+            LinkedFile.FileType targetType, LinkedFile.FileType? newType, 
             Regex findText, string replaceText,
             string filterField, Regex filterText) :
             base (findText, replaceText, filterField, filterText)
@@ -25,13 +25,13 @@ namespace LoadFileAdapter.Transformers
         {
             if (base.hasEdit(doc))
             {
-                HashSet<Representative> representatives = new HashSet<Representative>();
+                HashSet<LinkedFile> representatives = new HashSet<LinkedFile>();
 
-                foreach (Representative rep in doc.Representatives)
+                foreach (LinkedFile rep in doc.LinkedFiles)
                 {
-                    if (rep.RepresentativeType == targetType)
+                    if (rep.Type == targetType)
                     {
-                        Representative.Type updatedType = (newType != null) ? (Representative.Type)newType : rep.RepresentativeType;
+                        LinkedFile.FileType updatedType = (newType != null) ? (LinkedFile.FileType)newType : rep.Type;
                         SortedDictionary<string, string> updatedFiles = new SortedDictionary<string, string>();
                         
                         foreach (var file in rep.Files)
@@ -39,7 +39,7 @@ namespace LoadFileAdapter.Transformers
                             updatedFiles.Add(file.Key, base.Replace(file.Value));
                         }
 
-                        Representative newRep = new Representative(updatedType, updatedFiles);
+                        LinkedFile newRep = new LinkedFile(updatedType, updatedFiles);
                         representatives.Add(newRep);
                     }
                     else
@@ -48,7 +48,7 @@ namespace LoadFileAdapter.Transformers
                     }
                 }
 
-                doc.SetRepresentatives(representatives);
+                doc.SetLinkedFiles(representatives);
             }
         }
     }

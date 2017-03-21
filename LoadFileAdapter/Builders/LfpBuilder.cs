@@ -136,13 +136,13 @@ namespace LoadFileAdapter.Builders
             metadata.Add(VOLUME_NAME_FIELD, vol);
             metadata.Add(PAGE_COUNT_FIELD, pages.ToString());            
             // get representatives
-            HashSet<Representative> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSetting, args.NativeRecord);
+            HashSet<LinkedFile> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSetting, args.NativeRecord);
             Document parent = null;
             List<Document> children = null;
             return new Document(key, parent, children, metadata, reps);
         }
 
-        private Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
+        private LinkedFile getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
         {
             if (pageRecords.Count > 0)
             {
@@ -163,7 +163,7 @@ namespace LoadFileAdapter.Builders
                     }
                 }
                 // set image rep
-                return new Representative(Representative.Type.Image, imageFiles);
+                return new LinkedFile(LinkedFile.FileType.Image, imageFiles);
             }
             else
             {
@@ -171,7 +171,7 @@ namespace LoadFileAdapter.Builders
             }
         }
 
-        private Representative getNativeRepresentative(string[] nativeRecord, string pathPrefix)
+        private LinkedFile getNativeRepresentative(string[] nativeRecord, string pathPrefix)
         {
             if (nativeRecord == null)
             {
@@ -186,11 +186,11 @@ namespace LoadFileAdapter.Builders
                     : Path.Combine(pathPrefix, nativeRecord[NATIVE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
                 nativePath = Path.Combine(nativePath, nativeRecord[NATIVE_FILE_NAME_INDEX]);                
                 nativeFiles.Add(nativeKey, nativePath);
-                return new Representative(Representative.Type.Native, nativeFiles);
+                return new LinkedFile(LinkedFile.FileType.Native, nativeFiles);
             }
         }
 
-        private Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting)
+        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting)
         {
             StructuredRepresentativeSetting.TextLevel textLevel = (textSetting != null)
                 ? textSetting.RepresentativeTextLevel
@@ -211,7 +211,7 @@ namespace LoadFileAdapter.Builders
                         pageTextPath = Path.Combine(pageTextPath, page[IMAGE_FILE_NAME_INDEX]);                        
                         textFiles.Add(pageTextKey, pageTextPath);
                     }
-                    return new Representative(Representative.Type.Text, textFiles);
+                    return new LinkedFile(LinkedFile.FileType.Text, textFiles);
                 case StructuredRepresentativeSetting.TextLevel.Doc:
                     string[] docRecord = pageRecords.First();
                     string docTextKey = docRecord[KEY_INDEX];
@@ -220,19 +220,19 @@ namespace LoadFileAdapter.Builders
                         : Path.Combine(pathPrefix, docRecord[IMAGE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
                     docTextPath = Path.Combine(docTextPath, docRecord[IMAGE_FILE_NAME_INDEX]);                    
                     textFiles.Add(docTextKey, docTextPath);
-                    return new Representative(Representative.Type.Text, textFiles);
+                    return new LinkedFile(LinkedFile.FileType.Text, textFiles);
                 default:
                     return null;
             }
         }
 
-        private HashSet<Representative> getRepresentatives(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting, string[] nativeRecord)
+        private HashSet<LinkedFile> getRepresentatives(List<string[]> pageRecords, string pathPrefix, StructuredRepresentativeSetting textSetting, string[] nativeRecord)
         {
-            HashSet<Representative> reps = new HashSet<Representative>();
+            HashSet<LinkedFile> reps = new HashSet<LinkedFile>();
 
-            Representative imageRep = getImageRepresentative(pageRecords, pathPrefix);
-            Representative textRep = getTextRepresentative(pageRecords, pathPrefix, textSetting);
-            Representative nativeRep = getNativeRepresentative(nativeRecord, pathPrefix);
+            LinkedFile imageRep = getImageRepresentative(pageRecords, pathPrefix);
+            LinkedFile textRep = getTextRepresentative(pageRecords, pathPrefix, textSetting);
+            LinkedFile nativeRep = getNativeRepresentative(nativeRecord, pathPrefix);
 
             if (imageRep != null)
                 reps.Add(imageRep);
