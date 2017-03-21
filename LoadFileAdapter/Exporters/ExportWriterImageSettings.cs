@@ -2,13 +2,13 @@
 
 namespace LoadFileAdapter.Exporters
 {
-    public class ImageExportWriterSetting : ExportWriterSetting
+    public class ExportWriterImageSettings : ExportWriterSettings
     {
         private string volumeName;
 
         public string VolumeName { get { return volumeName; } }
 
-        public ImageExportWriterSetting(TextWriter writer, DocumentCollection documents, string volumeName) : base(writer, documents)
+        public ExportWriterImageSettings(TextWriter writer, DocumentCollection documents, string volumeName) : base(writer, documents)
         {
             this.volumeName = volumeName;
         }

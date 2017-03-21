@@ -1,17 +1,15 @@
 ﻿using System.IO;
-using System.Text;
 using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class TabularExportFileSetting : ExportFileSetting
+    public class ExportWriterDatSettings : ExportWriterSettings
     {
         private Delimiters delimiters;
 
         public Delimiters Delimiters { get { return delimiters; } }
 
-        public TabularExportFileSetting(DocumentCollection documents, FileInfo file, Encoding encoding, Delimiters delimiters) :
-            base(documents, file, encoding)
+        public ExportWriterDatSettings(TextWriter writer, DocumentCollection documents, Delimiters delimiters) : base(writer, documents)
         {
             this.delimiters = delimiters;
         }

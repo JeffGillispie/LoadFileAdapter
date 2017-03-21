@@ -3,7 +3,7 @@ using System.Text;
 
 namespace LoadFileAdapter.Exporters
 {
-    public abstract class ExportFileSetting
+    public abstract class ExportFileSettings
     {
         private DocumentCollection documents;
         private FileInfo file;
@@ -13,7 +13,7 @@ namespace LoadFileAdapter.Exporters
         public FileInfo File { get { return file; } }
         public Encoding Encoding { get { return encoding; } }
 
-        public ExportFileSetting(DocumentCollection documents, FileInfo file, Encoding encoding)
+        public ExportFileSettings(DocumentCollection documents, FileInfo file, Encoding encoding)
         {
             this.documents = documents;
             this.file = file;

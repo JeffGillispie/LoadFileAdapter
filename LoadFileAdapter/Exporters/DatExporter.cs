@@ -5,20 +5,20 @@ using System.Text;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class TabularExporter : IExporter<TabularExportFileSetting, TabularExportWriterSetting>
+    public class DatExporter : IExporter<ExportFileDatSettings, ExportWriterDatSettings>
     {
-        public void Export(TabularExportFileSetting args)
+        public void Export(ExportFileDatSettings args)
         {
             bool append = false;
 
             using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
             {
-                TabularExportWriterSetting writerArgs = new TabularExportWriterSetting(writer, args.Documents, args.Delimiters);
+                ExportWriterDatSettings writerArgs = new ExportWriterDatSettings(writer, args.Documents, args.Delimiters);
                 Export(writerArgs);
             }
         }
 
-        public void Export(TabularExportWriterSetting args)
+        public void Export(ExportWriterDatSettings args)
         {
             string header = getHeader(args.Documents, args.Delimiters);
             args.Writer.WriteLine(header);

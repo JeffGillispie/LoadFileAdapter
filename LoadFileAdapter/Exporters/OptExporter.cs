@@ -4,23 +4,23 @@ using System.IO;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class OptExporter : IExporter<ImageExportFileSetting, ImageExportWriterSetting>
+    public class OptExporter : IExporter<ExportFileImageSettings, ExportWriterImageSettings>
     {
         private const string TRUE_VALUE = "Y";
         private const string FALSE_VALUE = "";
 
-        public void Export(ImageExportFileSetting args)
+        public void Export(ExportFileImageSettings args)
         {
             bool append = false;
 
             using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
             {
-                ImageExportWriterSetting writerArgs = new ImageExportWriterSetting(writer, args.Documents, args.VolumeName);
+                ExportWriterImageSettings writerArgs = new ExportWriterImageSettings(writer, args.Documents, args.VolumeName);
                 Export(writerArgs);
             }
         }
 
-        public void Export(ImageExportWriterSetting args)
+        public void Export(ExportWriterImageSettings args)
         {
             foreach (Document document in args.Documents)
             {

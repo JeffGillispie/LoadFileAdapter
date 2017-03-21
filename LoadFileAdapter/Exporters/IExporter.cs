@@ -4,8 +4,8 @@ using System.Text;
 namespace LoadFileAdapter.Exporters
 {
     public interface IExporter<T, S> 
-        where T: ExportFileSetting
-        where S: ExportWriterSetting
+        where T: ExportFileSettings
+        where S: ExportWriterSettings
     {
         void Export(T args);
         void Export(S args);

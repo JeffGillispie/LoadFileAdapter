@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LoadFileAdapter.Exporters
 {
-    public class LfpExporter : IExporter<ImageExportFileSetting, ImageExportWriterSetting>
+    public class LfpExporter : IExporter<ExportFileImageSettings, ExportWriterImageSettings>
     {
         protected static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
             { ".TIF", 2 },
@@ -13,18 +13,18 @@ namespace LoadFileAdapter.Exporters
             { ".PDF", 7 }
         };
 
-        public void Export(ImageExportFileSetting args)
+        public void Export(ExportFileImageSettings args)
         {
             bool append = false;
 
             using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
             {
-                ImageExportWriterSetting writerArgs = new ImageExportWriterSetting(writer, args.Documents, args.VolumeName);
+                ExportWriterImageSettings writerArgs = new ExportWriterImageSettings(writer, args.Documents, args.VolumeName);
                 Export(writerArgs);
             }
         }
 
-        public void Export(ImageExportWriterSetting args)
+        public void Export(ExportWriterImageSettings args)
         {
             foreach (Document document in args.Documents)
             {
