@@ -9,7 +9,7 @@ namespace LoadFileAdapter.Importers
     public class OptImporter
     {
         private IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser;
-        private IBuilder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder;
+        private IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> builder;
 
         public OptImporter()
         {
@@ -19,7 +19,7 @@ namespace LoadFileAdapter.Importers
 
         public OptImporter(
             IParser<TabularParseFileSetting, TabularParseReaderSetting, TabularParseLineSetting> parser, 
-            IBuilder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting> builder)
+            IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> builder)
         {
             this.parser = parser;
             this.builder = builder;
@@ -30,7 +30,7 @@ namespace LoadFileAdapter.Importers
             Delimiters delimiters = Delimiters.COMMA_DELIMITED;
             TabularParseFileSetting parameters = new TabularParseFileSetting(optFile, encoding, delimiters);
             List<string[]> records = parser.Parse(parameters);            
-            ImageBuildDocumentsSetting args = new ImageBuildDocumentsSetting(records, optFile.Directory.FullName, textSetting);
+            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(records, optFile.Directory.FullName, textSetting);
             List<Document> documentList = builder.BuildDocuments(args);
             DocumentCollection documents = new DocumentCollection(documentList);            
             return documents;

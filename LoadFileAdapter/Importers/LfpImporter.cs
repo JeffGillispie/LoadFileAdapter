@@ -10,7 +10,7 @@ namespace LoadFileAdapter.Importers
     public class LfpImporter
     {
         private IParser<ParseFileSetting, ParseReaderSetting, ParseLineSetting> parser;
-        private IBuilder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting> builder;
+        private IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder;
         
         public LfpImporter()
         {
@@ -20,7 +20,7 @@ namespace LoadFileAdapter.Importers
 
         public LfpImporter(
             IParser<ParseFileSetting, ParseReaderSetting, ParseLineSetting> parser, 
-            IBuilder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting> builder)
+            IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder)
         {
             this.parser = parser;
             this.builder = builder;
@@ -30,7 +30,7 @@ namespace LoadFileAdapter.Importers
         {
             ParseFileSetting parameters = new ParseFileSetting(lfpFile, encoding);
             List<string[]> records = parser.Parse(parameters);            
-            ImageBuildDocumentsSetting args = new ImageBuildDocumentsSetting(records, lfpFile.Directory.FullName, textSetting);
+            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(records, lfpFile.Directory.FullName, textSetting);
             List<Document> documentList = builder.BuildDocuments(args);
             DocumentCollection documents = new DocumentCollection(documentList);            
             return documents;
