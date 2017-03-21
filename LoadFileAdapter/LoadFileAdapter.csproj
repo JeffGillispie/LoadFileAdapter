@@ -68,6 +68,7 @@
     <Compile Include="Instructions\DatExport.cs" />
     <Compile Include="Instructions\DatImport.cs" />
     <Compile Include="Instructions\DelimitersBuilder.cs" />
+    <Compile Include="Instructions\Executor.cs" />
     <Compile Include="Instructions\ExportInstructions.cs" />
     <Compile Include="Instructions\ImgExport.cs" />
     <Compile Include="Instructions\ImgImport.cs" />
