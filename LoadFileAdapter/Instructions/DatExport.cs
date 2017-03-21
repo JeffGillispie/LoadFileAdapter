@@ -14,9 +14,10 @@ namespace LoadFileAdapter.Instructions
             // do nothing here
         }
 
-        public DatExport(FileInfo file, Encoding encoding, Delimiters delimiters) : base(file, encoding)
+        public DatExport(FileInfo file, Encoding encoding, Delimiters delimiters, string[] exportFields) : base(file, encoding)
         {
             this.Delimiters = new DelimitersBuilder(delimiters);
+            this.ExportFields = exportFields; 
         }                
     }
 }

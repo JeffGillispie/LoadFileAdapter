@@ -44,7 +44,8 @@ namespace LoadFileAdapter.Instructions
             if (export.GetType().Equals(typeof(DatExport)))
             {
                 DatExport ex = (DatExport)export;
-                ExportFileDatSettings settings = new ExportFileDatSettings(docs, ex.File, ex.Encoding, ex.Delimiters.GetDelimiters());
+                ExportFileDatSettings settings = new ExportFileDatSettings(
+                    docs, ex.File, ex.Encoding, ex.Delimiters.GetDelimiters(), ex.ExportFields);
                 DatExporter exporter = new DatExporter();
                 exporter.Export(settings);
             }

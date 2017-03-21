@@ -6,9 +6,14 @@ using System.Text;
 
 namespace LoadFileAdapter.Instructions
 {
-    class ImgExport : ExportInstructions
+    public class ImgExport : ExportInstructions
     {
         public string VolumeName = null;
+
+        public ImgExport() : base()
+        {
+
+        }
 
         public ImgExport(FileInfo file, Encoding encoding, string volName) : base(file, encoding)
         {
