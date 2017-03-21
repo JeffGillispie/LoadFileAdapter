@@ -12,11 +12,14 @@ using LoadFileAdapter.Transformers;
 namespace LoadFileAdapter.Instructions
 {    
     [XmlInclude(typeof(DatImport))]
+    [XmlInclude(typeof(ImgImport))]
+    [XmlInclude(typeof(MetaDataEditBuilder))]
+    [XmlInclude(typeof(LinkedFileEditBuilder))]
     public class Job
     { 
         public ImportInstructions Import; 
         public ExportInstructions[] Exports; 
-        public Edit[] Edits;
+        public EditBuilder[] Edits;
 
         public Job()
         {
@@ -29,7 +32,32 @@ namespace LoadFileAdapter.Instructions
         {
             this.Import = import;
             this.Exports = exports;
-            this.Edits = edits;
+
+            if (edits != null)
+            {
+                List<EditBuilder> builderEdits = new List<EditBuilder>();
+
+                foreach (Edit edit in edits)
+                {
+                    if (edit.GetType().Equals(typeof(MetaDataEdit)))
+                    {
+                        builderEdits.Add(new MetaDataEditBuilder((MetaDataEdit)edit));
+                    }
+                    else
+                    {
+                        builderEdits.Add(new LinkedFileEditBuilder((LinkedFileEdit)edit));
+                    }
+                }
+
+                this.Edits = builderEdits.ToArray();
+            }
+            else
+                this.Edits = null;
+        }
+
+        public Edit[] GetEdits()
+        {
+            return this.Edits.Select(e => e.GetEdit()).ToArray();
         }
         
         public string ToXml()
