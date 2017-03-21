@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    public class TabularBuildDocumentsSetting : BuildDocumentsSetting
+    public class DatBuildDocCollectionSettings : BuildDocCollectionSettings
     {
         private bool hasHeader;
         private string keyColName;
         private string parentColName;
         private string childColName;
         private string childColDelim;
-        private List<SemiStructuredRepresentativeSetting> repColInfo;
+        private List<LinkFileSettings> repColInfo;
 
         public bool HasHeader { get { return hasHeader; } }
         public string KeyColumnName { get { return keyColName; } }
         public string ParentColumnName { get { return parentColName; } }
         public string ChildColumnName { get { return childColName; } }
         public string ChildColumnDelimiter { get { return childColDelim; } }
-        public List<SemiStructuredRepresentativeSetting> RepresentativeColumnInfo { get { return repColInfo; } }
+        public List<LinkFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
 
-        public TabularBuildDocumentsSetting(List<string[]> records, string pathPrefix, 
+        public DatBuildDocCollectionSettings(List<string[]> records, string pathPrefix, 
             bool hasHeader, string keyColName, string parentColName, string childColName, string childColDelim,
-            List<SemiStructuredRepresentativeSetting> repColInfo) :
+            List<LinkFileSettings> repColInfo) :
             base(records, pathPrefix)
         {
             this.hasHeader = hasHeader;

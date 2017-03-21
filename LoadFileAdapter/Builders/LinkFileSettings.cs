@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    public class SemiStructuredRepresentativeSetting
+    public class LinkFileSettings
     {
         private string repCol;
         private Representative.Type repType;
@@ -14,7 +14,7 @@ namespace LoadFileAdapter.Builders
         public string RepresentativeColumn { get { return this.repCol; } }
         public Representative.Type RepresentativeType { get { return this.repType; } }
 
-        public SemiStructuredRepresentativeSetting(string column, Representative.Type type)
+        public LinkFileSettings(string column, Representative.Type type)
         {
             this.repCol = column;
             this.repType = type;

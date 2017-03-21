@@ -5,12 +5,12 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
-    public class TabularBuilder : IBuilder<TabularBuildDocumentsSetting, TabularBuildDocumentSetting>
+    public class DatBuilder : IBuilder<DatBuildDocCollectionSettings, DatBuildDocSettings>
     {
         private const char FILE_PATH_DELIM = '\\';
         private const string DEFAULT_CHILD_SEPARATOR = ";";
 
-        public List<Document> BuildDocuments(TabularBuildDocumentsSetting args)
+        public List<Document> BuildDocuments(DatBuildDocCollectionSettings args)
         {
             string[] header = GetHeader(args.Records.First(), args.HasHeader);
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
@@ -26,7 +26,7 @@ namespace LoadFileAdapter.Builders
                     continue; // skip header line
                 }
                 // build a document                
-                TabularBuildDocumentSetting docArgs = new TabularBuildDocumentSetting(record, header, args.KeyColumnName, args.RepresentativeColumnInfo, args.PathPrefix);
+                DatBuildDocSettings docArgs = new DatBuildDocSettings(record, header, args.KeyColumnName, args.RepresentativeColumnInfo, args.PathPrefix);
                 Document doc = BuildDocument(docArgs);
                 // set the parent and child values
                 settleFamilyDrama(args.ParentColumnName, args.ChildColumnName, childSeparator, doc, docs, paternity);
@@ -47,7 +47,7 @@ namespace LoadFileAdapter.Builders
             return docs.Values.ToList();
         }
 
-        public Document BuildDocument(TabularBuildDocumentSetting args)
+        public Document BuildDocument(DatBuildDocSettings args)
         {
             // validate the field count
             if (args.Header.Length != args.Record.Length)
@@ -70,7 +70,7 @@ namespace LoadFileAdapter.Builders
             // populate representatives
             if (args.RepresentativeColumnInfo != null)
             {
-                foreach (SemiStructuredRepresentativeSetting info in args.RepresentativeColumnInfo)
+                foreach (LinkFileSettings info in args.RepresentativeColumnInfo)
                 {
                     SortedDictionary<string, string> files = new SortedDictionary<string, string>();
                     // this format will only have one file per rep

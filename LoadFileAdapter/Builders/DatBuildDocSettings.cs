@@ -2,20 +2,20 @@
 
 namespace LoadFileAdapter.Builders
 {
-    public class TabularBuildDocumentSetting : BuildDocumentSetting
+    public class DatBuildDocSettings : BuildDocSettings
     {
         private string[] record;
         private string[] header;
         private string keyColName;
-        private List<SemiStructuredRepresentativeSetting> repColInfo;
+        private List<LinkFileSettings> repColInfo;
 
         public string[] Record { get { return record; } }
         public string[] Header { get { return header; } }
         public string KeyColumnName { get { return keyColName; } }
-        public List<SemiStructuredRepresentativeSetting> RepresentativeColumnInfo { get { return repColInfo; } }
+        public List<LinkFileSettings> RepresentativeColumnInfo { get { return repColInfo; } }
 
-        public TabularBuildDocumentSetting(string[] record, string[] header, string keyColName, 
-            List<SemiStructuredRepresentativeSetting> repColInfo, string pathPrefix) :
+        public DatBuildDocSettings(string[] record, string[] header, string keyColName, 
+            List<LinkFileSettings> repColInfo, string pathPrefix) :
             base(pathPrefix)
         {
             this.record = record;

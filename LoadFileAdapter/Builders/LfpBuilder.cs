@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
-    public class LfpBuilder : IBuilder<ImageBuildDocumentsSetting, LfpBuildDocumentSetting>
+    public class LfpBuilder : IBuilder<ImageBuildDocCollectionSettings, LfpBuildDocSettings>
     {
         private const int TOKEN_INDEX = 0;
         private const int KEY_INDEX = 1;
@@ -36,7 +36,7 @@ namespace LoadFileAdapter.Builders
             D, C
         }
         
-        public List<Document> BuildDocuments(ImageBuildDocumentsSetting args)
+        public List<Document> BuildDocuments(ImageBuildDocCollectionSettings args)
         {
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
             List<string[]> pageRecords = new List<string[]>();
@@ -57,7 +57,7 @@ namespace LoadFileAdapter.Builders
                         // this is a guard against the first line in the list
                         if (pageRecords.Count > 0)
                         {                            
-                            LfpBuildDocumentSetting docArgs = new LfpBuildDocumentSetting(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
+                            LfpBuildDocSettings docArgs = new LfpBuildDocSettings(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
                             Document doc = BuildDocument(docArgs);
                             string key = doc.Metadata[KEY_FIELD];
                             BoundaryFlag docBreak = (BoundaryFlag)Enum.Parse(typeof(BoundaryFlag), lastBreak);
@@ -98,7 +98,7 @@ namespace LoadFileAdapter.Builders
                     // if it is not null then the native has no corresponding images so send the data to make a document
                     if (nativeRecord != null)
                     {                        
-                        LfpBuildDocumentSetting nativeArgs = new LfpBuildDocumentSetting(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
+                        LfpBuildDocSettings nativeArgs = new LfpBuildDocSettings(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
                         Document doc = BuildDocument(nativeArgs);
                         string key = doc.Metadata[KEY_FIELD];
                         docs.Add(key, doc);
@@ -108,7 +108,7 @@ namespace LoadFileAdapter.Builders
                 }
             }
             // add last doc to the collection            
-            LfpBuildDocumentSetting lastArgs = new LfpBuildDocumentSetting(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
+            LfpBuildDocSettings lastArgs = new LfpBuildDocSettings(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
             Document lastDoc = BuildDocument(lastArgs);
             string lastKey = lastDoc.Metadata[KEY_FIELD];
             // check if a relationship needs to be set
@@ -122,7 +122,7 @@ namespace LoadFileAdapter.Builders
             return docs.Values.ToList();
         }
 
-        public Document BuildDocument(LfpBuildDocumentSetting args)
+        public Document BuildDocument(LfpBuildDocSettings args)
         {
             // check if this doc has images or is native only then get document properties
             string[] firstPage = (args.PageRecords.Count > 0) ? args.PageRecords.First() : null;            

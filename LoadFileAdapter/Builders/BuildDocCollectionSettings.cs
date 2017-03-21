@@ -2,7 +2,7 @@
 
 namespace LoadFileAdapter.Builders
 {
-    public abstract class BuildDocumentsSetting
+    public abstract class BuildDocCollectionSettings
     {
         private List<string[]> records;
         private string pathPrefix;
@@ -10,7 +10,7 @@ namespace LoadFileAdapter.Builders
         public List<string[]> Records { get { return records; } }
         public string PathPrefix { get { return pathPrefix; } }
 
-        public BuildDocumentsSetting(List<string[]> records, string pathPrefix)
+        public BuildDocCollectionSettings(List<string[]> records, string pathPrefix)
         {
             this.records = records;
             this.pathPrefix = pathPrefix;

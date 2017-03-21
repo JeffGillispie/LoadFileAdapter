@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
-    public class OptBuilder : IBuilder<ImageBuildDocumentsSetting, ImageBuildDocumentSetting>
+    public class OptBuilder : IBuilder<ImageBuildDocCollectionSettings, ImageBuildDocSettings>
     {
         private const int IMAGE_KEY_INDEX = 0;
         private const int VOLUME_NAME_INDEX = 1;
@@ -22,7 +22,7 @@ namespace LoadFileAdapter.Builders
         internal const string FOLDER_BREAK_FIELD = "Folder Break";
         private const char FILE_PATH_DELIM = '\\';
         
-        public List<Document> BuildDocuments(ImageBuildDocumentsSetting args)
+        public List<Document> BuildDocuments(ImageBuildDocCollectionSettings args)
         {   
             // setup for building         
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
@@ -36,7 +36,7 @@ namespace LoadFileAdapter.Builders
                     // send data to make a document
                     if (pageRecords.Count > 0)
                     {                        
-                        ImageBuildDocumentSetting docArgs = new ImageBuildDocumentSetting(pageRecords, args.TextSetting, args.PathPrefix);
+                        ImageBuildDocSettings docArgs = new ImageBuildDocSettings(pageRecords, args.TextSetting, args.PathPrefix);
                         Document doc = BuildDocument(docArgs);
                         string key = doc.Metadata[IMAGE_KEY_FIELD];
                         docs.Add(key, doc);
@@ -52,14 +52,14 @@ namespace LoadFileAdapter.Builders
                 }
             }
             // add last doc to the collection            
-            ImageBuildDocumentSetting lastArgs = new ImageBuildDocumentSetting(pageRecords, args.TextSetting, args.PathPrefix);
+            ImageBuildDocSettings lastArgs = new ImageBuildDocSettings(pageRecords, args.TextSetting, args.PathPrefix);
             Document lastDoc = BuildDocument(lastArgs);
             string lastKey = lastDoc.Metadata[IMAGE_KEY_FIELD];
             docs.Add(lastKey, lastDoc);
             return docs.Values.ToList();
         }
 
-        public Document BuildDocument(ImageBuildDocumentSetting args)
+        public Document BuildDocument(ImageBuildDocSettings args)
         {            
             // get document properties
             string[] pageOne = args.PageRecords.First();
