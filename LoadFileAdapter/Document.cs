@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace LoadFileAdapter
@@ -136,6 +137,6 @@ namespace LoadFileAdapter
         {
             // this setter was added to support transformations
             this.linkedFiles = linkedFiles;
-        }        
+        }                
     }
 }

@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter
 {
@@ -8,7 +11,8 @@ namespace LoadFileAdapter
     /// </summary>
     public class DocumentCollection : IEnumerable<Document>
     {
-        private List<Document> docs = new List<Document>();        
+        private List<Document> documentList = new List<Document>();
+        private Dictionary<string, Document> documentGlossary = new Dictionary<string, Document>();                
         private int imageCount = -1;
         private int textCount = -1;
         private int nativeCount = -1;
@@ -22,14 +26,14 @@ namespace LoadFileAdapter
         /// </summary>
         public DocumentCollection()
         {
-
+            // do nothing here
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DocumentCollection"/> class.
         /// </summary>
         /// <param name="documents">The documents used to populate the collection.</param>
-        public DocumentCollection(IEnumerable<Document> documents)
+        public DocumentCollection(IEnumerable<Document> documents) : this()
         {
             AddRange(documents);
         }
@@ -38,10 +42,9 @@ namespace LoadFileAdapter
         /// Adds a <see cref="Document"/> to the collection.
         /// </summary>
         /// <param name="doc">The document to add to the collection.</param>
-        public void Add(Document doc)
+        public void Add(Document document)
         {
-            this.docs.Add(doc);
-            propertyReset();
+            AddRange(new Document[] { document });
         }
 
         /// <summary>
@@ -50,7 +53,25 @@ namespace LoadFileAdapter
         /// <param name="documents">The documents to add to the collection.</param>
         public void AddRange(IEnumerable<Document> documents)
         {
-            this.docs.AddRange(documents);
+            foreach (Document document in documents)
+            {
+                if (this.documentGlossary.ContainsKey(document.Key))
+                {
+                    Overlayer overlayer = new Overlayer(true, true, true);
+                    Document original = this.documentGlossary[document.Key];
+                    Document newDoc = overlayer.Overlay(original, document);
+                    int index = this.documentList.BinarySearch(original);
+                    this.documentList[index] = newDoc;
+                    this.documentGlossary[document.Key] = newDoc;
+#warning this needs testing
+                }
+                else
+                {
+                    this.documentList.Add(document);
+                    this.documentGlossary.Add(document.Key, document);
+                }
+            }
+
             propertyReset();            
         }
 
@@ -61,7 +82,7 @@ namespace LoadFileAdapter
         {
             get
             {
-                return this.docs.Count;
+                return this.documentList.Count;
             }
         }
 
@@ -166,23 +187,42 @@ namespace LoadFileAdapter
         {
             get
             {
-                return this.docs[index];
+                return this.documentList[index];
             }
 
             set
             {
-                this.docs[index] = value;
+                string key = this.documentList[index].Key;
+                this.documentGlossary[key] = value;
+                this.documentList[index] = value;
+                propertyReset();
+            }
+        }
+
+        public Document this[string key]
+        {
+            get
+            {
+                return this.documentGlossary[key];
+            }
+
+            set
+            {
+                int index = this.documentList.BinarySearch(this.documentGlossary[key]);
+                this.documentGlossary[key] = value;
+                this.documentList[index] = value;
+                propertyReset();
             }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this.docs.GetEnumerator();
+            return this.documentGlossary.GetEnumerator();
         }
 
         IEnumerator<Document> IEnumerable<Document>.GetEnumerator()
         {
-            return this.docs.GetEnumerator();
+            return this.documentGlossary.Values.GetEnumerator();
         }
 
         /// <summary>
@@ -195,7 +235,8 @@ namespace LoadFileAdapter
             this.nativeCount = -1;
             this.parentCount = -1;
             this.childCount = -1;
-            this.standAloneCount = -1;            
+            this.standAloneCount = -1;
+            this.propertiesAreUncounted = true;            
         }
 
         /// <summary>
@@ -210,21 +251,21 @@ namespace LoadFileAdapter
             this.childCount = 0;
             this.standAloneCount = 0;
 
-            foreach (Document doc in this.docs)
+            foreach (Document doc in this.documentGlossary.Values)
             {
-                foreach (var rep in doc.LinkedFiles)
+                foreach (var linkedFile in doc.LinkedFiles)
                 {
-                    if (rep.Type == LinkedFile.FileType.Image)
+                    if (linkedFile.Type == LinkedFile.FileType.Image)
                     {
-                        imageCount += rep.Files.Count;
+                        imageCount += linkedFile.Files.Count;
                     }
-                    else if (rep.Type == LinkedFile.FileType.Native)
+                    else if (linkedFile.Type == LinkedFile.FileType.Native)
                     {
-                        nativeCount += rep.Files.Count;
+                        nativeCount += linkedFile.Files.Count;
                     }
-                    else if (rep.Type == LinkedFile.FileType.Text)
+                    else if (linkedFile.Type == LinkedFile.FileType.Text)
                     {
-                        textCount += rep.Files.Count;
+                        textCount += linkedFile.Files.Count;
                     }
                 }
 
@@ -241,6 +282,6 @@ namespace LoadFileAdapter
                     standAloneCount++;
                 }
             }
-        }
+        }        
     }
 }

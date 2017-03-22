@@ -96,6 +96,7 @@
     <Compile Include="LinkedFile.cs" />
     <Compile Include="Builders\TextFileSettings.cs" />
     <Compile Include="Builders\DatBuilder.cs" />
+    <Compile Include="Transformers\Overlayer.cs" />
     <Compile Include="Transformers\Transformation.cs" />
     <Compile Include="Transformers\MetaDataTransformation.cs" />
     <Compile Include="Transformers\Transformer.cs" />
