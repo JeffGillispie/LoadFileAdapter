@@ -4,7 +4,7 @@ using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Instructions
 {
-    public class DatExport : ExportInstructions
+    public class DatExport : Export
     {        
         public DelimitersBuilder Delimiters = new DelimitersBuilder(LoadFileAdapter.Parsers.Delimiters.CONCORDANCE);
         public string[] ExportFields = null;

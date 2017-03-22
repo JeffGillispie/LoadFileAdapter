@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Transformers
 {    
-    public class MetaDataEdit : Edit
+    public class MetaDataTransformation : Transformation
     {
         private string fieldName = String.Empty;        
         private string alternateDestinationField = String.Empty;
@@ -20,7 +20,7 @@ namespace LoadFileAdapter.Transformers
         public string JoinDelimiter { get { return joinDelimiter; } }        
         public DirectoryInfo PrependDirectory { get { return prependDirectory; } }
 
-        public MetaDataEdit( string fieldName,
+        public MetaDataTransformation( string fieldName,
             Regex findText, string replaceText,
             string alternateDestinationField, string prependField, string appendField, string joinDelimiter,
             string filterField, Regex filterText, DirectoryInfo prependDirectory) :

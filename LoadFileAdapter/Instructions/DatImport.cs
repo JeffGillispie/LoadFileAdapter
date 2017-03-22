@@ -6,7 +6,7 @@ using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Instructions
 {    
-    public class DatImport : ImportInstructions
+    public class DatImport : Import
     {     
         public DelimitersBuilder Delimiters = new DelimitersBuilder(LoadFileAdapter.Parsers.Delimiters.CONCORDANCE);
         public bool HasHeader = true;

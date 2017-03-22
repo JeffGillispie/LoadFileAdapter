@@ -3,11 +3,11 @@ namespace LoadFileAdapter.Transformers
 {
     public class Transformer
     {
-        public void Transform(DocumentCollection docs, Edit[] edits)
+        public void Transform(DocumentCollection docs, Transformation[] edits)
         {
             foreach (Document doc in docs)
             {
-                foreach (Edit edit in edits)
+                foreach (Transformation edit in edits)
                 {
                     edit.Transform(doc);
                 }

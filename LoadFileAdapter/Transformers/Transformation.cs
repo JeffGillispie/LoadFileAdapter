@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Transformers
 {
-    public abstract class Edit
+    public abstract class Transformation
     {
         private Regex findText = null;
         private string replaceText = String.Empty;        
@@ -15,7 +15,7 @@ namespace LoadFileAdapter.Transformers
         public string FilterField { get { return filterField; } }
         public Regex FilterText { get { return filterText; } }        
 
-        public Edit(Regex findText, string replaceText, string filterField, Regex filterText)
+        public Transformation(Regex findText, string replaceText, string filterField, Regex filterText)
         {
             this.findText = findText;
             this.replaceText = replaceText;            

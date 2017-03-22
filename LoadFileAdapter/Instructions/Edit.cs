@@ -8,16 +8,16 @@ using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter.Instructions
 {
-    public abstract class EditBuilder
+    public abstract class Edit
     {
         [XmlIgnore]
         public Regex FindText = null;
-        public string ReplaceText = String.Empty;
-        public string FilterField = String.Empty;
+        public string ReplaceText = null;
+        public string FilterField = null;
         [XmlIgnore]
         public Regex FilterText = null;
 
-        public EditBuilder()
+        public Edit()
         {
 
         }
@@ -29,7 +29,7 @@ namespace LoadFileAdapter.Instructions
                 if (this.FindText != null)
                     return this.FindText.ToString();
                 else
-                    return String.Empty;
+                    return null;
             }
 
             set
@@ -51,10 +51,13 @@ namespace LoadFileAdapter.Instructions
 
             set
             {
-                bool ignoreCase = value;
-                bool rtl = FindTextIsRightToLeft;
-                RegexOptions options = getRegexOptions(ignoreCase, rtl);
-                this.FindText = new Regex(FindTextPattern, options);
+                if (FindTextPattern != null)
+                {
+                    bool ignoreCase = value;
+                    bool rtl = FindTextIsRightToLeft;
+                    RegexOptions options = getRegexOptions(ignoreCase, rtl);
+                    this.FindText = new Regex(FindTextPattern, options);
+                }
             }
         }
 
@@ -70,10 +73,13 @@ namespace LoadFileAdapter.Instructions
 
             set
             {
-                bool ignoreCase = FindTextIgnoreCase;
-                bool rtl = false;
-                RegexOptions options = getRegexOptions(ignoreCase, rtl);
-                this.FindText = new Regex(FindTextPattern, options);
+                if (FindTextPattern != null)
+                {
+                    bool ignoreCase = FindTextIgnoreCase;
+                    bool rtl = false;
+                    RegexOptions options = getRegexOptions(ignoreCase, rtl);
+                    this.FindText = new Regex(FindTextPattern, options);
+                }
             }
         }
 
@@ -84,7 +90,7 @@ namespace LoadFileAdapter.Instructions
                 if (this.FilterText != null)
                     return this.FilterText.ToString();
                 else
-                    return String.Empty;
+                    return null;
             }
 
             set
@@ -106,10 +112,13 @@ namespace LoadFileAdapter.Instructions
 
             set
             {
-                bool ignoreCase = value;
-                bool rtl = FilterTextRightToLeft;
-                RegexOptions options = getRegexOptions(ignoreCase, rtl);
-                this.FilterText = new Regex(FilterTextPattern, options);
+                if (FilterTextPattern != null)
+                {
+                    bool ignoreCase = value;
+                    bool rtl = FilterTextRightToLeft;
+                    RegexOptions options = getRegexOptions(ignoreCase, rtl);
+                    this.FilterText = new Regex(FilterTextPattern, options);
+                }
             }
         }
 
@@ -125,10 +134,13 @@ namespace LoadFileAdapter.Instructions
 
             set
             {
-                bool ignoreCase = FilterTextIgnoreCase;
-                bool rtl = value;
-                RegexOptions options = getRegexOptions(ignoreCase, rtl);
-                this.FilterText = new Regex(this.FilterText.ToString(), options);
+                if (FilterTextPattern != null)
+                {
+                    bool ignoreCase = FilterTextIgnoreCase;
+                    bool rtl = value;
+                    RegexOptions options = getRegexOptions(ignoreCase, rtl);
+                    this.FilterText = new Regex(FilterTextPattern, options);
+                }
             }
         }
 
@@ -140,15 +152,15 @@ namespace LoadFileAdapter.Instructions
             return options;
         }
 
-        public Edit GetEdit()
+        public Transformation GetEdit()
         {
-            if (this.GetType().Equals(typeof(MetaDataEditBuilder)))
+            if (this.GetType().Equals(typeof(MetaDataEdit)))
             {
-                return ((MetaDataEditBuilder)this).GetEdit();
+                return ((MetaDataEdit)this).GetEdit();
             }
             else
             {
-                return ((LinkedFileEditBuilder)this).GetEdit();
+                return ((LinkedFileEdit)this).GetEdit();
             }
         }
     }

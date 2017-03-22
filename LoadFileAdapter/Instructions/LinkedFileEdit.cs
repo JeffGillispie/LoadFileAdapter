@@ -6,17 +6,17 @@ using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter.Instructions
 {
-    public class LinkedFileEditBuilder : EditBuilder
+    public class LinkedFileEdit : Edit
     {
         public LinkedFile.FileType TargetType;
         public LinkedFile.FileType? NewType;
 
-        public LinkedFileEditBuilder() : base()
+        public LinkedFileEdit() : base()
         {
 
         }
 
-        public LinkedFileEditBuilder(LinkedFileEdit edit)
+        public LinkedFileEdit(LinkedFileTransformation edit)
         {
             this.TargetType = edit.TargetType;
             this.NewType = edit.NewType;
@@ -26,9 +26,9 @@ namespace LoadFileAdapter.Instructions
             base.ReplaceText = edit.ReplaceText;
         }
 
-        public new LinkedFileEdit GetEdit()
+        public new LinkedFileTransformation GetEdit()
         {
-            return new LinkedFileEdit(
+            return new LinkedFileTransformation(
                 this.TargetType, 
                 this.NewType, 
                 this.FindText, 

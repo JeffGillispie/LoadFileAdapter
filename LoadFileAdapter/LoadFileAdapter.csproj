@@ -68,16 +68,16 @@
     <Compile Include="Instructions\DatExport.cs" />
     <Compile Include="Instructions\DatImport.cs" />
     <Compile Include="Instructions\DelimitersBuilder.cs" />
-    <Compile Include="Instructions\EditBuilder.cs" />
+    <Compile Include="Instructions\Edit.cs" />
     <Compile Include="Instructions\Executor.cs" />
-    <Compile Include="Instructions\ExportInstructions.cs" />
+    <Compile Include="Instructions\Export.cs" />
     <Compile Include="Instructions\ImgExport.cs" />
     <Compile Include="Instructions\ImgImport.cs" />
-    <Compile Include="Instructions\ImportInstructions.cs" />
+    <Compile Include="Instructions\Import.cs" />
     <Compile Include="Instructions\Job.cs" />
-    <Compile Include="Instructions\LinkedFileEditBuilder.cs" />
+    <Compile Include="Instructions\LinkedFileEdit.cs" />
     <Compile Include="Instructions\LinkedFileSettingsBuilder.cs" />
-    <Compile Include="Instructions\MetaDataEditBuilder.cs" />
+    <Compile Include="Instructions\MetaDataEdit.cs" />
     <Compile Include="Instructions\TextFileSettingsBuilder.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
     <Compile Include="Document.cs" />
@@ -96,10 +96,10 @@
     <Compile Include="LinkedFile.cs" />
     <Compile Include="Builders\TextFileSettings.cs" />
     <Compile Include="Builders\DatBuilder.cs" />
-    <Compile Include="Transformers\Edit.cs" />
-    <Compile Include="Transformers\MetaDataEdit.cs" />
+    <Compile Include="Transformers\Transformation.cs" />
+    <Compile Include="Transformers\MetaDataTransformation.cs" />
     <Compile Include="Transformers\Transformer.cs" />
-    <Compile Include="Transformers\LinkedFileEdit.cs" />
+    <Compile Include="Transformers\LinkedFileTransformation.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

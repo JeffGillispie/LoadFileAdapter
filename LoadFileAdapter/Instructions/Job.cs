@@ -15,13 +15,13 @@ namespace LoadFileAdapter.Instructions
     [XmlInclude(typeof(ImgImport))]
     [XmlInclude(typeof(DatExport))]
     [XmlInclude(typeof(ImgExport))]
-    [XmlInclude(typeof(MetaDataEditBuilder))]
-    [XmlInclude(typeof(LinkedFileEditBuilder))]
+    [XmlInclude(typeof(MetaDataEdit))]
+    [XmlInclude(typeof(LinkedFileEdit))]
     public class Job
     { 
-        public ImportInstructions Import; 
-        public ExportInstructions[] Exports; 
-        public EditBuilder[] Edits;
+        public Import Import;        
+        public Export[] Exports;        
+        public Edit[] Edits;
 
         public Job()
         {
@@ -30,24 +30,24 @@ namespace LoadFileAdapter.Instructions
             this.Edits = null;
         }
 
-        public Job(ImportInstructions import, ExportInstructions[] exports, Edit[] edits)
+        public Job(Import import, Export[] exports, Transformation[] edits)
         {
             this.Import = import;
             this.Exports = exports;
 
             if (edits != null)
             {
-                List<EditBuilder> builderEdits = new List<EditBuilder>();
+                List<Edit> builderEdits = new List<Edit>();
 
-                foreach (Edit edit in edits)
+                foreach (Transformation edit in edits)
                 {
-                    if (edit.GetType().Equals(typeof(MetaDataEdit)))
+                    if (edit.GetType().Equals(typeof(MetaDataTransformation)))
                     {
-                        builderEdits.Add(new MetaDataEditBuilder((MetaDataEdit)edit));
+                        builderEdits.Add(new MetaDataEdit((MetaDataTransformation)edit));
                     }
                     else
                     {
-                        builderEdits.Add(new LinkedFileEditBuilder((LinkedFileEdit)edit));
+                        builderEdits.Add(new LinkedFileEdit((LinkedFileTransformation)edit));
                     }
                 }
 
@@ -57,7 +57,7 @@ namespace LoadFileAdapter.Instructions
                 this.Edits = null;
         }
 
-        public Edit[] GetEdits()
+        public Transformation[] GetEdits()
         {
             return this.Edits.Select(e => e.GetEdit()).ToArray();
         }
@@ -69,7 +69,7 @@ namespace LoadFileAdapter.Instructions
 
             using (var sw = new StringWriter())
             {
-                using (XmlWriter writer = XmlWriter.Create(sw))
+                using (XmlWriter writer = XmlWriter.Create(sw, new XmlWriterSettings { Indent = true }))
                 {
                     serializer.Serialize(writer, this);
                     xml = sw.ToString();

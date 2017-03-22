@@ -10,7 +10,7 @@ namespace LoadFileAdapter.Instructions
 {
     public class Executor
     {
-        public DocumentCollection ImportDocs(ImportInstructions instructions)
+        public DocumentCollection ImportDocs(Import instructions)
         {
 
             if (instructions.GetType().Equals(typeof(DatImport)))
@@ -39,7 +39,7 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
-        public void ExportDocs(ExportInstructions export, DocumentCollection docs)
+        public void ExportDocs(Export export, DocumentCollection docs)
         {
             if (export.GetType().Equals(typeof(DatExport)))
             {
@@ -75,7 +75,7 @@ namespace LoadFileAdapter.Instructions
             Transformer transformer = new Transformer();
             transformer.Transform(docs, job.GetEdits());
 
-            foreach (ExportInstructions export in job.Exports)
+            foreach (Export export in job.Exports)
             {
                 ExportDocs(export, docs);
             }

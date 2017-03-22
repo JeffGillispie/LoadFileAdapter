@@ -8,22 +8,22 @@ using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter.Instructions
 {
-    public class MetaDataEditBuilder : EditBuilder
+    public class MetaDataEdit : Edit
     {
-        public string FieldName = String.Empty;
-        public string AlternateDestinationField = String.Empty;
-        public string PrependField = String.Empty;
-        public string AppendField = String.Empty;
-        public string JoinDelimiter = String.Empty;
+        public string FieldName = null;
+        public string AlternateDestinationField = null;
+        public string PrependField = null;
+        public string AppendField = null;
+        public string JoinDelimiter = null;
         [XmlIgnore]
         public DirectoryInfo PrependDirectory = null;
 
-        public MetaDataEditBuilder() : base()
+        public MetaDataEdit() : base()
         {
 
         }
 
-        public MetaDataEditBuilder(MetaDataEdit edit)
+        public MetaDataEdit(MetaDataTransformation edit)
         {            
             base.FilterField = edit.FilterField;
             base.FilterText = edit.FilterText;
@@ -41,18 +41,24 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return this.PrependDirectory.FullName;
+                if (this.PrependDirectory == null)
+                    return null;
+                else
+                    return this.PrependDirectory.FullName;
             }
 
             set
             {
-                this.PrependDirectory = new DirectoryInfo(value);
+                if (value == null)
+                    this.PrependDirectory = null;
+                else
+                    this.PrependDirectory = new DirectoryInfo(value);
             }
         }
 
-        public new MetaDataEdit GetEdit()
+        public new MetaDataTransformation GetEdit()
         {
-            return new MetaDataEdit(
+            return new MetaDataTransformation(
                 this.FieldName, base.FindText, base.ReplaceText,
                 this.AlternateDestinationField, this.PrependField, this.AppendField, this.JoinDelimiter,
                 base.FilterField, base.FilterText, this.PrependDirectory);

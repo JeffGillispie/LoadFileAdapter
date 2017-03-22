@@ -8,7 +8,7 @@ using LoadFileAdapter.Builders;
 
 namespace LoadFileAdapter.Instructions
 {
-    public class ImgImport : ImportInstructions
+    public class ImgImport : Import
     {
         public TextFileSettingsBuilder TextSetting;
 

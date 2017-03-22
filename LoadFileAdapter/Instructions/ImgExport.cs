@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LoadFileAdapter.Instructions
 {
-    public class ImgExport : ExportInstructions
+    public class ImgExport : Export
     {
         public string VolumeName = null;
 

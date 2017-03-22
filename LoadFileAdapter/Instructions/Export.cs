@@ -1,23 +1,29 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Xml.Serialization;
 
 namespace LoadFileAdapter.Instructions
-{   
-    public abstract class ImportInstructions
+{
+    public abstract class Export
     {
-    
         [XmlIgnore]
         public FileInfo File;
-        [XmlIgnore] 
+        [XmlIgnore]
         public Encoding Encoding;
 
-        public ImportInstructions(FileInfo file, Encoding encoding)
+        public Export()
+        {
+            // do nothing here
+        }
+
+        public Export(FileInfo file, Encoding encoding)
         {
             this.File = file;
             this.Encoding = encoding;
         }
-        
+
         public string FilePath
         {
             get
@@ -30,7 +36,7 @@ namespace LoadFileAdapter.Instructions
                 this.File = new FileInfo(value);
             }
         }
-        
+
         public int CodePage
         {
             get
@@ -42,6 +48,6 @@ namespace LoadFileAdapter.Instructions
             {
                 this.Encoding = Encoding.GetEncoding(value);
             }
-        }     
+        }
     }
 }
