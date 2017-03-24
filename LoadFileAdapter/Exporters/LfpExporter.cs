@@ -74,7 +74,7 @@ namespace LoadFileAdapter.Exporters
                         string fileName = Path.GetFileName(kvp.Value);
                         string directory = kvp.Value.Substring(0, kvp.Value.Length - fileName.Length - 1);
                         string pageRecord = String.Format("IM,{0},{1},{2},@{3};{4};{5};{6},0", 
-                            batesNumber.Value,
+                            batesNumber.ToString(),
                             docBreak,
                             offset,
                             volName,
