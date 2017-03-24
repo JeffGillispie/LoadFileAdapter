@@ -5,6 +5,10 @@ using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter
 {
+    /// <summary>
+    /// Representa a bates number which consists of a number with an optional
+    /// prefix, suffix, and suffix delimiter (i.e. 'PREFIX_000001.001').
+    /// </summary>
     public class BatesNumber
     {
         /// <summary>
