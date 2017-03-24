@@ -5,8 +5,16 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
+    /// <summary>
+    /// A builder that builds documents from an OPT file.
+    /// </summary>
     public class OptBuilder : IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings>
     {
+        internal const string IMAGE_KEY_FIELD = "DocID";
+        internal const string VOLUME_NAME_FIELD = "Volume Name";
+        internal const string PAGE_COUNT_FIELD = "Page Count";
+        internal const string BOX_BREAK_FIELD = "Box Break";
+        internal const string FOLDER_BREAK_FIELD = "Folder Break";
         private const int IMAGE_KEY_INDEX = 0;
         private const int VOLUME_NAME_INDEX = 1;
         private const int FULL_PATH_INDEX = 2;
@@ -14,14 +22,14 @@ namespace LoadFileAdapter.Builders
         private const int BOX_BREAK_INDEX = 4;
         private const int FOLDER_BREAK_INDEX = 5;
         private const int PAGE_COUNT_INDEX = 6;
-        private const string TRUE_VALUE = "Y";
-        internal const string IMAGE_KEY_FIELD = "DocID";
-        internal const string VOLUME_NAME_FIELD = "Volume Name";
-        internal const string PAGE_COUNT_FIELD = "Page Count";
-        internal const string BOX_BREAK_FIELD = "Box Break";
-        internal const string FOLDER_BREAK_FIELD = "Folder Break";
+        private const string TRUE_VALUE = "Y";        
         private const char FILE_PATH_DELIM = '\\';
         
+        /// <summary>
+        /// Builds a list of documents from an OPT file.
+        /// </summary>
+        /// <param name="args">The document collection build settings.</param>
+        /// <returns>Returns a list of <see cref="Document"/>.</returns>
         public List<Document> BuildDocuments(BuildDocCollectionImageSettings args)
         {   
             // setup for building         
@@ -36,7 +44,7 @@ namespace LoadFileAdapter.Builders
                     // send data to make a document
                     if (pageRecords.Count > 0)
                     {                        
-                        BuildDocImageSettings docArgs = new BuildDocImageSettings(pageRecords, args.TextSetting, args.PathPrefix);
+                        BuildDocImageSettings docArgs = new BuildDocImageSettings(pageRecords, args.TextSettings, args.PathPrefix);
                         Document doc = BuildDocument(docArgs);
                         string key = doc.Metadata[IMAGE_KEY_FIELD];
                         docs.Add(key, doc);
@@ -52,13 +60,18 @@ namespace LoadFileAdapter.Builders
                 }
             }
             // add last doc to the collection            
-            BuildDocImageSettings lastArgs = new BuildDocImageSettings(pageRecords, args.TextSetting, args.PathPrefix);
+            BuildDocImageSettings lastArgs = new BuildDocImageSettings(pageRecords, args.TextSettings, args.PathPrefix);
             Document lastDoc = BuildDocument(lastArgs);
             string lastKey = lastDoc.Metadata[IMAGE_KEY_FIELD];
             docs.Add(lastKey, lastDoc);
             return docs.Values.ToList();
         }
 
+        /// <summary>
+        /// Builds a document from an OPT file.
+        /// </summary>
+        /// <param name="args">The document build settings for an OPT file.</param>
+        /// <returns>Returns a <see cref="Document"/>.</returns>
         public Document BuildDocument(BuildDocImageSettings args)
         {            
             // get document properties
@@ -77,7 +90,7 @@ namespace LoadFileAdapter.Builders
             //metadata.Add(FOLDER_BREAK_FIELD, dir); // extraneous meta
             // build the representatives
             Representative imageRep = getImageRepresentative(args.PageRecords, args.PathPrefix);          
-            Representative textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSetting);
+            Representative textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSettings);
             HashSet<Representative> reps = new HashSet<Representative>();
             reps.Add(imageRep);
             if (textRep.Files.Count > 0)
@@ -88,7 +101,13 @@ namespace LoadFileAdapter.Builders
             return new Document(key, parent, children, metadata, reps);
         }
 
-        private Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
+        /// <summary>
+        /// Obtains the image representative for a document.
+        /// </summary>
+        /// <param name="pageRecords">The page records from an OPT file for a document.</param>
+        /// <param name="pathPrefix">The value to prepend to the representative path.</param>
+        /// <returns>Returns an image file <see cref="Representative"/>.</returns>
+        protected Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
         {
             SortedDictionary<string, string> imageFiles = new SortedDictionary<string, string>();
             // add image files
@@ -102,7 +121,14 @@ namespace LoadFileAdapter.Builders
             return new Representative(Representative.FileType.Image, imageFiles);
         }
 
-        private Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextRepresentativeSettings textSetting)
+        /// <summary>
+        /// Obtains the text representative for a document.
+        /// </summary>
+        /// <param name="pageRecords">The page records from an OPT file for a document.</param>
+        /// <param name="pathPrefix">The value to prepend to the representative path.</param>
+        /// <param name="textSetting">The representative settings.</param>
+        /// <returns>Returns a text file <see cref="Representative"/> of a document.</returns>
+        protected Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextRepresentativeSettings textSetting)
         {
             SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
             TextRepresentativeSettings.TextLevel textLevel = (textSetting != null)

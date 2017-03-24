@@ -57,7 +57,7 @@ namespace LoadFileAdapter.Builders
                         // this is a guard against the first line in the list
                         if (pageRecords.Count > 0)
                         {                            
-                            BuildDocLfpSettings docArgs = new BuildDocLfpSettings(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
+                            BuildDocLfpSettings docArgs = new BuildDocLfpSettings(pageRecords, nativeRecord, args.TextSettings, args.PathPrefix);
                             Document doc = BuildDocument(docArgs);
                             string key = doc.Metadata[KEY_FIELD];
                             BoundaryFlag docBreak = (BoundaryFlag)Enum.Parse(typeof(BoundaryFlag), lastBreak);
@@ -98,7 +98,7 @@ namespace LoadFileAdapter.Builders
                     // if it is not null then the native has no corresponding images so send the data to make a document
                     if (nativeRecord != null)
                     {                        
-                        BuildDocLfpSettings nativeArgs = new BuildDocLfpSettings(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
+                        BuildDocLfpSettings nativeArgs = new BuildDocLfpSettings(pageRecords, nativeRecord, args.TextSettings, args.PathPrefix);
                         Document doc = BuildDocument(nativeArgs);
                         string key = doc.Metadata[KEY_FIELD];
                         docs.Add(key, doc);
@@ -108,7 +108,7 @@ namespace LoadFileAdapter.Builders
                 }
             }
             // add last doc to the collection            
-            BuildDocLfpSettings lastArgs = new BuildDocLfpSettings(pageRecords, nativeRecord, args.TextSetting, args.PathPrefix);
+            BuildDocLfpSettings lastArgs = new BuildDocLfpSettings(pageRecords, nativeRecord, args.TextSettings, args.PathPrefix);
             Document lastDoc = BuildDocument(lastArgs);
             string lastKey = lastDoc.Metadata[KEY_FIELD];
             // check if a relationship needs to be set
@@ -136,7 +136,7 @@ namespace LoadFileAdapter.Builders
             metadata.Add(VOLUME_NAME_FIELD, vol);
             metadata.Add(PAGE_COUNT_FIELD, pages.ToString());            
             // get representatives
-            HashSet<Representative> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSetting, args.NativeRecord);
+            HashSet<Representative> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSettings, args.NativeRecord);
             Document parent = null;
             HashSet<Document> children = null;
             return new Document(key, parent, children, metadata, reps);

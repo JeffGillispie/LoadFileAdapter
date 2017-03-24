@@ -1,21 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LoadFileAdapter.Builders
 {
+    /// <summary>
+    /// Represents the settings used to build a document collection from an image load file.
+    /// </summary>
     public class BuildDocCollectionImageSettings : BuildDocCollectionSettings
     {
-        private TextRepresentativeSettings textRepSetting;
+        private TextRepresentativeSettings textRepSettings;
 
-        public TextRepresentativeSettings TextSetting { get { return textRepSetting; } }
+        /// <summary>
+        /// The text representative settings.
+        /// </summary>
+        public TextRepresentativeSettings TextSettings { get { return textRepSettings; } }
 
-        public BuildDocCollectionImageSettings(List<string[]> records, string pathPrefix, TextRepresentativeSettings textRepSetting) :
+        /// <summary>
+        /// Inisializes a new instance of <see cref="BuildDocCollectionImageSettings"/>
+        /// </summary>
+        /// <param name="records">A list of records from an image load file.</param>
+        /// <param name="pathPrefix">The value that should be prepended to representative path values.</param>
+        /// <param name="textRepSettings">The text representative settings.</param>
+        public BuildDocCollectionImageSettings(
+            List<string[]> records, string pathPrefix, TextRepresentativeSettings textRepSettings) :
             base(records, pathPrefix)
         {
-            this.textRepSetting = textRepSetting;
+            this.textRepSettings = textRepSettings;
         } 
     }
 }
