@@ -17,7 +17,7 @@ namespace LoadFileAdapter.Instructions
 
         }
 
-        public ImgImport(FileInfo file, Encoding encoding, TextFileSettings txtSetting) : base(file, encoding)
+        public ImgImport(FileInfo file, Encoding encoding, TextRepresentativeSettings txtSetting) : base(file, encoding)
         {
             this.TextSetting = new TextFileSettingsBuilder(txtSetting);
         }                

@@ -136,13 +136,13 @@ namespace LoadFileAdapter.Builders
             metadata.Add(VOLUME_NAME_FIELD, vol);
             metadata.Add(PAGE_COUNT_FIELD, pages.ToString());            
             // get representatives
-            HashSet<LinkedFile> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSetting, args.NativeRecord);
+            HashSet<Representative> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSetting, args.NativeRecord);
             Document parent = null;
             List<Document> children = null;
             return new Document(key, parent, children, metadata, reps);
         }
 
-        private LinkedFile getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
+        private Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
         {
             if (pageRecords.Count > 0)
             {
@@ -163,7 +163,7 @@ namespace LoadFileAdapter.Builders
                     }
                 }
                 // set image rep
-                return new LinkedFile(LinkedFile.FileType.Image, imageFiles);
+                return new Representative(Representative.FileType.Image, imageFiles);
             }
             else
             {
@@ -171,7 +171,7 @@ namespace LoadFileAdapter.Builders
             }
         }
 
-        private LinkedFile getNativeRepresentative(string[] nativeRecord, string pathPrefix)
+        private Representative getNativeRepresentative(string[] nativeRecord, string pathPrefix)
         {
             if (nativeRecord == null)
             {
@@ -186,22 +186,22 @@ namespace LoadFileAdapter.Builders
                     : Path.Combine(pathPrefix, nativeRecord[NATIVE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
                 nativePath = Path.Combine(nativePath, nativeRecord[NATIVE_FILE_NAME_INDEX]);                
                 nativeFiles.Add(nativeKey, nativePath);
-                return new LinkedFile(LinkedFile.FileType.Native, nativeFiles);
+                return new Representative(Representative.FileType.Native, nativeFiles);
             }
         }
 
-        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextFileSettings textSetting)
+        private Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextRepresentativeSettings textSetting)
         {
-            TextFileSettings.TextLevel textLevel = (textSetting != null)
+            TextRepresentativeSettings.TextLevel textLevel = (textSetting != null)
                 ? textSetting.FileLevel
-                : TextFileSettings.TextLevel.None;
+                : TextRepresentativeSettings.TextLevel.None;
             SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
 
             switch(textLevel)
             {
-                case TextFileSettings.TextLevel.None:
+                case TextRepresentativeSettings.TextLevel.None:
                     return null;
-                case TextFileSettings.TextLevel.Page:
+                case TextRepresentativeSettings.TextLevel.Page:
                     foreach (string[] page in pageRecords)
                     {
                         string pageTextKey = page[KEY_INDEX];
@@ -211,8 +211,8 @@ namespace LoadFileAdapter.Builders
                         pageTextPath = Path.Combine(pageTextPath, page[IMAGE_FILE_NAME_INDEX]);                        
                         textFiles.Add(pageTextKey, pageTextPath);
                     }
-                    return new LinkedFile(LinkedFile.FileType.Text, textFiles);
-                case TextFileSettings.TextLevel.Doc:
+                    return new Representative(Representative.FileType.Text, textFiles);
+                case TextRepresentativeSettings.TextLevel.Doc:
                     string[] docRecord = pageRecords.First();
                     string docTextKey = docRecord[KEY_INDEX];
                     string docTextPath = String.IsNullOrEmpty(pathPrefix)
@@ -220,19 +220,19 @@ namespace LoadFileAdapter.Builders
                         : Path.Combine(pathPrefix, docRecord[IMAGE_FILE_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
                     docTextPath = Path.Combine(docTextPath, docRecord[IMAGE_FILE_NAME_INDEX]);                    
                     textFiles.Add(docTextKey, docTextPath);
-                    return new LinkedFile(LinkedFile.FileType.Text, textFiles);
+                    return new Representative(Representative.FileType.Text, textFiles);
                 default:
                     return null;
             }
         }
 
-        private HashSet<LinkedFile> getRepresentatives(List<string[]> pageRecords, string pathPrefix, TextFileSettings textSetting, string[] nativeRecord)
+        private HashSet<Representative> getRepresentatives(List<string[]> pageRecords, string pathPrefix, TextRepresentativeSettings textSetting, string[] nativeRecord)
         {
-            HashSet<LinkedFile> reps = new HashSet<LinkedFile>();
+            HashSet<Representative> reps = new HashSet<Representative>();
 
-            LinkedFile imageRep = getImageRepresentative(pageRecords, pathPrefix);
-            LinkedFile textRep = getTextRepresentative(pageRecords, pathPrefix, textSetting);
-            LinkedFile nativeRep = getNativeRepresentative(nativeRecord, pathPrefix);
+            Representative imageRep = getImageRepresentative(pageRecords, pathPrefix);
+            Representative textRep = getTextRepresentative(pageRecords, pathPrefix, textSetting);
+            Representative nativeRep = getNativeRepresentative(nativeRecord, pathPrefix);
 
             if (imageRep != null)
                 reps.Add(imageRep);

@@ -54,7 +54,7 @@ namespace LoadFileAdapter.Builders
                 throw new Exception("The document record does not contains the correct number of fields.");
             // setup for building
             Dictionary<string, string> metadata = new Dictionary<string, string>();
-            HashSet<LinkedFile> reps = new HashSet<LinkedFile>();
+            HashSet<Representative> reps = new HashSet<Representative>();
             // populate the metadata
             for (int i = 0; i < args.Header.Length; i++)
             {
@@ -70,7 +70,7 @@ namespace LoadFileAdapter.Builders
             // populate representatives
             if (args.RepresentativeColumnInfo != null)
             {
-                foreach (LinkedFileSettings info in args.RepresentativeColumnInfo)
+                foreach (DatRepresentativeSettings info in args.RepresentativeColumnInfo)
                 {
                     SortedDictionary<string, string> files = new SortedDictionary<string, string>();
                     // this format will only have one file per rep
@@ -80,7 +80,7 @@ namespace LoadFileAdapter.Builders
                             ? metadata[info.ColumnName]
                             : Path.Combine(args.PathPrefix, metadata[info.ColumnName].TrimStart(FILE_PATH_DELIM));                        
                         files.Add(keyValue, filePath);
-                        LinkedFile rep = new LinkedFile(info.Type, files);
+                        Representative rep = new Representative(info.Type, files);
                         reps.Add(rep);
                     }
                 }

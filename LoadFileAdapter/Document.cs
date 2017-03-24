@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace LoadFileAdapter
@@ -23,13 +22,13 @@ namespace LoadFileAdapter
         /// </summary>
         private List<Document> children;
         /// <summary>
-        /// A collection of metadata key / value pairs belonging to this document.
+        /// A collection of metadata field names and field values belonging to this document.
         /// </summary>
         private Dictionary<string, string> metadata;
         /// <summary>
-        /// The set of linked files.
+        /// The set of representatives files.
         /// </summary>
-        private HashSet<LinkedFile> linkedFiles;
+        private HashSet<Representative> representatives;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Document"/> class.
@@ -38,18 +37,18 @@ namespace LoadFileAdapter
         /// <param name="parent">The parent document.</param>
         /// <param name="children">A list of child documents.</param>
         /// <param name="metadata">A collection of metadata key / value pairs.</param>
-        /// <param name="linkedFiles">A set of linked files.</param>
+        /// <param name="representatives">A set of representative files.</param>
         public Document(string key, 
             Document parent, 
             List<Document> children, 
             Dictionary<string, string> metadata, 
-            HashSet<LinkedFile> linkedFiles)
+            HashSet<Representative> representatives)
         {
             this.key = key;
             this.parent = parent;
             this.children = children;
             this.metadata = metadata;
-            this.linkedFiles = linkedFiles;
+            this.representatives = representatives;
         }
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace LoadFileAdapter
         }
 
         /// <summary>
-        /// A collection of metadata key / value pairs. Where the key is the metadat field name and the value is the field value.
+        /// A collection of metadata field names and field values.
         /// </summary>
         public Dictionary<string, string> Metadata
         {
@@ -97,14 +96,14 @@ namespace LoadFileAdapter
         }
 
         /// <summary>
-        /// The set of linked files.
-        /// These can be of the type <see cref="LinkedFile.Type"/>.
+        /// The set of representative files.
+        /// These can be of the type <see cref="Representative.Type"/>.
         /// </summary>
-        public HashSet<LinkedFile> LinkedFiles
+        public HashSet<Representative> Representatives
         {
             get
             {
-                return this.linkedFiles;
+                return this.representatives;
             }
         }
 
@@ -130,13 +129,13 @@ namespace LoadFileAdapter
         }
         
         /// <summary>
-        /// Sets the linked files of the document.
+        /// Sets the representative files of the document.
         /// </summary>
-        /// <param name="linkedFiles">A set of linked files.</param>
-        public void SetLinkedFiles(HashSet<LinkedFile> linkedFiles)
+        /// <param name="representatives">A set of representative files.</param>
+        public void SetLinkedFiles(HashSet<Representative> representatives)
         {
             // this setter was added to support transformations
-            this.linkedFiles = linkedFiles;
+            this.representatives = representatives;
         }                
     }
 }

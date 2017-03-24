@@ -16,7 +16,7 @@ namespace LoadFileAdapter.Instructions
     [XmlInclude(typeof(DatExport))]
     [XmlInclude(typeof(ImgExport))]
     [XmlInclude(typeof(MetaDataEdit))]
-    [XmlInclude(typeof(LinkedFileEdit))]
+    [XmlInclude(typeof(RepresentativeEdit))]
     public class Job
     { 
         public Import Import;        
@@ -47,7 +47,7 @@ namespace LoadFileAdapter.Instructions
                     }
                     else
                     {
-                        builderEdits.Add(new LinkedFileEdit((LinkedFileTransformation)edit));
+                        builderEdits.Add(new RepresentativeEdit((RepresentativeTransformation)edit));
                     }
                 }
 

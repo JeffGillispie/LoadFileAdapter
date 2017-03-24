@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Builders
 {
-    public class LinkedFileSettings
+    public class DatRepresentativeSettings
     {
         private string column;
-        private LinkedFile.FileType fileType;
+        private Representative.FileType fileType;
 
         public string ColumnName { get { return this.column; } }
-        public LinkedFile.FileType Type { get { return this.fileType; } }
+        public Representative.FileType Type { get { return this.fileType; } }
 
-        public LinkedFileSettings(string column, LinkedFile.FileType type)
+        public DatRepresentativeSettings(string column, Representative.FileType type)
         {
             this.column = column;
             this.fileType = type;

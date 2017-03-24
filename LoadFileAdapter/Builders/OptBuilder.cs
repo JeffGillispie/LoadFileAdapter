@@ -76,9 +76,9 @@ namespace LoadFileAdapter.Builders
             //metadata.Add(BOX_BREAK_FIELD, box); // extraneous meta
             //metadata.Add(FOLDER_BREAK_FIELD, dir); // extraneous meta
             // build the representatives
-            LinkedFile imageRep = getImageRepresentative(args.PageRecords, args.PathPrefix);          
-            LinkedFile textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSetting);
-            HashSet<LinkedFile> reps = new HashSet<LinkedFile>();
+            Representative imageRep = getImageRepresentative(args.PageRecords, args.PathPrefix);          
+            Representative textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSetting);
+            HashSet<Representative> reps = new HashSet<Representative>();
             reps.Add(imageRep);
             if (textRep.Files.Count > 0)
                 reps.Add(textRep);
@@ -88,7 +88,7 @@ namespace LoadFileAdapter.Builders
             return new Document(key, parent, children, metadata, reps);
         }
 
-        private LinkedFile getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
+        private Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
         {
             SortedDictionary<string, string> imageFiles = new SortedDictionary<string, string>();
             // add image files
@@ -99,22 +99,22 @@ namespace LoadFileAdapter.Builders
                     : Path.Combine(pathPrefix, page[FULL_PATH_INDEX].TrimStart(FILE_PATH_DELIM));                
                 imageFiles.Add(imageKey, imagePath);
             });
-            return new LinkedFile(LinkedFile.FileType.Image, imageFiles);
+            return new Representative(Representative.FileType.Image, imageFiles);
         }
 
-        private LinkedFile getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextFileSettings textSetting)
+        private Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextRepresentativeSettings textSetting)
         {
             SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
-            TextFileSettings.TextLevel textLevel = (textSetting != null)
+            TextRepresentativeSettings.TextLevel textLevel = (textSetting != null)
                 ? textSetting.FileLevel
-                : TextFileSettings.TextLevel.None;
+                : TextRepresentativeSettings.TextLevel.None;
             // add text files
             switch (textLevel)
             {
-                case TextFileSettings.TextLevel.None:
+                case TextRepresentativeSettings.TextLevel.None:
                     // do nothing here
                     break;
-                case TextFileSettings.TextLevel.Page:
+                case TextRepresentativeSettings.TextLevel.Page:
                     pageRecords.ForEach(page => {
                         string pageTextKey = page[IMAGE_KEY_INDEX];
                         string pageTextPath = textSetting.GetTextPathFromImagePath(page[FULL_PATH_INDEX]);
@@ -124,7 +124,7 @@ namespace LoadFileAdapter.Builders
                         textFiles.Add(pageTextKey, pageTextPath);
                     });
                     break;
-                case TextFileSettings.TextLevel.Doc:
+                case TextRepresentativeSettings.TextLevel.Doc:
                     string docTextKey = pageRecords.First()[IMAGE_KEY_INDEX];
                     string docTextPath = textSetting.GetTextPathFromImagePath(pageRecords.First()[FULL_PATH_INDEX]);
                     docTextPath = String.IsNullOrEmpty(pathPrefix)
@@ -137,7 +137,7 @@ namespace LoadFileAdapter.Builders
                     break;
             }
             // return a text rep
-            return new LinkedFile(LinkedFile.FileType.Text, textFiles);
+            return new Representative(Representative.FileType.Text, textFiles);
         }
     }
 }

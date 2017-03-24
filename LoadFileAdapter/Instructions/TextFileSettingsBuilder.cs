@@ -10,8 +10,8 @@ namespace LoadFileAdapter.Instructions
 {
     public class TextFileSettingsBuilder
     {
-        public TextFileSettings.TextLevel FileLevel = TextFileSettings.TextLevel.None;
-        public TextFileSettings.TextLocation FileLocation = TextFileSettings.TextLocation.None;
+        public TextRepresentativeSettings.TextLevel FileLevel = TextRepresentativeSettings.TextLevel.None;
+        public TextRepresentativeSettings.TextLocation FileLocation = TextRepresentativeSettings.TextLocation.None;
         [XmlIgnore]
         public Regex PathFind = null;
         public string PathReplace = String.Empty;
@@ -21,7 +21,7 @@ namespace LoadFileAdapter.Instructions
 
         }
 
-        public TextFileSettingsBuilder(TextFileSettings textSettings)
+        public TextFileSettingsBuilder(TextRepresentativeSettings textSettings)
         {
             this.FileLevel = textSettings.FileLevel;
             this.FileLocation = textSettings.FileLocation;
@@ -83,9 +83,9 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
-        public TextFileSettings GetSettings()
+        public TextRepresentativeSettings GetSettings()
         {
-            return new TextFileSettings(this.FileLevel, this.FileLocation, this.PathFind, this.PathReplace);
+            return new TextRepresentativeSettings(this.FileLevel, this.FileLocation, this.PathFind, this.PathReplace);
         }
 
         protected RegexOptions getRegexOptions(bool ignoreCase, bool rightToLeft)

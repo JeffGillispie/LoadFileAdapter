@@ -48,7 +48,7 @@
     <Compile Include="Builders\BuildDocImageSettings.cs" />
     <Compile Include="Builders\BuildDocCollectionImageSettings.cs" />
     <Compile Include="Builders\BuildDocLfpSettings.cs" />
-    <Compile Include="Builders\LinkedFileSettings.cs" />
+    <Compile Include="Builders\DatRepresentativeSettings.cs" />
     <Compile Include="Builders\BuildDocDatSettings.cs" />
     <Compile Include="Builders\BuildDocCollectionDatSettings.cs" />
     <Compile Include="DocumentCollection.cs" />
@@ -75,8 +75,8 @@
     <Compile Include="Instructions\ImgImport.cs" />
     <Compile Include="Instructions\Import.cs" />
     <Compile Include="Instructions\Job.cs" />
-    <Compile Include="Instructions\LinkedFileEdit.cs" />
-    <Compile Include="Instructions\LinkedFileSettingsBuilder.cs" />
+    <Compile Include="Instructions\RepresentativeEdit.cs" />
+    <Compile Include="Instructions\RepresentativeSettings.cs" />
     <Compile Include="Instructions\MetaDataEdit.cs" />
     <Compile Include="Instructions\TextFileSettingsBuilder.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
@@ -93,14 +93,14 @@
     <Compile Include="Parsers\DatParser.cs" />
     <Compile Include="Parsers\ParseReaderDatSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="LinkedFile.cs" />
-    <Compile Include="Builders\TextFileSettings.cs" />
+    <Compile Include="Representative.cs" />
+    <Compile Include="Builders\TextRepresentativeSettings.cs" />
     <Compile Include="Builders\DatBuilder.cs" />
     <Compile Include="Transformers\Overlayer.cs" />
     <Compile Include="Transformers\Transformation.cs" />
     <Compile Include="Transformers\MetaDataTransformation.cs" />
     <Compile Include="Transformers\Transformer.cs" />
-    <Compile Include="Transformers\LinkedFileTransformation.cs" />
+    <Compile Include="Transformers\RepresentativeTransformation.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -10,13 +10,13 @@ namespace LoadFileAdapter.Transformers
     {
         private bool hasOverlayFamilies = false;
         private bool hasOverlayMetaData = false;
-        private bool hasOverlayLinkedFiles = false;
+        private bool hasOverlayRepresentatives = false;
 
         public Overlayer(bool overlayFamilies, bool overlayMeta, bool overlayFiles)
         {
             this.hasOverlayFamilies = overlayFamilies;
             this.hasOverlayMetaData = overlayMeta;
-            this.hasOverlayLinkedFiles = overlayFiles;
+            this.hasOverlayRepresentatives = overlayFiles;
         }
 
         public Document Overlay(Document original, Document updated)
@@ -35,9 +35,9 @@ namespace LoadFileAdapter.Transformers
                     document = overlayMetaData(original, updated);
                 }
 
-                if (this.hasOverlayLinkedFiles)
+                if (this.hasOverlayRepresentatives)
                 {
-                    document = overlayLinkedFiles(original, updated);
+                    document = overlayRepresentatives(original, updated);
                 }
             }
             else
@@ -81,12 +81,12 @@ namespace LoadFileAdapter.Transformers
             }
 
             Document doc = new Document(updated.Key, updated.Parent, updated.Children, 
-                original.Metadata, original.LinkedFiles);
+                original.Metadata, original.Representatives);
 
             // update child docs
-            foreach (Document child in doc.Children)
+            if (doc.Children != null)
             {
-                child.SetParent(doc);
+                doc.Children.ForEach(child => child.SetParent(doc));                
             }
 
             return doc;
@@ -108,27 +108,27 @@ namespace LoadFileAdapter.Transformers
                 }
             }
 
-            return new Document(original.Key, original.Parent, original.Children, metadata, original.LinkedFiles);
+            return new Document(original.Key, original.Parent, original.Children, metadata, original.Representatives);
         }
 
-        protected Document overlayLinkedFiles(Document original, Document update)
+        protected Document overlayRepresentatives(Document original, Document update)
         {
-            HashSet<LinkedFile> linkedFiles = new HashSet<LinkedFile>();
+            HashSet<Representative> representatives = new HashSet<Representative>();
 
-            if (original.LinkedFiles == null)
+            if (original.Representatives == null)
             {
-                linkedFiles = update.LinkedFiles;
+                representatives = update.Representatives;
             }
             else
             {
-                Dictionary<LinkedFile.FileType, LinkedFile> files = new Dictionary<LinkedFile.FileType, LinkedFile>();
+                Dictionary<Representative.FileType, Representative> files = new Dictionary<Representative.FileType, Representative>();
 
-                foreach (LinkedFile file in original.LinkedFiles)
+                foreach (Representative file in original.Representatives)
                 {
                     files.Add(file.Type, file);
                 }
 
-                foreach (LinkedFile file in update.LinkedFiles)
+                foreach (Representative file in update.Representatives)
                 {
                     if (files.ContainsKey(file.Type))
                     {
@@ -142,11 +142,11 @@ namespace LoadFileAdapter.Transformers
 
                 foreach (var kvp in files)
                 {
-                    linkedFiles.Add(kvp.Value);
+                    representatives.Add(kvp.Value);
                 }
             }
 
-            return new Document(original.Key, original.Parent, original.Children, original.Metadata, linkedFiles);
+            return new Document(original.Key, original.Parent, original.Children, original.Metadata, representatives);
         }
     }
 }

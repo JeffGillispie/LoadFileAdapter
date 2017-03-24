@@ -7,25 +7,25 @@ using LoadFileAdapter.Builders;
 
 namespace LoadFileAdapter.Instructions
 {
-    public class LinkedFileSettingsBuilder
+    public class RepresentativeSettings
     {
         public string ColumnName = null;
-        public LinkedFile.FileType FileType = LinkedFile.FileType.Native;
+        public Representative.FileType FileType = Representative.FileType.Native;
 
-        public LinkedFileSettingsBuilder()
+        public RepresentativeSettings()
         {
 
         }
 
-        public LinkedFileSettingsBuilder(LinkedFileSettings setting)
+        public RepresentativeSettings(DatRepresentativeSettings setting)
         {
             this.ColumnName = setting.ColumnName;
             this.FileType = setting.Type;
         }
 
-        public LinkedFileSettings GetSetting()
+        public DatRepresentativeSettings GetSetting()
         {
-            return new LinkedFileSettings(this.ColumnName, this.FileType);
+            return new DatRepresentativeSettings(this.ColumnName, this.FileType);
         }
     }
 }

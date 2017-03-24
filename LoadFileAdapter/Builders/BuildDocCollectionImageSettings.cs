@@ -8,11 +8,11 @@ namespace LoadFileAdapter.Builders
 {
     public class BuildDocCollectionImageSettings : BuildDocCollectionSettings
     {
-        private TextFileSettings textRepSetting;
+        private TextRepresentativeSettings textRepSetting;
 
-        public TextFileSettings TextSetting { get { return textRepSetting; } }
+        public TextRepresentativeSettings TextSetting { get { return textRepSetting; } }
 
-        public BuildDocCollectionImageSettings(List<string[]> records, string pathPrefix, TextFileSettings textRepSetting) :
+        public BuildDocCollectionImageSettings(List<string[]> records, string pathPrefix, TextRepresentativeSettings textRepSetting) :
             base(records, pathPrefix)
         {
             this.textRepSetting = textRepSetting;

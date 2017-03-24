@@ -160,7 +160,7 @@ namespace LoadFileAdapter.Instructions
             }
             else
             {
-                return ((LinkedFileEdit)this).GetEdit();
+                return ((RepresentativeEdit)this).GetEdit();
             }
         }
     }

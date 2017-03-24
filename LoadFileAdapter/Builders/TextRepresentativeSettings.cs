@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Builders
 {
-    public class TextFileSettings
+    public class TextRepresentativeSettings
     {
         private const string TEXT_EXT = ".txt";
 
@@ -23,7 +23,7 @@ namespace LoadFileAdapter.Builders
         private Regex pathFind = null;
         private string pathReplace = String.Empty;
 
-        public TextFileSettings(TextLevel textLevel, TextLocation textLocation, Regex textPathFind, string textPathReplace)
+        public TextRepresentativeSettings(TextLevel textLevel, TextLocation textLocation, Regex textPathFind, string textPathReplace)
         {
             this.fileLevel = textLevel;
             this.fileLocation = textLocation;

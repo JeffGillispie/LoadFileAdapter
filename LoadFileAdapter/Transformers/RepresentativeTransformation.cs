@@ -3,16 +3,16 @@ using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Transformers
 {
-    public class LinkedFileTransformation : Transformation
+    public class RepresentativeTransformation : Transformation
     {
-        private LinkedFile.FileType targetType;
-        private LinkedFile.FileType? newType;
+        private Representative.FileType targetType;
+        private Representative.FileType? newType;
         
-        public LinkedFile.FileType TargetType { get { return targetType; } }
-        public LinkedFile.FileType? NewType { get { return newType; } }
+        public Representative.FileType TargetType { get { return targetType; } }
+        public Representative.FileType? NewType { get { return newType; } }
         
-        public LinkedFileTransformation(
-            LinkedFile.FileType targetType, LinkedFile.FileType? newType, 
+        public RepresentativeTransformation(
+            Representative.FileType targetType, Representative.FileType? newType, 
             Regex findText, string replaceText,
             string filterField, Regex filterText) :
             base (findText, replaceText, filterField, filterText)
@@ -25,13 +25,13 @@ namespace LoadFileAdapter.Transformers
         {
             if (base.hasEdit(doc))
             {
-                HashSet<LinkedFile> representatives = new HashSet<LinkedFile>();
+                HashSet<Representative> representatives = new HashSet<Representative>();
 
-                foreach (LinkedFile rep in doc.LinkedFiles)
+                foreach (Representative rep in doc.Representatives)
                 {
                     if (rep.Type == targetType)
                     {
-                        LinkedFile.FileType updatedType = (newType != null) ? (LinkedFile.FileType)newType : rep.Type;
+                        Representative.FileType updatedType = (newType != null) ? (Representative.FileType)newType : rep.Type;
                         SortedDictionary<string, string> updatedFiles = new SortedDictionary<string, string>();
                         
                         foreach (var file in rep.Files)
@@ -39,7 +39,7 @@ namespace LoadFileAdapter.Transformers
                             updatedFiles.Add(file.Key, base.Replace(file.Value));
                         }
 
-                        LinkedFile newRep = new LinkedFile(updatedType, updatedFiles);
+                        Representative newRep = new Representative(updatedType, updatedFiles);
                         representatives.Add(newRep);
                     }
                     else

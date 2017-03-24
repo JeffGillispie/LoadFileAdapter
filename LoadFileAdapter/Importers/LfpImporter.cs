@@ -26,7 +26,7 @@ namespace LoadFileAdapter.Importers
             this.builder = builder;
         }
 
-        public DocumentCollection Import(FileInfo lfpFile, Encoding encoding, TextFileSettings textSetting)
+        public DocumentCollection Import(FileInfo lfpFile, Encoding encoding, TextRepresentativeSettings textSetting)
         {
             ParseFileSettings parameters = new ParseFileSettings(lfpFile, encoding);
             List<string[]> records = parser.Parse(parameters);            

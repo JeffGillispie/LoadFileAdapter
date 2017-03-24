@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter
@@ -252,19 +250,19 @@ namespace LoadFileAdapter
 
             foreach (Document doc in this.documentGlossary.Values)
             {
-                foreach (var linkedFile in doc.LinkedFiles)
+                foreach (var representative in doc.Representatives)
                 {
-                    if (linkedFile.Type == LinkedFile.FileType.Image)
+                    if (representative.Type == Representative.FileType.Image)
                     {
-                        imageCount += linkedFile.Files.Count;
+                        imageCount += representative.Files.Count;
                     }
-                    else if (linkedFile.Type == LinkedFile.FileType.Native)
+                    else if (representative.Type == Representative.FileType.Native)
                     {
-                        nativeCount += linkedFile.Files.Count;
+                        nativeCount += representative.Files.Count;
                     }
-                    else if (linkedFile.Type == LinkedFile.FileType.Text)
+                    else if (representative.Type == Representative.FileType.Text)
                     {
-                        textCount += linkedFile.Files.Count;
+                        textCount += representative.Files.Count;
                     }
                 }
 

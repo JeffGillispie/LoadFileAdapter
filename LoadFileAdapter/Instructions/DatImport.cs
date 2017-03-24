@@ -14,7 +14,7 @@ namespace LoadFileAdapter.Instructions
         public string ParentColumnName = null;
         public string ChildColumnName = null;
         public string ChildColumnDelimiter = null;
-        public LinkedFileSettingsBuilder[] LinkedFiles = null;
+        public RepresentativeSettings[] LinkedFiles = null;
 
         public DatImport() : base(null, null)
         {
@@ -23,7 +23,7 @@ namespace LoadFileAdapter.Instructions
 
         public DatImport(FileInfo file, Encoding encoding, Delimiters delimiters, bool hasHeader, 
             string keyColName, string parentColName, string childColName, string childColDelim,
-            LinkedFileSettings[] linkedFiles) :
+            DatRepresentativeSettings[] linkedFiles) :
             base(file, encoding)
         {
             this.Delimiters = new DelimitersBuilder(delimiters);
@@ -32,7 +32,7 @@ namespace LoadFileAdapter.Instructions
             this.ParentColumnName = parentColName;
             this.ChildColumnName = childColName;
             this.ChildColumnDelimiter = childColDelim;
-            this.LinkedFiles = (linkedFiles != null) ? linkedFiles.Select(f => new LinkedFileSettingsBuilder(f)).ToArray() : null;
+            this.LinkedFiles = (linkedFiles != null) ? linkedFiles.Select(f => new RepresentativeSettings(f)).ToArray() : null;
         }               
     }
 }

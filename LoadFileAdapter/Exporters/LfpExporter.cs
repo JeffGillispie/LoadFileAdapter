@@ -40,16 +40,16 @@ namespace LoadFileAdapter.Exporters
         protected List<string> getPageRecords(Document document, string volName)
         {
             List<string> pageRecords = new List<string>();
-            LinkedFile imageRep = null;
-            LinkedFile nativeRep = null;
+            Representative imageRep = null;
+            Representative nativeRep = null;
             // find representatives
-            foreach (LinkedFile rep in document.LinkedFiles)
+            foreach (Representative rep in document.Representatives)
             {
-                if (rep.Type.Equals(LinkedFile.FileType.Image))
+                if (rep.Type.Equals(Representative.FileType.Image))
                 {
                     imageRep = rep;
                 }
-                else if (rep.Type.Equals(LinkedFile.FileType.Native))
+                else if (rep.Type.Equals(Representative.FileType.Native))
                 {
                     nativeRep = rep;
                 }
@@ -105,7 +105,7 @@ namespace LoadFileAdapter.Exporters
             return pageRecords;
         }
 
-        protected string getNativeRecord(Document document, string volName, LinkedFile nativeRep)
+        protected string getNativeRecord(Document document, string volName, Representative nativeRep)
         {
             // OF,IMAGEKEY,@VOLUME;FILE\PATH;IMAGE.FILE,1
             string fileName = Path.GetFileName(nativeRep.Files.First().Value);
@@ -120,7 +120,7 @@ namespace LoadFileAdapter.Exporters
                 );
         }
 
-        protected int getOffsetIterations(Document doc, LinkedFile rep)
+        protected int getOffsetIterations(Document doc, Representative rep)
         {
             int iterations = 1;
             // check if the page count is greater than represntative file count
