@@ -63,7 +63,6 @@ namespace LoadFileAdapter
                     int index = this.documentList.BinarySearch(original);
                     this.documentList[index] = newDoc;
                     this.documentGlossary[document.Key] = newDoc;
-#warning this needs testing
                 }
                 else
                 {

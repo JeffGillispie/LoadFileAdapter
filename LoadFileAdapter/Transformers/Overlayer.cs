@@ -80,8 +80,16 @@ namespace LoadFileAdapter.Transformers
                 }
             }
 
-            return new Document(updated.Key, updated.Parent, updated.Children, 
+            Document doc = new Document(updated.Key, updated.Parent, updated.Children, 
                 original.Metadata, original.LinkedFiles);
+
+            // update child docs
+            foreach (Document child in doc.Children)
+            {
+                child.SetParent(doc);
+            }
+
+            return doc;
         }
 
         protected Document overlayMetaData(Document original, Document updated)
