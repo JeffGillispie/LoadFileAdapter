@@ -84,7 +84,7 @@ namespace LoadFileAdapter.Builders
                 reps.Add(textRep);
             // no family relationships in an opt
             Document parent = null;
-            List<Document> children = null;
+            HashSet<Document> children = null;
             return new Document(key, parent, children, metadata, reps);
         }
 

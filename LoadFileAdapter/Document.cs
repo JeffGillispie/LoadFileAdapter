@@ -18,9 +18,9 @@ namespace LoadFileAdapter
         /// </summary>
         private Document parent;
         /// <summary>
-        /// A list of child documents of this document.
+        /// A set of child documents of this document.
         /// </summary>
-        private List<Document> children;
+        private HashSet<Document> children;
         /// <summary>
         /// A collection of metadata field names and field values belonging to this document.
         /// </summary>
@@ -35,12 +35,12 @@ namespace LoadFileAdapter
         /// </summary>
         /// <param name="key">The document key or DOCID.</param>
         /// <param name="parent">The parent document.</param>
-        /// <param name="children">A list of child documents.</param>
+        /// <param name="children">A set of child documents.</param>
         /// <param name="metadata">A collection of metadata key / value pairs.</param>
         /// <param name="representatives">A set of representative files.</param>
         public Document(string key, 
             Document parent, 
-            List<Document> children, 
+            HashSet<Document> children, 
             Dictionary<string, string> metadata, 
             HashSet<Representative> representatives)
         {
@@ -76,7 +76,7 @@ namespace LoadFileAdapter
         /// <summary>
         /// A list of child documents.
         /// </summary>
-        public List<Document> Children
+        public HashSet<Document> Children
         {
             get
             {
@@ -108,7 +108,7 @@ namespace LoadFileAdapter
         }
 
         /// <summary>
-        /// Sets the parent of the document.
+        /// Sets the parent of the document and adds this document as a child to the parent.
         /// </summary>
         /// <param name="parent">The parent document.</param>
         public void SetParent(Document parent)
@@ -119,13 +119,10 @@ namespace LoadFileAdapter
 
             if (parent.children == null)
             {
-                parent.children = new List<Document>();
+                parent.children = new HashSet<Document>();
             }
             
-            if (!parent.Children.Contains(this))
-            {
-                parent.Children.Add(this);
-            }
+            parent.Children.Add(this);            
         }
         
         /// <summary>

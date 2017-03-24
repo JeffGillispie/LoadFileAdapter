@@ -35,43 +35,7 @@ namespace LoadFileAdapter
         {
             AddRange(documents);
         }
-
-        /// <summary>
-        /// Adds a <see cref="Document"/> to the collection.
-        /// </summary>
-        /// <param name="doc">The document to add to the collection.</param>
-        public void Add(Document document)
-        {
-            AddRange(new Document[] { document });
-        }
-
-        /// <summary>
-        /// Adds a series of documents to the collection.
-        /// </summary>
-        /// <param name="documents">The documents to add to the collection.</param>
-        public void AddRange(IEnumerable<Document> documents)
-        {
-            foreach (Document document in documents)
-            {
-                if (this.documentGlossary.ContainsKey(document.Key))
-                {
-                    Overlayer overlayer = new Overlayer(true, true, true);
-                    Document original = this.documentGlossary[document.Key];
-                    Document newDoc = overlayer.Overlay(original, document);
-                    int index = this.documentList.BinarySearch(original);
-                    this.documentList[index] = newDoc;
-                    this.documentGlossary[document.Key] = newDoc;
-                }
-                else
-                {
-                    this.documentList.Add(document);
-                    this.documentGlossary.Add(document.Key, document);
-                }
-            }
-
-            propertyReset();            
-        }
-
+        
         /// <summary>
         /// The count of documents in the collection.
         /// </summary>
@@ -221,6 +185,42 @@ namespace LoadFileAdapter
         {
             return this.documentGlossary.Values.GetEnumerator();
         }
+        
+        /// <summary>
+        /// Adds a <see cref="Document"/> to the collection.
+        /// </summary>
+        /// <param name="doc">The document to add to the collection.</param>
+        public void Add(Document document)
+        {
+            AddRange(new Document[] { document });
+        }
+
+        /// <summary>
+        /// Adds a series of documents to the collection.
+        /// </summary>
+        /// <param name="documents">The documents to add to the collection.</param>
+        public void AddRange(IEnumerable<Document> documents)
+        {
+            foreach (Document document in documents)
+            {
+                if (this.documentGlossary.ContainsKey(document.Key))
+                {
+                    Overlayer overlayer = new Overlayer(true, true, true);
+                    Document original = this.documentGlossary[document.Key];
+                    Document newDoc = overlayer.Overlay(original, document);
+                    int index = this.documentList.BinarySearch(original);
+                    this.documentList[index] = newDoc;
+                    this.documentGlossary[document.Key] = newDoc;
+                }
+                else
+                {
+                    this.documentList.Add(document);
+                    this.documentGlossary.Add(document.Key, document);
+                }
+            }
+
+            propertyReset();
+        }
 
         /// <summary>
         /// Resets the value of the collection properties to -1.
@@ -248,37 +248,42 @@ namespace LoadFileAdapter
             this.childCount = 0;
             this.standAloneCount = 0;
 
-            foreach (Document doc in this.documentGlossary.Values)
+            foreach (Document doc in this.documentList)
             {
-                foreach (var representative in doc.Representatives)
+                if (doc.Representatives != null)
                 {
-                    if (representative.Type == Representative.FileType.Image)
+                    foreach (var representative in doc.Representatives)
                     {
-                        imageCount += representative.Files.Count;
-                    }
-                    else if (representative.Type == Representative.FileType.Native)
-                    {
-                        nativeCount += representative.Files.Count;
-                    }
-                    else if (representative.Type == Representative.FileType.Text)
-                    {
-                        textCount += representative.Files.Count;
+                        if (representative.Type == Representative.FileType.Image)
+                        {
+                            imageCount += representative.Files.Count;
+                        }
+                        else if (representative.Type == Representative.FileType.Native)
+                        {
+                            nativeCount += representative.Files.Count;
+                        }
+                        else if (representative.Type == Representative.FileType.Text)
+                        {
+                            textCount += representative.Files.Count;
+                        }
                     }
                 }
 
                 if (doc.Parent != null)
                 {
-                    childCount++;
+                    this.childCount++;
                 }
                 else if (doc.Children != null)
                 {
-                    parentCount++;
+                    this.parentCount++;
                 }
                 else
                 {
-                    standAloneCount++;
+                    this.standAloneCount++;
                 }
             }
+
+            this.propertiesAreUncounted = false;
         }        
     }
 }

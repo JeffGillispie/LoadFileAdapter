@@ -87,7 +87,7 @@ namespace LoadFileAdapter.Builders
             }
             // default values
             Document parent = null;
-            List<Document> children = null;
+            HashSet<Document> children = null;
             return new Document(keyValue, parent, children, metadata, reps);
         }
 

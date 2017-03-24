@@ -138,7 +138,7 @@ namespace LoadFileAdapter.Builders
             // get representatives
             HashSet<Representative> reps = getRepresentatives(args.PageRecords, args.PathPrefix, args.TextSetting, args.NativeRecord);
             Document parent = null;
-            List<Document> children = null;
+            HashSet<Document> children = null;
             return new Document(key, parent, children, metadata, reps);
         }
 
