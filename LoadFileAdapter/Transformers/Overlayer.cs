@@ -27,17 +27,17 @@ namespace LoadFileAdapter.Transformers
             {
                 if (this.hasOverlayFamilies)
                 {
-                    document = overlayFamilies(original, updated);
+                    document = overlayFamilies(document, updated);
                 }
 
                 if (this.hasOverlayMetaData)
                 {
-                    document = overlayMetaData(original, updated);
+                    document = overlayMetaData(document, updated);
                 }
 
                 if (this.hasOverlayRepresentatives)
                 {
-                    document = overlayRepresentatives(original, updated);
+                    document = overlayRepresentatives(document, updated);
                 }
             }
             else
@@ -86,7 +86,7 @@ namespace LoadFileAdapter.Transformers
             // update child docs
             if (doc.Children != null)
             {
-                doc.Children.ForEach(child => child.SetParent(doc));                
+                doc.Children.ToList().ForEach(child => child.SetParent(doc));                
             }
 
             return doc;
