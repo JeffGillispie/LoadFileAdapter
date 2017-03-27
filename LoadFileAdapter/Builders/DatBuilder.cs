@@ -5,11 +5,19 @@ using System.Linq;
 
 namespace LoadFileAdapter.Builders
 {
+    /// <summary>
+    /// A builder that builds documents from a DAT file.
+    /// </summary>
     public class DatBuilder : IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings>
     {
         private const char FILE_PATH_DELIM = '\\';
         private const string DEFAULT_CHILD_SEPARATOR = ";";
 
+        /// <summary>
+        /// Builds a list of documents from a DAT file.
+        /// </summary>
+        /// <param name="args">Build settings for a document collection.</param>
+        /// <returns>Returns a list of <see cref="Document"/> from a DAT file.</returns>
         public List<Document> BuildDocuments(BuildDocCollectionDatSettings args)
         {
             string[] header = GetHeader(args.Records.First(), args.HasHeader);
@@ -47,6 +55,11 @@ namespace LoadFileAdapter.Builders
             return docs.Values.ToList();
         }
 
+        /// <summary>
+        /// Builds a document from a DAT file.
+        /// </summary>
+        /// <param name="args">Build settings for a document.</param>
+        /// <returns>Returns a <see cref="Document"/> built from a DAT file.</returns>
         public Document BuildDocument(BuildDocDatSettings args)
         {
             // validate the field count
@@ -91,6 +104,12 @@ namespace LoadFileAdapter.Builders
             return new Document(keyValue, parent, children, metadata, reps);
         }
 
+        /// <summary>
+        /// Gets the header value.
+        /// </summary>
+        /// <param name="firstRecord">The first record from a DAT file.</param>
+        /// <param name="hasHeader">Indicates if the first record is a header.</param>
+        /// <returns>Returns a field list or a list of numbered columns.</returns>
         public string[] GetHeader(string[] firstRecord, bool hasHeader)
         {
             string[] header = new string[firstRecord.Length];
@@ -104,14 +123,23 @@ namespace LoadFileAdapter.Builders
                 // create arbitrary column names
                 for (int i = 0; i < firstRecord.Length; i++)
                 {
-                    header[i] = "Column " + i;
+                    header[i] = "Column " + (i + 1);
                 }
             }
 
             return header;
         }
 
-        private void settleFamilyDrama(string parentColName, string childColName, string childSeparator, 
+        /// <summary>
+        /// Sets the parent and children fields of a document.
+        /// </summary>
+        /// <param name="parentColName">The field name that contains a parent key.</param>
+        /// <param name="childColName">The field name that contains child keys.</param>
+        /// <param name="childSeparator">The delimiter used in the list of child keys.</param>
+        /// <param name="doc">Sets family relationships on this document.</param>
+        /// <param name="docs">A map of keys to documents.</param>
+        /// <param name="paternity">A map of child keys to parent documents.</param>
+        protected void settleFamilyDrama(string parentColName, string childColName, string childSeparator, 
             Document doc, Dictionary<string, Document> docs, Dictionary<string, Document> paternity)
         {
             if (!String.IsNullOrEmpty(parentColName))
@@ -129,7 +157,17 @@ namespace LoadFileAdapter.Builders
             }
         }
 
-        private void setFamilyFromParent(Document doc, Dictionary<string, Document> docs, Dictionary< string, Document> paternity, 
+        /// <summary>
+        /// Sets the parent and child values of a document based on a parent key.
+        /// </summary>
+        /// <param name="doc">A <see cref="Document"/></param>
+        /// <param name="docs">A map of keys to a document.</param>
+        /// <param name="paternity">A map of child keys to parent documents.</param>
+        /// <param name="parentColName">The field name of the parent key field.</param>
+        /// <param name="childColName">The field name of the field that contains a list of child keys.</param>
+        /// <param name="childSeparator">The delimiter used in the child column.</param>
+        protected void setFamilyFromParent(
+            Document doc, Dictionary<string, Document> docs, Dictionary<string, Document> paternity, 
             string parentColName, string childColName, string childSeparator)
         {
             // if we have a parent column
@@ -146,7 +184,9 @@ namespace LoadFileAdapter.Builders
                 // check if there is no parent
                 if (parent == null)
                 {
-                    string msg = String.Format("Broken Families, the parent ({0}) is missing for the document ({1}).", parentKey, doc.Key);
+                    string msg = String.Format(
+                        "Broken Families, the parent ({0}) is missing for the document ({1}).", 
+                        parentKey, doc.Key);
                     throw new Exception(msg);
                 }
                 else
@@ -161,7 +201,9 @@ namespace LoadFileAdapter.Builders
 
                         if (String.IsNullOrWhiteSpace(childrenLine))
                         {
-                            string[] childKeys = childrenLine.Split(new string[] { childSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                            string[] childKeys = childrenLine.Split(
+                                new string[] { childSeparator }, 
+                                StringSplitOptions.RemoveEmptyEntries);
                             // the child docs haven't been added yet so we'll record the relationships and add them later
                             foreach (string childKey in childKeys)
                             {
@@ -171,7 +213,9 @@ namespace LoadFileAdapter.Builders
                         // check for replationships that are not reciprocal
                         if (!parent.Metadata[childColName].Contains(doc.Key))
                         {
-                            string msg = String.Format("Broken families, the parent ({0}) disowns a child document ({1})", parentKey, doc.Key);
+                            string msg = String.Format(
+                                "Broken families, the parent ({0}) disowns a child document ({1})", 
+                                parentKey, doc.Key);
                             throw new Exception(msg);
                         }
                         else
@@ -185,7 +229,15 @@ namespace LoadFileAdapter.Builders
             }
         }
 
-        private void setFamilyFromChildren(Document doc, string childColName, string childSeparator, Dictionary<string, Document> paternity)
+        /// <summary>
+        /// Sets the parent and child values of a document based on a delimited list of child keys.
+        /// </summary>
+        /// <param name="doc">A <see cref="Document"/></param>
+        /// <param name="childColName">The column that contains a delimited list of child keys.</param>
+        /// <param name="childSeparator">The delimiter used in the child column.</param>
+        /// <param name="paternity">A map of child keys to parent documents.</param>
+        protected void setFamilyFromChildren(
+            Document doc, string childColName, string childSeparator, Dictionary<string, Document> paternity)
         {
             // we don't have a parent column name but we have a child column name
             string childrenLine = doc.Metadata[childColName];
@@ -197,20 +249,22 @@ namespace LoadFileAdapter.Builders
             }
             else
             {
-                string[] childKeys = childrenLine.Split(new string[] { childSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                string[] childKeys = childrenLine.Split(
+                    new string[] { childSeparator }, 
+                    StringSplitOptions.RemoveEmptyEntries);
                 // the child docs haven't been added yet so we'll record the relationship and add them later
                 foreach (string childKey in childKeys)
                 {
                     paternity.Add(childKey, doc); // paternity maps childKey >> parentDoc
-                }
-                // now check for the paternity of this document and add the parent
-                // paternity maps childKey >> parentDoc
-                if (paternity.ContainsKey(doc.Key))
-                {
-                    Document parent = paternity[doc.Key]; // note: the parent doc has already been confirmed
-                    doc.SetParent(parent);
-                    paternity.Remove(doc.Key); // needs to be removed for the disowned parent check
-                }
+                }                
+            }
+            // now check for the paternity of this document and add the parent
+            // paternity maps childKey >> parentDoc
+            if (paternity.ContainsKey(doc.Key))
+            {
+                Document parent = paternity[doc.Key]; // note: the parent doc has already been confirmed
+                doc.SetParent(parent);
+                paternity.Remove(doc.Key); // needs to be removed for the disowned parent check
             }
         }
     }
