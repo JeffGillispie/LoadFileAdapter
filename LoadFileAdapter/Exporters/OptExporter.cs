@@ -4,11 +4,18 @@ using System.IO;
 
 namespace LoadFileAdapter.Exporters
 {
+    /// <summary>
+    /// An exporter that export data from a document collection to an OPT file.
+    /// </summary>
     public class OptExporter : IExporter<ExportFileImageSettings, ExportWriterImageSettings>
     {
         private const string TRUE_VALUE = "Y";
         private const string FALSE_VALUE = "";
 
+        /// <summary>
+        /// Exports an OPT file to a supplied <see cref="FileInfo"/> destination.
+        /// </summary>
+        /// <param name="args">The export settings used to export data to a file.</param>
         public void Export(ExportFileImageSettings args)
         {
             bool append = false;
@@ -20,6 +27,10 @@ namespace LoadFileAdapter.Exporters
             }
         }
 
+        /// <summary>
+        /// Use a <see cref="TextWriter"/> to export data to an OPT file.
+        /// </summary>
+        /// <param name="args">The export settings used to write an OPT file.</param>
         public void Export(ExportWriterImageSettings args)
         {
             foreach (Document document in args.Documents)
@@ -33,6 +44,12 @@ namespace LoadFileAdapter.Exporters
             }
         }
 
+        /// <summary>
+        /// Gets a list of lines that contain OPT page records.
+        /// </summary>
+        /// <param name="document"></param>
+        /// <param name="volName"></param>
+        /// <returns></returns>
         protected List<string> getPageRecords(Document document, string volName)
         {
             Representative imageRep = null;

@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace LoadFileAdapter.Exporters
 {
+    /// <summary>
+    /// An exporter that export data from a document collection to a LFP file.
+    /// </summary>
     public class LfpExporter : IExporter<ExportFileImageSettings, ExportWriterImageSettings>
     {
         protected static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
@@ -13,6 +16,10 @@ namespace LoadFileAdapter.Exporters
             { ".PDF", 7 }
         };
 
+        /// <summary>
+        /// Exports a LFP load file to a supplied <see cref="FileInfo"/> destination.
+        /// </summary>
+        /// <param name="args">The export settings used to export data to a file.</param>
         public void Export(ExportFileImageSettings args)
         {
             bool append = false;
@@ -24,6 +31,10 @@ namespace LoadFileAdapter.Exporters
             }
         }
 
+        /// <summary>
+        /// Uses a <see cref="TextWriter"/> to export data to a LFP file.
+        /// </summary>
+        /// <param name="args">The export settings used to write a LFP file.</param>
         public void Export(ExportWriterImageSettings args)
         {
             foreach (Document document in args.Documents)
@@ -37,6 +48,12 @@ namespace LoadFileAdapter.Exporters
             }
         }
 
+        /// <summary>
+        /// Gets a list of lines that contain page records.
+        /// </summary>
+        /// <param name="document">The document being exported.</param>
+        /// <param name="volName">The export volume name.</param>
+        /// <returns>A series of formatted LFP image lines.</returns>
         protected List<string> getPageRecords(Document document, string volName)
         {
             List<string> pageRecords = new List<string>();
@@ -105,6 +122,13 @@ namespace LoadFileAdapter.Exporters
             return pageRecords;
         }
 
+        /// <summary>
+        /// Gets a line that contains the native representative record.
+        /// </summary>
+        /// <param name="document">The document being exported.</param>
+        /// <param name="volName">The export volume name.</param>
+        /// <param name="nativeRep">The native rep being exported.</param>
+        /// <returns>A formatted LFP native record line.</returns>
         protected string getNativeRecord(Document document, string volName, Representative nativeRep)
         {
             // OF,IMAGEKEY,@VOLUME;FILE\PATH;IMAGE.FILE,1
@@ -120,6 +144,14 @@ namespace LoadFileAdapter.Exporters
                 );
         }
 
+        /// <summary>
+        /// A multi-page file like a PDF will have only a single file, but will
+        /// need to write multiple lines (pages) to a load file. This will get the count
+        /// of iterations needed per file.
+        /// </summary>
+        /// <param name="doc">The document being exported.</param>
+        /// <param name="rep">The image rep being exported.</param>
+        /// <returns>Returns a count of iterations (lines) per file.</returns>
         protected int getOffsetIterations(Document doc, Representative rep)
         {
             int iterations = 1;
@@ -139,6 +171,12 @@ namespace LoadFileAdapter.Exporters
             return iterations;
         }
 
+        /// <summary>
+        /// Gets a document break token based on the documents family relationships.
+        /// If the document has a parent then it is a child, otherwise it is a document.
+        /// </summary>
+        /// <param name="doc">The document to export.</param>
+        /// <returns>Returns a 'C' for a child break or a 'D' for a document break.</returns>
         protected string getDocBreakValue(Document doc)
         {
             if (doc.Parent != null)
