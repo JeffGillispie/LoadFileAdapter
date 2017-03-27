@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Builders
@@ -9,6 +10,7 @@ namespace LoadFileAdapter.Builders
     /// </summary>
     public class TextRepresentativeSettings
     {
+        private const string FILE_DELIM = "\\";
         private const string TEXT_EXT = ".txt";                
         private TextLevel fileLevel = TextLevel.None;        
         private TextLocation fileLocation = TextLocation.None;        
@@ -79,9 +81,12 @@ namespace LoadFileAdapter.Builders
         /// <returns>The path to the text file.</returns>
         public string GetTextPathFromImagePath(string imagePath)
         {
-            FileInfo image = new FileInfo(imagePath);
-            string textFolder = image.Directory.FullName;
-            string textFile = Path.GetFileNameWithoutExtension(image.Name) + TEXT_EXT;
+            string[] path = imagePath.Split(
+                new string[] { FILE_DELIM }, 
+                StringSplitOptions.RemoveEmptyEntries);
+            path = path.Take(path.Length - 1).ToArray();
+            string textFolder = String.Join(FILE_DELIM, path);
+            string textFile = Path.GetFileNameWithoutExtension(imagePath) + TEXT_EXT;
 
             switch(this.fileLocation)
             {
