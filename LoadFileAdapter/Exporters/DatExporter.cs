@@ -1,13 +1,19 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Text;
 using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Exporters
 {
+    /// <summary>
+    /// An exporter that exports a document collection to a DAT file.
+    /// </summary>
     public class DatExporter : IExporter<ExportFileDatSettings, ExportWriterDatSettings>
     {
+        /// <summary>
+        /// Exports a document collection to a DAT file using a supplied destination.
+        /// </summary>
+        /// <param name="args">Export file settings.</param>
         public void Export(ExportFileDatSettings args)
         {
             bool append = false;
@@ -19,6 +25,10 @@ namespace LoadFileAdapter.Exporters
             }
         }
 
+        /// <summary>
+        /// Exports a document collection to a DAT file using a supplied writer.
+        /// </summary>
+        /// <param name="args">Export writer settings.</param>
         public void Export(ExportWriterDatSettings args)
         {
             string header = getHeader(args.ExportFields, args.Delimiters);
@@ -31,6 +41,12 @@ namespace LoadFileAdapter.Exporters
             }
         }
 
+        /// <summary>
+        /// Gets the header as a string.
+        /// </summary>
+        /// <param name="fields">The fields to use in the header.</param>
+        /// <param name="delimiters">The delimiters to use in the header.</param>
+        /// <returns>Returns a delimited string of field names.</returns>
         protected string getHeader(string[] fields, Delimiters delimiters)
         {            
             StringBuilder sb = new StringBuilder();            
@@ -66,10 +82,17 @@ namespace LoadFileAdapter.Exporters
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Gets a metadata record from a document.
+        /// </summary>
+        /// <param name="doc">The document containing the metadata record.</param>
+        /// <param name="delimiters">The delimiters used to build the string.</param>
+        /// <param name="fields">The fields to include in the record.</param>
+        /// <returns>Returns a delimited string of the specified metadata fields.</returns>
         protected string getRecord(Document doc, Delimiters delimiters, string[] fields)
         {
             StringBuilder sb = new StringBuilder();
-            int fieldCount = doc.Metadata.Count;
+            int fieldCount = fields.Length;
             int counter = 1;
 
             foreach (string fieldName in fields)
