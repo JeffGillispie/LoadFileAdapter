@@ -96,6 +96,12 @@ namespace LoadFileAdapter.Transformers
                 doc.Metadata.Add(this.fieldName, String.Empty);
             }
 
+            if (!String.IsNullOrWhiteSpace(this.alternateDestinationField) && 
+                !doc.Metadata.ContainsKey(this.alternateDestinationField))
+            {
+                doc.Metadata.Add(this.alternateDestinationField, String.Empty);
+            }
+
             if (base.hasEdit(doc))
             {
                 // get orig value
