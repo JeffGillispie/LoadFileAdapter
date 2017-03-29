@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LoadFileAdapter.Transformers
 {
+    /// <summary>
+    /// Merges selected properties of a new document over the properties of another document.
+    /// </summary>
     public class Overlayer
     {
         private bool hasOverlayFamilies = false;
         private bool hasOverlayMetaData = false;
         private bool hasOverlayRepresentatives = false;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="Overlayer"/>.
+        /// </summary>
+        /// <param name="overlayFamilies">Indicates if families should be overlayed.</param>
+        /// <param name="overlayMeta">Indicates if metadata should be overlayed.</param>
+        /// <param name="overlayFiles">Indicates if representatives should be overlayed.</param>
         public Overlayer(bool overlayFamilies, bool overlayMeta, bool overlayFiles)
         {
             this.hasOverlayFamilies = overlayFamilies;
@@ -19,6 +26,12 @@ namespace LoadFileAdapter.Transformers
             this.hasOverlayRepresentatives = overlayFiles;
         }
 
+        /// <summary>
+        /// Overlays a document with udpated data.
+        /// </summary>
+        /// <param name="original">The original document.</param>
+        /// <param name="updated">The document containing the udpated data.</param>
+        /// <returns>Returns a new document with the updated information.</returns>
         public Document Overlay(Document original, Document updated)
         {
             Document document = original;
@@ -51,6 +64,14 @@ namespace LoadFileAdapter.Transformers
             return document;
         }
 
+        /// <summary>
+        /// Overlays a documents family relationships. Related documents are also 
+        /// updated so all relationships reflect the modifications.
+        /// </summary>
+        /// <param name="original">The original document.</param>
+        /// <param name="updated">The document with the updated relationships.</param>
+        /// <returns>Returns a new document with the original metadata, updated
+        /// family relationships, and original representatives.</returns>
         protected Document overlayFamilies(Document original, Document updated)
         {
             // disconnect the recipocal relationship of the parent doc
@@ -92,6 +113,13 @@ namespace LoadFileAdapter.Transformers
             return doc;
         }
 
+        /// <summary>
+        /// Overlays a document's metadata.
+        /// </summary>
+        /// <param name="original">The original document.</param>
+        /// <param name="updated">The document with the updated relationships.</param>
+        /// <returns>Returns a new document with the updated metadata, original 
+        /// family relationships, and original representatives.</returns>
         protected Document overlayMetaData(Document original, Document updated)
         {
             Dictionary<string, string> metadata = original.Metadata;
@@ -111,6 +139,13 @@ namespace LoadFileAdapter.Transformers
             return new Document(original.Key, original.Parent, original.Children, metadata, original.Representatives);
         }
 
+        /// <summary>
+        /// Overlays a document's representatives with updated values.
+        /// </summary>
+        /// <param name="original">The original document.</param>
+        /// <param name="update">The document with the updated representatives.</param>
+        /// <returns>Returns a new document with the original metadata, original family 
+        /// relationships, and updated representatives.</returns>
         protected Document overlayRepresentatives(Document original, Document update)
         {
             HashSet<Representative> representatives = new HashSet<Representative>();
@@ -146,7 +181,12 @@ namespace LoadFileAdapter.Transformers
                 }
             }
 
-            return new Document(original.Key, original.Parent, original.Children, original.Metadata, representatives);
+            return new Document(
+                original.Key, 
+                original.Parent, 
+                original.Children, 
+                original.Metadata, 
+                representatives);
         }
     }
 }
