@@ -1,27 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿
 using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter.Instructions
 {
+    /// <summary>
+    /// This class is a wrapper for a <see cref="Transformation"/> in order to support 
+    /// serialization to XML. It contains the instructions to perform an <see cref="Edit"/>
+    /// or a <see cref="Transformation"/> on a <see cref="Document"/>.
+    /// </summary>
     public abstract class Edit
     {
+        /// <summary>
+        /// Contains the pattern and <see cref="RegexOptions"/> for a find / replace operation
+        /// in conjunction with the ReplaceText field that is appled to documents in a 
+        /// <see cref="DocumentCollection"/>. This field is ignored for serialization to XML
+        /// and replaced with the FindTextPattern, FindTextIgnoreCase and FindTextIsRightToLeft
+        /// properties.
+        /// </summary>
         [XmlIgnore]
         public Regex FindText = null;
+
+        /// <summary>
+        /// The replacement text that is used with the FindText regex.
+        /// </summary>
         public string ReplaceText = null;
+
+        /// <summary>
+        /// Determines which field if any the FilterText regex is applied to in order to determine
+        /// which records in a document collection the edit is applied to.
+        /// </summary>
         public string FilterField = null;
+
+        /// <summary>
+        /// Determines which records in a document collection are edited in conjunction with the FilterField.
+        /// This field is ignored for serialization and replaced with the FilterTextPattern, 
+        /// FilterTextIgnoreCase, and FilterTextIsRightToLeft properties.
+        /// </summary>
         [XmlIgnore]
         public Regex FilterText = null;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="Edit"/>.
+        /// </summary>
         public Edit()
         {
 
         }
 
+        /// <summary>
+        /// A serializable property for the find text pattern. It also is used to
+        /// manage the FindText <see cref="Regex"/>.
+        /// </summary>
         public string FindTextPattern
         {
             get
@@ -39,6 +70,10 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
+        /// <summary>
+        /// A serializable property indicating if the find text <see cref="Regex"/> 
+        /// should ignore case.
+        /// </summary>
         public bool FindTextIgnoreCase
         {
             get
@@ -61,6 +96,11 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
+        /// <summary>
+        /// A serializable property indicating if the find text is right to left.
+        /// It is also used in managing the <see cref="RegexOptions"/> for the 
+        /// FindText <see cref="Regex"/>.
+        /// </summary>
         public bool FindTextIsRightToLeft
         {
             get
@@ -83,6 +123,10 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
+        /// <summary>
+        /// A serializable property containing the filter text pattern
+        /// and used to manage the FilterText <see cref="Regex"/>.
+        /// </summary>
         public string FilterTextPattern
         {
             get
@@ -100,6 +144,12 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
+        /// <summary>
+        /// A serializable property indicating if the filter text pattern
+        /// in the edit instructions should ignore case. It is also used
+        /// to manage the <see cref="RegexOptions"/> for the FilterText 
+        /// <see cref="Regex"/>.
+        /// </summary>
         public bool FilterTextIgnoreCase
         {
             get
@@ -122,6 +172,12 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
+        /// <summary>
+        /// A serializable property indicating if the filter text pattern
+        /// in the edit instructions is right to left. It is also used to 
+        /// manage the <see cref="RegexOptions"/> for the FilterText
+        /// <see cref="Regex"/>.
+        /// </summary>
         public bool FilterTextRightToLeft
         {
             get
@@ -144,6 +200,12 @@ namespace LoadFileAdapter.Instructions
             }
         }
 
+        /// <summary>
+        /// Gets the <see cref="RegexOptions"/> used in the edit instructions.
+        /// </summary>
+        /// <param name="ignoreCase">Indicates if case should be ignored.</param>
+        /// <param name="rightToLeft">Indicates if the match should be made from right to left.</param>
+        /// <returns></returns>
         protected RegexOptions getRegexOptions(bool ignoreCase, bool rightToLeft)
         {
             RegexOptions options = RegexOptions.None;
@@ -152,6 +214,10 @@ namespace LoadFileAdapter.Instructions
             return options;
         }
 
+        /// <summary>
+        /// Gets the <see cref="Transformation"/> version of the edit instructions.
+        /// </summary>
+        /// <returns>Returns a <see cref="Transformation"/>.</returns>
         public Transformation GetEdit()
         {
             if (this.GetType().Equals(typeof(MetaDataEdit)))

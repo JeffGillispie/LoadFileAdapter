@@ -10,7 +10,9 @@ namespace LoadFileAdapter.Instructions
 {
     /// <summary>
     /// The Job class is a container of instructions that details
-    /// what will be imported, edited, and exported.
+    /// what will be imported, edited, and exported. It is also 
+    /// used to serialize instructions and deserialize instructions
+    /// from XML.
     /// </summary>
     [XmlInclude(typeof(DatImport))]
     [XmlInclude(typeof(ImgImport))]
