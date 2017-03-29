@@ -6,9 +6,9 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("LoadFileAdapter")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Adapter to import, edit, and export load files.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Jeff Gillispie")]
 [assembly: AssemblyProduct("LoadFileAdapter")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
