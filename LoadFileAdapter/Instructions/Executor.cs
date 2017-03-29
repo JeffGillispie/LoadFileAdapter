@@ -26,9 +26,18 @@ namespace LoadFileAdapter.Instructions
             {
                 DatImport import = (DatImport)instructions;
                 DatImporter importer = new DatImporter();
-                return importer.Import(import.File, import.Encoding, import.Delimiters.GetDelimiters(), import.HasHeader,
-                    import.KeyColumnName, import.ParentColumnName, import.ChildColumnName, import.ChildColumnDelimiter,
-                    import.LinkedFiles.Select(f => f.GetSetting()).ToList());
+                return importer.Import(
+                    import.File, 
+                    import.Encoding, 
+                    import.Delimiters.GetDelimiters(), 
+                    import.HasHeader,
+                    import.KeyColumnName, 
+                    import.ParentColumnName, 
+                    import.ChildColumnName, 
+                    import.ChildColumnDelimiter,
+                    (import.LinkedFiles != null) 
+                        ? import.LinkedFiles.Select(f => f.GetSetting()).ToList()
+                        : null);
             }
             else if (instructions.File.Extension.ToUpper().Equals(LFP_EXT))
             {

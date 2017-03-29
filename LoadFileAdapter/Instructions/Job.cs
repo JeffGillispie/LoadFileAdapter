@@ -14,6 +14,7 @@ namespace LoadFileAdapter.Instructions
     /// used to serialize instructions and deserialize instructions
     /// from XML.
     /// </summary>
+    [Serializable, XmlRoot("Job")]
     [XmlInclude(typeof(DatImport))]
     [XmlInclude(typeof(ImgImport))]
     [XmlInclude(typeof(DatExport))]
