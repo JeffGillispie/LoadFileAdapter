@@ -13,11 +13,14 @@ namespace LoadFileAdapter.Transformers
         /// <param name="edits">The edits to perform on teh <see cref="DocumentCollection"/>.</param>
         public void Transform(DocumentCollection docs, Transformation[] edits)
         {
-            foreach (Document doc in docs)
+            if (docs != null && edits != null)
             {
-                foreach (Transformation edit in edits)
-                {
-                    edit.Transform(doc);
+                foreach (Document doc in docs)
+                {                    
+                    foreach (Transformation edit in edits)
+                    {
+                        edit.Transform(doc);
+                    }                    
                 }
             }
         }        
