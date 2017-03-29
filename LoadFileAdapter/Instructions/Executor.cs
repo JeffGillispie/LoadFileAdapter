@@ -43,13 +43,23 @@ namespace LoadFileAdapter.Instructions
             {
                 ImgImport import = (ImgImport)instructions;
                 LfpImporter importer = new LfpImporter();
-                return importer.Import(import.File, import.Encoding, import.TextSetting.GetSettings());
+                return importer.Import(
+                    import.File, 
+                    import.Encoding, 
+                    (import.TextSetting != null)
+                        ? import.TextSetting.GetSettings()
+                        : null);
             }
             else if (instructions.File.Extension.ToUpper().Equals(OPT_EXT))
             {
                 ImgImport import = (ImgImport)instructions;
                 OptImporter importer = new OptImporter();
-                return importer.Import(import.File, import.Encoding, import.TextSetting.GetSettings());
+                return importer.Import(
+                    import.File, 
+                    import.Encoding,
+                    (import.TextSetting != null)
+                        ? import.TextSetting.GetSettings()
+                        : null);
             }
             else
             {
