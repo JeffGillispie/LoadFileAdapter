@@ -90,7 +90,9 @@ namespace LoadFileAdapter.Instructions
         /// <returns>An array of <see cref="Transformation"/>.</returns>
         public Transformation[] GetTransformations()
         {
-            return this.Edits.Select(e => e.GetEdit()).ToArray();
+            return (this.Edits != null ) 
+                ? this.Edits.Select(e => e.GetEdit()).ToArray()
+                : null;
         }
         
         /// <summary>
