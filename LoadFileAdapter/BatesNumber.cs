@@ -188,6 +188,10 @@ namespace LoadFileAdapter
             return bates.ToString();
         }
 
+        /// <summary>
+        /// Obtains the string representation of the bates number.
+        /// </summary>
+        /// <returns>Returns a bates number string.</returns>
         public override string ToString()
         {
             return this.value;
