@@ -8,19 +8,45 @@ namespace LoadFileAdapter.Exporters
     /// <summary>
     /// An exporter that exports a document collection to a DAT file.
     /// </summary>
-    public class DatExporter : IExporter<ExportFileDatSettings, ExportWriterDatSettings>
+    public class DatExporter : IExporter<IExportDatSettings>
     {
+        /// <summary>
+        /// Exports a document collection to a DAT.
+        /// </summary>
+        /// <param name="args">DAT export settings.</param>
+        public void Export(IExportDatSettings args)
+        {
+            if (args.GetType().Equals(typeof(ExportDatFileSettings)))
+            {
+                Export((ExportDatFileSettings)args);
+            }
+            else if (args.GetType().Equals(typeof(ExportDatWriterSettings)))
+            {
+                Export((ExportDatWriterSettings)args);
+            }
+            else
+            {
+                throw new Exception("DatExporter Export Exception: The export settings were not a valid type.");
+            }
+        }
+
         /// <summary>
         /// Exports a document collection to a DAT file using a supplied destination.
         /// </summary>
         /// <param name="args">Export file settings.</param>
-        public void Export(ExportFileDatSettings args)
+        public void Export(ExportDatFileSettings args)
         {
             bool append = false;
+            string file = args.GetFile().FullName;
+            Encoding encoding = args.GetEncoding();
+            DocumentCollection docs = args.GetDocuments();
+            Delimiters delims = args.GetDelimiters();
+            string[] fields = args.GetExportFields();
 
-            using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
+            using (TextWriter writer = new StreamWriter(file, append, encoding))
             {
-                ExportWriterDatSettings writerArgs = new ExportWriterDatSettings(writer, args.Documents, args.Delimiters, args.ExportFields);
+                ExportDatWriterSettings writerArgs = new ExportDatWriterSettings(
+                    writer, docs, delims, fields);
                 Export(writerArgs);
             }
         }
@@ -29,15 +55,19 @@ namespace LoadFileAdapter.Exporters
         /// Exports a document collection to a DAT file using a supplied writer.
         /// </summary>
         /// <param name="args">Export writer settings.</param>
-        public void Export(ExportWriterDatSettings args)
+        public void Export(ExportDatWriterSettings args)
         {
-            string header = getHeader(args.ExportFields, args.Delimiters);
-            args.Writer.WriteLine(header);
+            DocumentCollection docs = args.GetDocuments();
+            TextWriter writer = args.GetWriter();
+            Delimiters delims = args.GetDelimiters();
+            string[] fields = args.GetExportFields();
+            string header = getHeader(fields, delims);
+            writer.WriteLine(header);
 
-            foreach (Document document in args.Documents)
+            foreach (Document document in docs)
             {
-                string record = getRecord(document, args.Delimiters, args.ExportFields);
-                args.Writer.WriteLine(record);
+                string record = getRecord(document, delims, fields);
+                writer.WriteLine(record);
             }
         }
 
