@@ -78,7 +78,7 @@ namespace LoadFileAdapter.Instructions
             if (export.GetType().Equals(typeof(DatExport)))
             {
                 DatExport ex = (DatExport)export;
-                ExportFileDatSettings settings = new ExportFileDatSettings(
+                ExportDatFileSettings settings = new ExportDatFileSettings(
                     docs, ex.File, ex.Encoding, ex.Delimiters.GetDelimiters(), ex.ExportFields);
                 DatExporter exporter = new DatExporter();
                 exporter.Export(settings);
@@ -86,7 +86,7 @@ namespace LoadFileAdapter.Instructions
             else if (export.File.Extension.ToUpper().Equals(LFP_EXT))
             {
                 ImgExport ex = (ImgExport)export;
-                ExportFileImageSettings settings = new ExportFileImageSettings(
+                ExportImageFileSettings settings = new ExportImageFileSettings(
                     docs, ex.File, ex.Encoding, ex.VolumeName);
                 LfpExporter exporter = new LfpExporter();
                 exporter.Export(settings);
@@ -94,7 +94,7 @@ namespace LoadFileAdapter.Instructions
             else if (export.File.Extension.ToUpper().Equals(OPT_EXT))
             {
                 ImgExport ex = (ImgExport)export;
-                ExportFileImageSettings settings = new ExportFileImageSettings(
+                ExportImageFileSettings settings = new ExportImageFileSettings(
                     docs, ex.File, ex.Encoding, ex.VolumeName);
                 OptExporter exporter = new OptExporter();
                 exporter.Export(settings);
