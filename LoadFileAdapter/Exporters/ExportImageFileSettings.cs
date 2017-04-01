@@ -29,21 +29,37 @@ namespace LoadFileAdapter.Exporters
             this.volumeName = volumeName;
         }
 
+        /// <summary>
+        /// Gets the documents to be exported.
+        /// </summary>
+        /// <returns>Returns a <see cref="DocumentCollection"/>.</returns>
         public DocumentCollection GetDocuments()
         {
             return this.documents;
         }
 
+        /// <summary>
+        /// Gets the destination file.
+        /// </summary>
+        /// <returns>Returns the destination <see cref="FileInfo"/> object.</returns>
         public FileInfo GetFile()
         {
             return this.file;
         }
 
+        /// <summary>
+        /// Gets the encoding used to write the export.
+        /// </summary>
+        /// <returns>Returns the export's <see cref="Encoding"/>.</returns>
         public Encoding GetEncoding()
         {
             return this.encoding;
         }
 
+        /// <summary>
+        /// Gets the export volume name.
+        /// </summary>
+        /// <returns>Returns the name of the export volume.</returns>
         public string GetVolumeName()
         {
             return this.volumeName;

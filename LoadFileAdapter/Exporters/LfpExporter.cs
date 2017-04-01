@@ -11,12 +11,19 @@ namespace LoadFileAdapter.Exporters
     /// </summary>
     public class LfpExporter : IExporter<IExportImageSettings>
     {
+        /// <summary>
+        /// Map of image file extensions to the LFP numeric type indicator.
+        /// </summary>
         protected static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
             { ".TIF", 2 },
             { ".JPG", 4 },
             { ".PDF", 7 }
         };
 
+        /// <summary>
+        /// Exports a LFP load file.
+        /// </summary>
+        /// <param name="args">The export settings used to export data.</param>
         public void Export(IExportImageSettings args)
         {
             if (args.GetType().Equals(typeof(ExportImageFileSettings)))

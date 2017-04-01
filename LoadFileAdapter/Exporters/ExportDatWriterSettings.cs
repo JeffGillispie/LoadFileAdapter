@@ -29,21 +29,37 @@ namespace LoadFileAdapter.Exporters
             this.exportFields = exportFields;
         }
 
+        /// <summary>
+        /// Gets the documents to export from the export settings.
+        /// </summary>
+        /// <returns>Returns a <see cref="DocumentCollection"/>.</returns>
         public DocumentCollection GetDocuments()
         {
             return this.documents;
         }
 
+        /// <summary>
+        /// Gets the writer used to write the export.
+        /// </summary>
+        /// <returns>Returns a <see cref="TextWriter"/>.</returns>
         public TextWriter GetWriter()
         {
             return this.writer;
         }
 
+        /// <summary>
+        /// Gets the delimiters used to write the export.
+        /// </summary>
+        /// <returns>Returns the export <see cref="Delimiters"/>.</returns>
         public Delimiters GetDelimiters()
         {
             return this.delimiters;
         }
 
+        /// <summary>
+        /// Gets the fields to export.
+        /// </summary>
+        /// <returns>Returns the export fields.</returns>
         public string[] GetExportFields()
         {
             return this.exportFields;

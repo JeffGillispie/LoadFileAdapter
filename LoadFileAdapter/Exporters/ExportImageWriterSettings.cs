@@ -25,16 +25,28 @@ namespace LoadFileAdapter.Exporters
             this.volumeName = volumeName;
         }
 
+        /// <summary>
+        /// Gets the documents to be exported.
+        /// </summary>
+        /// <returns>Returns a <see cref="DocumentCollection"/>.</returns>
         public DocumentCollection GetDocuments()
         {
             return this.documents;
         }
 
+        /// <summary>
+        /// Gets the writer used write the export.
+        /// </summary>
+        /// <returns>Returns a <see cref="TextWriter"/>.</returns>
         public TextWriter GetWriter()
         {
             return this.writer;
         }
 
+        /// <summary>
+        /// Gets the export volume name.
+        /// </summary>
+        /// <returns>Returns the name of the export volume.</returns>
         public string GetVolumeName()
         {
             return this.volumeName;

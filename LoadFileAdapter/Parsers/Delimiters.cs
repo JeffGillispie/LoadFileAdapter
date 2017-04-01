@@ -7,6 +7,9 @@ namespace LoadFileAdapter.Parsers
     /// </summary>
     public class Delimiters
     {
+        /// <summary>
+        /// Null delimiter value.
+        /// </summary>
         public const char Null = '\0';
         private readonly char fieldSeparator = ',';
         private readonly char textQualifier = Null;

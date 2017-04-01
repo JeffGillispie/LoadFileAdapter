@@ -33,7 +33,18 @@ namespace LoadFileAdapter
         /// </summary>
         public enum FileType
         {
-            Image, Native, Text
+            /// <summary>
+            /// An image representative.
+            /// </summary>
+            Image,
+            /// <summary>
+            /// A native representative.
+            /// </summary>
+            Native,
+            /// <summary>
+            /// A text representative.
+            /// </summary>
+            Text
         }
 
         /// <summary>

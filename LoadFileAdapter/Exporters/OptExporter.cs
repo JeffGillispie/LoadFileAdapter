@@ -13,6 +13,10 @@ namespace LoadFileAdapter.Exporters
         private const string TRUE_VALUE = "Y";
         private const string FALSE_VALUE = "";
 
+        /// <summary>
+        /// Exports an OPT load file.
+        /// </summary>
+        /// <param name="args">The settings used to export a document collection.</param>
         public void Export(IExportImageSettings args)
         {
             if (args.GetType().Equals(typeof(ExportImageFileSettings)))

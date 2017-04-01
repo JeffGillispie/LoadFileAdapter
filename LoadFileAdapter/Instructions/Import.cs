@@ -4,6 +4,9 @@ using System.Xml.Serialization;
 
 namespace LoadFileAdapter.Instructions
 {   
+    /// <summary>
+    /// Instructions for importing a load file.
+    /// </summary>
     public abstract class Import
     {
         /// <summary>

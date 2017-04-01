@@ -199,7 +199,7 @@ namespace LoadFileAdapter
         /// <summary>
         /// Adds a <see cref="Document"/> to the collection.
         /// </summary>
-        /// <param name="doc">The document to add to the collection.</param>
+        /// <param name="document">The document to add to the collection.</param>
         public void Add(Document document)
         {
             AddRange(new Document[] { document });

@@ -53,7 +53,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Initializes a new instance of <see cref="Job"/>.
         /// </summary>
-        /// <param name="import">An array of <see cref="Import"/> used in the job.</param>
+        /// <param name="imports">An array of <see cref="Import"/> used in the job.</param>
         /// <param name="exports">An array of <see cref="Export"/> used in the job.</param>
         /// <param name="edits">An array of <see cref="Transformation"/> used in the job.</param>
         public Job(Import[] imports, Export[] exports, Transformation[] edits) : this()

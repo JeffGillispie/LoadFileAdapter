@@ -7,6 +7,9 @@ using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Exporters
 {
+    /// <summary>
+    /// DAT export settings.
+    /// </summary>
     public interface IExportDatSettings : IExportSettings
     {
         /// <summary>

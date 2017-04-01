@@ -13,6 +13,10 @@ namespace LoadFileAdapter.Exporters
     /// </summary>
     public class XlsExporter : IExporter<ExportXlsSettings>
     {
+        /// <summary>
+        /// Exports an excel file.
+        /// </summary>
+        /// <param name="x"></param>
         public void Export(ExportXlsSettings x)
         {
 #warning needs implementation
