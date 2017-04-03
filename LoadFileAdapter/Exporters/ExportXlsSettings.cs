@@ -9,16 +9,21 @@ namespace LoadFileAdapter.Exporters
     {
         private DocumentCollection documents;
         private FileInfo file;
+        private string[] exportFields;
+        private ExportXlsLinkSettings[] links;
 
         /// <summary>
         /// Initializes a new instance of <see cref="ExportXlsSettings"/>.
         /// </summary>
         /// <param name="documents">The documents to export.</param>
         /// <param name="file">The destination file.</param>
-        public ExportXlsSettings(DocumentCollection documents, FileInfo file)
+        public ExportXlsSettings(DocumentCollection documents, FileInfo file,
+            string[] exportFields, ExportXlsLinkSettings[] links)
         {
             this.documents = documents;
             this.file = file;
+            this.exportFields = exportFields;
+            this.links = links;
         }
 
         /// <summary>
@@ -37,6 +42,24 @@ namespace LoadFileAdapter.Exporters
         public FileInfo GetFile()
         {
             return this.file;
+        }
+
+        /// <summary>
+        /// Gets the fields to include in the export.
+        /// </summary>
+        /// <returns>Returns the fields to export.</returns>
+        public string[] GetExportFields()
+        {
+            return this.exportFields;
+        }
+
+        /// <summary>
+        /// Gets the settings to create hyperlinks.
+        /// </summary>
+        /// <returns>Returns a collection of <see cref="ExportXlsLinkSettings"/>.</returns>
+        public ExportXlsLinkSettings[] GetLinks()
+        {
+            return this.links;
         }
     }
 }

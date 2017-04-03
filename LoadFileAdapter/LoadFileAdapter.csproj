@@ -57,6 +57,7 @@
     <Compile Include="Builders\BuildDocDatSettings.cs" />
     <Compile Include="Builders\BuildDocCollectionDatSettings.cs" />
     <Compile Include="DocumentCollection.cs" />
+    <Compile Include="Exporters\ExportXlsLinkSettings.cs" />
     <Compile Include="Exporters\IExportDatSettings.cs" />
     <Compile Include="Exporters\IExportImageSettings.cs" />
     <Compile Include="Exporters\IExportSettings.cs" />

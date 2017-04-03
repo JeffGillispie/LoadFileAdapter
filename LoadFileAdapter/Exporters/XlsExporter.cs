@@ -16,9 +16,13 @@ namespace LoadFileAdapter.Exporters
         /// <summary>
         /// Exports an excel file.
         /// </summary>
-        /// <param name="x"></param>
-        public void Export(ExportXlsSettings x)
+        /// <param name="args">Excel export settings.</param>
+        public void Export(ExportXlsSettings args)
         {
+            FileInfo file = args.GetFile();
+
+            ExcelPackage package = new ExcelPackage(file);
+            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
 #warning needs implementation
         }
     }
