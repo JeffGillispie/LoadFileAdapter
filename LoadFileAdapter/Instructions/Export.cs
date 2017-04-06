@@ -64,7 +64,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The <see cref="Encoding"/> code page used to manage the Encoding field.
         /// </summary>
-        public int CodePage
+        public virtual int CodePage
         {
             get
             {

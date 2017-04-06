@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Text;
+using System.Xml.Serialization;
 using LoadFileAdapter.Parsers;
 
 namespace LoadFileAdapter.Instructions
@@ -18,6 +19,8 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The fields to export.
         /// </summary>
+        [XmlArray("Fields")]
+        [XmlArrayItem(typeof(string), ElementName = "Field")]
         public string[] ExportFields = null;
 
         /// <summary>
@@ -35,7 +38,8 @@ namespace LoadFileAdapter.Instructions
         /// <param name="encoding">The encoding of the export file.</param>
         /// <param name="delimiters">The delimiters to use in the export file.</param>
         /// <param name="exportFields">The fields to export.</param>
-        public DatExport(FileInfo file, Encoding encoding, Delimiters delimiters, string[] exportFields) : base(file, encoding)
+        public DatExport(FileInfo file, Encoding encoding, Delimiters delimiters, string[] exportFields) : 
+            base(file, encoding)
         {
             this.Delimiters = new DelimitersBuilder(delimiters);
             this.ExportFields = exportFields; 

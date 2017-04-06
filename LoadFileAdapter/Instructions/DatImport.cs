@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 using LoadFileAdapter.Builders;
 using LoadFileAdapter.Parsers;
 
@@ -45,6 +46,8 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Representative files in the DAT file.
         /// </summary>
+        [XmlArray("LinkedFiles")]
+        [XmlArrayItem(typeof(RepresentativeSettings), ElementName = "LinkedFile")]
         public RepresentativeSettings[] LinkedFiles = null;
 
         /// <summary>

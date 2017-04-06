@@ -83,6 +83,15 @@ namespace LoadFileAdapter.Instructions
                 DatExporter exporter = new DatExporter();
                 exporter.Export(settings);
             }
+            else if (export.GetType().Equals(typeof(XlsExport)))
+            {
+                XlsExport ex = (XlsExport)export;
+                ExportXlsSettings settings = new ExportXlsSettings(
+                    docs, ex.File, ex.ExportFields, 
+                    ex.Hyperlinks.Select(l => l.GetLinkSettings()).ToArray());
+                XlsExporter exporter = new XlsExporter();
+                exporter.Export(settings);
+            }
             else if (export.File.Extension.ToUpper().Equals(LFP_EXT))
             {
                 ImgExport ex = (ImgExport)export;

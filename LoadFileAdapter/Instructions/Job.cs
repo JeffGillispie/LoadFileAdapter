@@ -19,6 +19,7 @@ namespace LoadFileAdapter.Instructions
     [XmlInclude(typeof(ImgImport))]
     [XmlInclude(typeof(DatExport))]
     [XmlInclude(typeof(ImgExport))]
+    [XmlInclude(typeof(XlsExport))]
     [XmlInclude(typeof(MetaDataEdit))]
     [XmlInclude(typeof(RepresentativeEdit))]
     public class Job

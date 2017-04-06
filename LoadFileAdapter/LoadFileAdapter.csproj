@@ -37,6 +37,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -82,6 +83,7 @@
     <Compile Include="Instructions\Edit.cs" />
     <Compile Include="Instructions\Executor.cs" />
     <Compile Include="Instructions\Export.cs" />
+    <Compile Include="Instructions\Hyperlink.cs" />
     <Compile Include="Instructions\ImgExport.cs" />
     <Compile Include="Instructions\ImgImport.cs" />
     <Compile Include="Instructions\Import.cs" />
@@ -90,6 +92,7 @@
     <Compile Include="Instructions\RepresentativeSettings.cs" />
     <Compile Include="Instructions\MetaDataEdit.cs" />
     <Compile Include="Instructions\TextFileSettingsBuilder.cs" />
+    <Compile Include="Instructions\XlsExport.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Builders\LfpBuilder.cs" />
