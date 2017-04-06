@@ -4,7 +4,6 @@ packages/
 [Oo]bj/
 [Rr]elease
 publish/
-LoadFileAdapterTests/
 [Tt]est[Rr]esults/
 
 *.suo
