@@ -12,6 +12,9 @@ namespace LoadFileAdapter.Instructions
     /// </summary>
     public class XlsExport : Export
     {
+        /// <summary>
+        /// Base field that isn't used for this type of export.
+        /// </summary>
         [XmlIgnore]
         public override int CodePage
         {

@@ -17,6 +17,8 @@ namespace LoadFileAdapter.Exporters
         /// </summary>
         /// <param name="documents">The documents to export.</param>
         /// <param name="file">The destination file.</param>
+        /// <param name="exportFields">The fields to export.</param>
+        /// <param name="links">The export hyperlink settings.</param>
         public ExportXlsSettings(DocumentCollection documents, FileInfo file,
             string[] exportFields, ExportXlsLinkSettings[] links)
         {

@@ -4,6 +4,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using OfficeOpenXml;
 
 namespace LoadFileAdapter.Exporters
@@ -13,6 +14,8 @@ namespace LoadFileAdapter.Exporters
     /// </summary>
     public class XlsExporter : IExporter<ExportXlsSettings>
     {
+        private const string ROOT_REGEX = "^[A-Za-z]:\\\\";
+
         /// <summary>
         /// Exports an excel file.
         /// </summary>
@@ -133,6 +136,15 @@ namespace LoadFileAdapter.Exporters
                         : link.GetDisplayText();
                     int col = dt.Columns.IndexOf(dt.Columns[fieldName]);
                     string linkValue = rep.Files.First().Value;
+
+                    Regex regex = new Regex(ROOT_REGEX);
+                    Match match = regex.Match(linkValue);
+                    
+                    if (!match.Success)
+                    {
+                        linkValue = ".\\" + linkValue.TrimStart('\\');
+                    }                    
+
                     string displayText = (!String.IsNullOrWhiteSpace(link.GetDisplayText()))
                         ? link.GetDisplayText()
                         : (String.IsNullOrWhiteSpace(dt.Rows[row][col].ToString()))
