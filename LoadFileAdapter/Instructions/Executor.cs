@@ -48,7 +48,8 @@ namespace LoadFileAdapter.Instructions
                     import.Encoding, 
                     (import.TextSetting != null)
                         ? import.TextSetting.GetSettings()
-                        : null);
+                        : null,
+                    import.BuildAbsolutePath);
             }
             else if (instructions.File.Extension.ToUpper().Equals(OPT_EXT))
             {
@@ -59,7 +60,8 @@ namespace LoadFileAdapter.Instructions
                     import.Encoding,
                     (import.TextSetting != null)
                         ? import.TextSetting.GetSettings()
-                        : null);
+                        : null,
+                    import.BuildAbsolutePath);
             }
             else
             {

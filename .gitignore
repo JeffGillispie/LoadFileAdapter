@@ -1,6 +1,11 @@
 .vs/
 packages/
-LoadFileAdapter/bin/
-LoadFileAdapter/obj/
+[Bb]in/
+[Oo]bj/
+[Rr]elease
+publish/
 LoadFileAdapterTests/
-TestResults/
+[Tt]est[Rr]esults/
+
+*.suo
+*.user

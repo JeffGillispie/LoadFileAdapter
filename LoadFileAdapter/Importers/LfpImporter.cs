@@ -43,14 +43,16 @@ namespace LoadFileAdapter.Importers
         /// <param name="lfpFile">The file to import.</param>
         /// <param name="encoding">The encoding used to read the import file.</param>
         /// <param name="textSetting">The text representative setting.</param>
+        /// <param name="buildAbsolutePath">Use load file path in representative paths.</param>
         /// <returns>Returns a document collection of imported documents.</returns>
         public DocumentCollection Import(FileInfo lfpFile, Encoding encoding, 
-            TextRepresentativeSettings textSetting)
+            TextRepresentativeSettings textSetting, bool buildAbsolutePath)
         {
             ParseFileSettings parameters = new ParseFileSettings(lfpFile, encoding);
-            List<string[]> records = parser.Parse(parameters);            
+            List<string[]> records = parser.Parse(parameters);
+            string pathPrefix = (buildAbsolutePath) ? lfpFile.Directory.FullName : null;
             BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(
-                records, lfpFile.Directory.FullName, textSetting);
+                records, pathPrefix, textSetting);
             List<Document> documentList = builder.BuildDocuments(args);
             DocumentCollection documents = new DocumentCollection(documentList);            
             return documents;
