@@ -60,6 +60,12 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Builders\TU_BuildDocCollectionDatSettings.cs" />
+    <Compile Include="Builders\TU_BuildDocCollectionImageSettings.cs" />
+    <Compile Include="Builders\TU_BuildDocDatSettings.cs" />
+    <Compile Include="Builders\TU_BuildDocImageSettings.cs" />
+    <Compile Include="Builders\TU_BuildDocLfpSettings.cs" />
+    <Compile Include="Builders\TU_DatRepresentativeSettings.cs" />
     <Compile Include="Builders\TU_TextRepresentativeSettings.cs" />
     <Compile Include="Core\TU_BatesNumber.cs" />
     <Compile Include="Core\TU_Document.cs" />
