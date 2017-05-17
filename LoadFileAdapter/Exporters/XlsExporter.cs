@@ -86,12 +86,15 @@ namespace LoadFileAdapter.Exporters
         /// <param name="links">Hyperlink settings.</param>
         protected void insertLinkColumns(DataTable dt, ExportXlsLinkSettings[] links)
         {
-            foreach (ExportXlsLinkSettings link in links)
+            if (links != null)
             {
-                if (!String.IsNullOrWhiteSpace(link.GetDisplayText()))
+                foreach (ExportXlsLinkSettings link in links)
                 {
-                    dt.Columns.Add(link.GetDisplayText());
-                    dt.Columns[link.GetDisplayText()].SetOrdinal(link.GetColumnIndex());
+                    if (!String.IsNullOrWhiteSpace(link.GetDisplayText()))
+                    {
+                        dt.Columns.Add(link.GetDisplayText());
+                        dt.Columns[link.GetDisplayText()].SetOrdinal(link.GetColumnIndex());
+                    }
                 }
             }
         }
