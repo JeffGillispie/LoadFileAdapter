@@ -110,6 +110,7 @@
     <Compile Include="Representative.cs" />
     <Compile Include="Builders\TextRepresentativeSettings.cs" />
     <Compile Include="Builders\DatBuilder.cs" />
+    <Compile Include="Transformers\DateFormatTransformation.cs" />
     <Compile Include="Transformers\Overlayer.cs" />
     <Compile Include="Transformers\Transformation.cs" />
     <Compile Include="Transformers\MetaDataTransformation.cs" />

@@ -61,13 +61,14 @@ namespace LoadFileAdapter.Instructions
         {
             this.Imports = imports;
             this.Exports = exports;
-
+            
             if (edits != null)
             {
+                
                 List<Edit> editsList = new List<Edit>();
 
                 foreach (Transformation edit in edits)
-                {
+                {                   
                     if (edit.GetType().Equals(typeof(MetaDataTransformation)))
                     {
                         editsList.Add(new MetaDataEdit((MetaDataTransformation)edit));
@@ -92,7 +93,7 @@ namespace LoadFileAdapter.Instructions
         public Transformation[] GetTransformations()
         {
             return (this.Edits != null ) 
-                ? this.Edits.Select(e => e.GetEdit()).ToArray()
+                ? this.Edits.Select(e => e.GetTransformation()).ToArray()
                 : null;
         }
         

@@ -218,16 +218,6 @@ namespace LoadFileAdapter.Instructions
         /// Gets the <see cref="Transformation"/> version of the edit instructions.
         /// </summary>
         /// <returns>Returns a <see cref="Transformation"/>.</returns>
-        public Transformation GetEdit()
-        {
-            if (this.GetType().Equals(typeof(MetaDataEdit)))
-            {
-                return ((MetaDataEdit)this).GetEdit();
-            }
-            else
-            {
-                return ((RepresentativeEdit)this).GetEdit();
-            }
-        }
+        public abstract Transformation GetTransformation();        
     }
 }
