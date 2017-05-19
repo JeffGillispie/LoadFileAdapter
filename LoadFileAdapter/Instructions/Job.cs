@@ -56,30 +56,35 @@ namespace LoadFileAdapter.Instructions
         /// </summary>
         /// <param name="imports">An array of <see cref="Import"/> used in the job.</param>
         /// <param name="exports">An array of <see cref="Export"/> used in the job.</param>
-        /// <param name="edits">An array of <see cref="Transformation"/> used in the job.</param>
-        public Job(Import[] imports, Export[] exports, Transformation[] edits) : this()
+        /// <param name="transformations">An array of <see cref="Transformation"/> used in the job.</param>
+        public Job(Import[] imports, Export[] exports, Transformation[] transformations) : this()
         {
             this.Imports = imports;
             this.Exports = exports;
             
-            if (edits != null)
-            {
-                
-                List<Edit> editsList = new List<Edit>();
+            if (transformations != null)
+            {                
+                List<Edit> edits = new List<Edit>();
+                Dictionary<Type, Func<Transformation, Edit>> editMap;
+                editMap = new Dictionary<Type, Func<Transformation, Edit>>();
 
-                foreach (Transformation edit in edits)
-                {                   
-                    if (edit.GetType().Equals(typeof(MetaDataTransformation)))
-                    {
-                        editsList.Add(new MetaDataEdit((MetaDataTransformation)edit));
-                    }
-                    else
-                    {
-                        editsList.Add(new RepresentativeEdit((RepresentativeTransformation)edit));
-                    }
+                editMap.Add(
+                    typeof(MetaDataTransformation), 
+                    (t) => new MetaDataEdit((MetaDataTransformation)t));
+                editMap.Add(
+                    typeof(RepresentativeTransformation), 
+                    (t) => new RepresentativeEdit((RepresentativeTransformation)t));
+                editMap.Add(
+                    typeof(DateFormatTransformation), 
+                    (t) => new DateFormatEdit((DateFormatTransformation)t));
+                
+                foreach (Transformation transformation in transformations)
+                {
+                    Edit edit = editMap[transformation.GetType()].Invoke(transformation);
+                    edits.Add(edit);                    
                 }
 
-                this.Edits = editsList.ToArray();
+                this.Edits = edits.ToArray();
             }
             else
                 this.Edits = null;

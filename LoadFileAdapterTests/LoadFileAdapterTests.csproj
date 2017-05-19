@@ -82,6 +82,7 @@
     <Compile Include="Importers\TU_LfpImporter.cs" />
     <Compile Include="Parsers\TU_Delimiters.cs" />
     <Compile Include="Sandbox.cs" />
+    <Compile Include="Transformers\TU_DateFormatTransformation.cs" />
     <Compile Include="Transformers\TU_Overlayer.cs" />
     <Compile Include="Transformers\TU_Transformer.cs" />
     <Compile Include="Parsers\TU_LfpParser.cs" />
