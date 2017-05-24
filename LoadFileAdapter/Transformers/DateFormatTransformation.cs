@@ -225,6 +225,12 @@ namespace LoadFileAdapter.Transformers
             }
         }
 
+        /// <summary>
+        /// Determines if a value is a date.
+        /// </summary>
+        /// <param name="value">The date value to check.</param>
+        /// <param name="parsedDate">The parsed date value.</param>
+        /// <returns>Returns true if the value is a date otherwise false.</returns>
         protected bool isDateTime(string value, out DateTime parsedDate)
         {
             bool isDateTime = false;
@@ -240,7 +246,7 @@ namespace LoadFileAdapter.Transformers
                     value, inputFormat, culture, DateTimeStyles.None, out parsedDate);
             }
 
-            if (!isDateTime)
+            if (!isDateTime && value != null)
             {
                 foreach (KeyValuePair<string, string> kvp in TIME_ZONE_MAP)
                 {

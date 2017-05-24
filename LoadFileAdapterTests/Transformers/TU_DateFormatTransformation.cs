@@ -18,9 +18,31 @@ namespace LoadFileAdapterTests.Transformers
                 // do nothing here
             }
 
+            public TestTransformer() : 
+                base("", null, "", "", null, "", "", null, null, DateTime.MinValue, DateTime.MaxValue, FailAction.DoNothing)
+            {
+                // do nothing here
+            }
+
+            public TestTransformer(TimeZoneInfo inputTZ, TimeZoneInfo outputTZ) :
+                base("", null, "", "", null, "", "", outputTZ, inputTZ, DateTime.MinValue, DateTime.MaxValue, FailAction.DoNothing)
+            {
+                // do nothing here
+            }
+
             public new bool isInRange(DateTime date)
             {
                 return base.isInRange(date);
+            }
+
+            public new DateTime adjustTimeZone(DateTime date)
+            {
+                return base.adjustTimeZone(date);
+            }
+
+            public new bool isDateTime(string value, out DateTime date)
+            {
+                return base.isDateTime(value, out date);
             }
         }
 
@@ -43,6 +65,80 @@ namespace LoadFileAdapterTests.Transformers
             Assert.IsTrue(isInRange);
             isInRange = t.isInRange(end);
             Assert.IsTrue(isInRange);
+        }
+
+        [TestMethod]
+        public void Transformers_DateFormatTransformation_adjustTimeZone()
+        {
+            TimeZoneInfo outTZ = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+            TimeZoneInfo inTZ = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            TestTransformer t = new TestTransformer(inTZ, outTZ);
+            DateTime originalDate = new DateTime(2012, 12, 1, 13, 25, 30);
+            DateTime expectedDate = new DateTime(2012, 12, 1, 10, 25, 30);
+            DateTime actualDate = t.adjustTimeZone(originalDate);
+            Assert.AreEqual(expectedDate, actualDate);
+            originalDate = new DateTime(2015, 12, 9, 19, 15, 52);
+            expectedDate = new DateTime(2015, 12, 9, 16, 15, 52);
+            actualDate = t.adjustTimeZone(originalDate);
+            Assert.AreEqual(expectedDate, actualDate);
+            t = new TestTransformer(inTZ, null);
+            originalDate = new DateTime(2015, 12, 9, 19, 15, 52);
+            expectedDate = new DateTime(2015, 12, 10, 0, 15, 52);
+            actualDate = t.adjustTimeZone(originalDate);
+            Assert.AreEqual(expectedDate, actualDate);
+            originalDate = new DateTime(2017, 5, 19, 13, 25, 30);
+            expectedDate = new DateTime(2017, 5, 19, 17, 25, 30);
+            actualDate = t.adjustTimeZone(originalDate);
+            Assert.AreEqual(expectedDate, actualDate);
+            t = new TestTransformer(null, outTZ);
+            originalDate = new DateTime(2015, 12, 9, 19, 15, 52);
+            expectedDate = new DateTime(2015, 12, 9, 11, 15, 52);
+            actualDate = t.adjustTimeZone(originalDate);
+            Assert.AreEqual(expectedDate, actualDate);
+            originalDate = new DateTime(2012, 10, 1, 13, 25, 30);
+            expectedDate = new DateTime(2012, 10, 1, 6, 25, 30);
+            actualDate = t.adjustTimeZone(originalDate);
+            Assert.AreEqual(expectedDate, actualDate);
+            t = new TestTransformer(null, null);
+            originalDate = new DateTime(1999, 5, 3, 12, 11, 10);
+            expectedDate = originalDate;
+            actualDate = t.adjustTimeZone(originalDate);
+            Assert.AreEqual(expectedDate, actualDate);
+        }
+
+        [TestMethod]
+        public void Transoformers_DateFormatTransformation_isDateTime()
+        {            
+            TestTransformer t = new TestTransformer();
+            DateTime parsedDate = DateTime.Today;
+            bool isDateTime = t.isDateTime("spaghetti", out parsedDate);
+            Assert.IsFalse(isDateTime);
+            Assert.AreEqual(DateTime.MinValue, parsedDate);
+            isDateTime = t.isDateTime("1-1-1", out parsedDate);
+            Assert.IsTrue(isDateTime);
+            Assert.AreEqual(new DateTime(2001, 01, 01), parsedDate);
+            isDateTime = t.isDateTime("2015/09/09 19:15:52.000 UTC", out parsedDate);
+            Assert.IsTrue(isDateTime);
+            Assert.AreEqual(new DateTime(2015, 09, 09, 19, 15, 52), parsedDate);
+            isDateTime = t.isDateTime("10:01 PM", out parsedDate);
+            DateTime expectedDate = DateTime.Today;
+            expectedDate = expectedDate.AddHours(22);
+            expectedDate = expectedDate.AddMinutes(1);
+            Assert.IsTrue(isDateTime);            
+            Assert.AreEqual(expectedDate, parsedDate);
+            isDateTime = t.isDateTime(String.Empty, out parsedDate);
+            Assert.IsFalse(isDateTime);
+            Assert.AreEqual(DateTime.MinValue, parsedDate);
+            isDateTime = t.isDateTime(null, out parsedDate);
+            Assert.IsFalse(isDateTime);
+            Assert.AreEqual(DateTime.MinValue, parsedDate);
+            isDateTime = t.isDateTime("13:25:30", out parsedDate);
+            expectedDate = DateTime.Today;
+            expectedDate = expectedDate.AddHours(13);
+            expectedDate = expectedDate.AddMinutes(25);
+            expectedDate = expectedDate.AddSeconds(30);
+            Assert.IsTrue(isDateTime);
+            Assert.AreEqual(expectedDate, parsedDate);
         }
 
         public string getTransformedDate(string input, string format)
