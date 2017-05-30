@@ -3,9 +3,11 @@ using System.Text;
 
 namespace LoadFileAdapter.Exporters
 {
+    /// <summary>
+    /// The export file settings to use for XREF export.
+    /// </summary>
     public class ExportXrefFileSettings : IExportXrefSettings, IExportFileSettings
     {
-        //todo: comments
         private DocumentCollection documents;
         private FileInfo file;
         private Encoding encoding;
@@ -17,6 +19,19 @@ namespace LoadFileAdapter.Exporters
         private string namedFile;
         private XrefSlipSheetSettings slipsheets;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="ExportXrefFileSettings"/>.
+        /// </summary>
+        /// <param name="documents">The documents to export.</param>
+        /// <param name="file">The destination file.</param>
+        /// <param name="encoding">The encoding to use to write the file.</param>
+        /// <param name="boxBreakTrigger">The box break trigger.</param>
+        /// <param name="groupStartTrigger">The group start trigger.</param>
+        /// <param name="codeStartTrigger">The code start trigger.</param>
+        /// <param name="customerData">The customer data field.</param>
+        /// <param name="namedFolder">The named folder field.</param>
+        /// <param name="namedFile">The named file field.</param>
+        /// <param name="slipsheets">The slipsheet settings to use in the export.</param>
         public ExportXrefFileSettings(DocumentCollection documents, FileInfo file, Encoding encoding,
             XrefTrigger boxBreakTrigger, XrefTrigger groupStartTrigger, XrefTrigger codeStartTrigger,
             string customerData, string namedFolder, string namedFile,
@@ -61,36 +76,64 @@ namespace LoadFileAdapter.Exporters
             return this.encoding;
         }
 
+        /// <summary>
+        /// The trigger used to determine when a box should change.
+        /// </summary>
+        /// <returns>Returns a <see cref="XrefTrigger"/>.</returns>
         public XrefTrigger GetBoxBreakTrigger()
         {
             return boxBreakTrigger;
         }
 
+        /// <summary>
+        /// The trigger used to determine when the group start value should change.
+        /// </summary>
+        /// <returns>Returns a <see cref="XrefTrigger"/>.</returns>
         public XrefTrigger GetGroupStartTrigger()
         {
             return groupStartTrigger;
         }
 
+        /// <summary>
+        /// The trigger used to determine when the code start value should change.
+        /// </summary>
+        /// <returns>Returns a <see cref="XrefTrigger"/>.</returns>
         public XrefTrigger GetCodeStartTrigger()
         {
             return codeStartTrigger;
         }
 
+        /// <summary>
+        /// Gets the name of the metadata field to use for customer data.
+        /// </summary>
+        /// <returns>Returns the customer data metadata field name.</returns>
         public string GetCustomerData()
         {
             return customerData;
         }
 
+        /// <summary>
+        /// Gets the name of the metadata field to use for named folders.
+        /// </summary>
+        /// <returns>Returns the named folder metadata field name.</returns>
         public string GetNamedFolder()
         {
             return namedFolder;
         }
 
+        /// <summary>
+        /// Gets the name of the metadata field to use for named files.
+        /// </summary>
+        /// <returns>Returns the named file metadata field name.</returns>
         public string GetNamedFile()
         {
             return namedFile;
         }
 
+        /// <summary>
+        /// Gets the slipsheet settings used to export an XREF.
+        /// </summary>
+        /// <returns>Returns slipsheet settings.</returns>
         public XrefSlipSheetSettings GetSlipsheets()
         {
             return slipsheets;

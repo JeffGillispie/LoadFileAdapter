@@ -76,6 +76,8 @@
     <Compile Include="Exporters\DatExporter.cs" />
     <Compile Include="Exporters\ExportDatFileSettings.cs" />
     <Compile Include="Exporters\ExportDatWriterSettings.cs" />
+    <Compile Include="Exporters\SlipSheet.cs" />
+    <Compile Include="Exporters\SlipSheets.cs" />
     <Compile Include="Exporters\XlsExporter.cs" />
     <Compile Include="Exporters\XrefExporter.cs" />
     <Compile Include="Exporters\XrefSlipSheetSettings.cs" />
