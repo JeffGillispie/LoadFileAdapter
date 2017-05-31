@@ -8,8 +8,7 @@ namespace LoadFileAdapter.Exporters
     {        
         private TriggerType type;
         private string regexPattern;
-        private string regexField;
-        private string fieldValueChangeEventField;
+        private string fieldName;
         private int segmentCount;        
         private string segmentDelimiter;                
         private FieldValueChangeOption changeOption;
@@ -25,15 +24,10 @@ namespace LoadFileAdapter.Exporters
         public string RegexPattern { get { return regexPattern; } }
 
         /// <summary>
-        /// The field to use with the regex trigger type.
+        /// The field to use with the regex trigger type of the field value change type.
         /// </summary>
-        public string RegexField { get { return regexField; } }
-
-        /// <summary>
-        /// The field to use with the field value change type.
-        /// </summary>
-        public string FieldValueChangeEventField { get { return fieldValueChangeEventField; } }
-
+        public string FieldName { get { return fieldName; } }
+               
         /// <summary>
         /// The segment count used with the starting segment or ending segment field value change option.
         /// </summary>
@@ -54,18 +48,16 @@ namespace LoadFileAdapter.Exporters
         /// </summary>
         /// <param name="type">The trigger type.</param>
         /// <param name="regexPattern">The regex pattern to use for a regex trigger type.</param>
-        /// <param name="regexField">The regex target field to use for a regex trigger type.</param>
-        /// <param name="fieldValueChangeEventField">The target field to use for the field value change event type.</param>
+        /// <param name="fieldName">The target field to use for a regex trigger or the field value change types.</param>        
         /// <param name="segmentCount">The segment count to use for the field value change event type.</param>        
         /// <param name="segmentDelimiter">The segment delimiter to use for the field value change event type.</param>        
         /// <param name="changeOption">The option to use for the field value change event type.</param>
-        public XrefTrigger(TriggerType type, string regexPattern, string regexField, string fieldValueChangeEventField,
+        public XrefTrigger(TriggerType type, string regexPattern, string fieldName,
             int segmentCount, string segmentDelimiter, FieldValueChangeOption changeOption)
         {
             this.type = type;
             this.regexPattern = regexPattern;
-            this.regexField = regexField;
-            this.fieldValueChangeEventField = fieldValueChangeEventField;
+            this.fieldName = fieldName;            
             this.segmentCount = segmentCount;            
             this.segmentDelimiter = segmentDelimiter;                        
             this.changeOption = changeOption;

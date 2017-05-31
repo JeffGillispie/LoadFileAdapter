@@ -94,6 +94,13 @@ namespace LoadFileAdapter.Instructions
                 XlsExporter exporter = new XlsExporter();
                 exporter.Export(settings);
             }
+            else if (export.GetType().Equals(typeof(XrefExport)))
+            {
+                XrefExport ex = (XrefExport)export;
+                ExportXrefFileSettings settings = ex.GetFileSettings(docs);
+                XrefExporter exporter = new XrefExporter();
+                exporter.Export(settings);
+            }
             else if (export.File.Extension.ToUpper().Equals(LFP_EXT))
             {
                 ImgExport ex = (ImgExport)export;
@@ -109,7 +116,7 @@ namespace LoadFileAdapter.Instructions
                     docs, ex.File, ex.Encoding, ex.VolumeName);
                 OptExporter exporter = new OptExporter();
                 exporter.Export(settings);
-            }
+            }            
             else
             {
                 throw new Exception(

@@ -315,9 +315,9 @@ namespace LoadFileAdapter.Exporters
         internal static bool hasFieldValueChange(Document doc, Document previousDoc, XrefTrigger trigger)
         {
             bool result = false;
-            string changeFieldValue = doc.Metadata[trigger.FieldValueChangeEventField].ToString();
+            string changeFieldValue = doc.Metadata[trigger.FieldName].ToString();
             string previousFieldValue = (previousDoc != null)
-                ? previousDoc.Metadata[trigger.FieldValueChangeEventField].ToString()
+                ? previousDoc.Metadata[trigger.FieldName].ToString()
                 : String.Empty;
 
             switch (trigger.ChangeOption)
@@ -384,7 +384,7 @@ namespace LoadFileAdapter.Exporters
                     // do nothing here
                     break;
                 case XrefTrigger.TriggerType.Regex:
-                    result = Regex.IsMatch(doc.Metadata[trigger.RegexField], trigger.RegexPattern);
+                    result = Regex.IsMatch(doc.Metadata[trigger.FieldName], trigger.RegexPattern);
                     break;
                 default:
                     // do nothing here

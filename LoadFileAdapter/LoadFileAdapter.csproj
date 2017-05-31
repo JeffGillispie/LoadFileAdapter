@@ -100,8 +100,12 @@
     <Compile Include="Instructions\RepresentativeEdit.cs" />
     <Compile Include="Instructions\RepresentativeSettings.cs" />
     <Compile Include="Instructions\MetaDataEdit.cs" />
+    <Compile Include="Instructions\SlipsheetField.cs" />
+    <Compile Include="Instructions\SlipsheetsInfo.cs" />
     <Compile Include="Instructions\TextFileSettingsBuilder.cs" />
+    <Compile Include="Instructions\Trigger.cs" />
     <Compile Include="Instructions\XlsExport.cs" />
+    <Compile Include="Instructions\XrefExport.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Builders\LfpBuilder.cs" />
