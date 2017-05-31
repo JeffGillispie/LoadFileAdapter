@@ -13,12 +13,12 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Determines if field labels will be printed on the slipsheet.
         /// </summary>
-        public bool UseFieldLabels;
+        public bool UseFieldLabels = true;
 
         /// <summary>
         /// Determines if the slipsheet will become the first page of the document.
         /// </summary>
-        public bool BindSlipsheets;
+        public bool BindSlipsheets = false;
 
         /// <summary>
         /// The horizontal placement of the slipsheet text.
@@ -38,7 +38,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The resolution of the slipsheet.
         /// </summary>
-        public int Resolution;
+        public int Resolution = 300;
 
         /// <summary>
         /// The font family for the slipsheet text.
@@ -48,7 +48,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The font size for the slipsheet text.
         /// </summary>
-        public float FontSize;
+        public float FontSize = 12;
 
         /// <summary>
         /// The font style for the slipsheet text.

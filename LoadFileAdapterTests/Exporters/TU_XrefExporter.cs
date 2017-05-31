@@ -318,15 +318,8 @@ namespace LoadFileAdapterTests.Exporters
             var settings = new XrefExport();
             var args = settings.GetFileSettings(docs);
             exporter.SetDocs(docs);
-            var ssinfo = new SlipsheetsInfo();
-            ssinfo.BindSlipsheets = false;
-            ssinfo.FolderName = "SlipSheets";
-            ssinfo.FontStyle = FontStyle.Regular;
-            ssinfo.FontSize = 12;
-            ssinfo.Resolution = 300;
-            ssinfo.HorizontalPlacement = XrefSlipSheetSettings.HorizontalPlacementOption.Center;
-            ssinfo.VerticalPlacement = XrefSlipSheetSettings.VerticalPlacementOption.Center;
-            ssinfo.UseFieldLabels = true;
+            var ssinfo = new SlipsheetsInfo();            
+            ssinfo.FolderName = "SlipSheets";                        
             var field = new SlipsheetField();
             field.FieldName = "DOCID";
             field.Alias = "begno";
