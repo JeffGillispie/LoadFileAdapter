@@ -150,7 +150,7 @@ namespace LoadFileAdapter.Exporters
                     .Files.First().Value;
                 FileInfo imageFile = new FileInfo(imagePath);
                 String path = (this.slipsheetSettings.IsPlaceInFolder) 
-                    ? String.Format("\\{0}]]{1}.TIF", this.slipsheetSettings.SlipsheetFolder, ssImageKey) 
+                    ? String.Format("\\{0}\\{1}.TIF", this.slipsheetSettings.SlipsheetFolder, ssImageKey) 
                     : Path.Combine(imageFile.Directory.FullName, String.Format("{0}.TIF", ssImageKey));
 
                 line = String.Format(

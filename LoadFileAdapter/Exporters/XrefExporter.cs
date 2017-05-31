@@ -25,7 +25,7 @@ namespace LoadFileAdapter.Exporters
         private const int NAMED_FILES_INDEX = 13;        
         protected bool waitingForGroupEnd = false;
         protected bool waitingForCodeEnd = false;
-        private int boxNumber = 0;
+        protected int boxNumber = 0;
         private DirectoryInfo volumeDirectory = null;
         protected DocumentCollection docs = null;
 
@@ -164,7 +164,7 @@ namespace LoadFileAdapter.Exporters
         /// is prepended with a ghost box.</returns>
         protected string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex)
         {
-            if ((boxTrigger.Type != XrefTrigger.TriggerType.None))
+            if (boxTrigger != null && boxTrigger.Type != XrefTrigger.TriggerType.None)
             {
                 Document doc = this.docs[docIndex];
                 Document previousDoc = getPreviousDoc(docIndex);
@@ -202,8 +202,7 @@ namespace LoadFileAdapter.Exporters
             string namedFileField = args.GetNamedFile();
             var image = imageFiles[imageIndex];
             BatesNumber bates = new BatesNumber(image.Key);            
-            string CDPath = (!image.Value.Substring(0, 1).Equals("\\"))
-                        ? "\\" + image.Value : image.Value;
+            string CDPath = image.Value;
             string Prefix = bates.Prefix;
             string Number = bates.NumberAsString;
             string Suffix = (bates.HasSuffix) ? bates.SuffixAsString : String.Empty;
@@ -331,21 +330,29 @@ namespace LoadFileAdapter.Exporters
                     result = !currentDir.Equals(previousDir);
                     break;
                 case XrefTrigger.FieldValueChangeOption.UseEndingSegments:
-                    var currentValueEnd = changeFieldValue
-                        .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                        .Reverse().Take(trigger.SegmentCount).Reverse();
-                    var previousValueEnd = previousFieldValue
-                        .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                        .Reverse().Take(trigger.SegmentCount).Reverse();
+                    var currentValueEnd = String.Join(
+                        trigger.SegmentDelimiter,
+                        changeFieldValue
+                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
+                            .Reverse().Take(trigger.SegmentCount).Reverse());
+                    var previousValueEnd = String.Join(
+                        trigger.SegmentDelimiter,
+                        previousFieldValue
+                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
+                            .Reverse().Take(trigger.SegmentCount).Reverse());
                     result = !currentValueEnd.Equals(previousValueEnd);
                     break;
                 case XrefTrigger.FieldValueChangeOption.UseStartingSegments:
-                    var currentValueStart = changeFieldValue
-                        .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                        .Take(trigger.SegmentCount);
-                    var previousValueStart = previousFieldValue
-                        .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                        .Take(trigger.SegmentCount);
+                    var currentValueStart = String.Join(
+                        trigger.SegmentDelimiter, 
+                        changeFieldValue
+                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
+                            .Take(trigger.SegmentCount));
+                    var previousValueStart = String.Join(
+                        trigger.SegmentDelimiter, 
+                        previousFieldValue
+                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
+                            .Take(trigger.SegmentCount));
                     result = !currentValueStart.Equals(previousValueStart);
                     break;
                 default:
@@ -387,23 +394,26 @@ namespace LoadFileAdapter.Exporters
             string docid = doc.Key;
             string parentid = (doc.Parent != null) ? doc.Parent.Key : String.Empty;
 
-            switch (trigger.Type)
+            if (trigger != null)
             {
-                case XrefTrigger.TriggerType.Family:
-                    result = (docid.Equals(parentid) || String.IsNullOrEmpty(parentid));
-                    break;
-                case XrefTrigger.TriggerType.FieldValueChange:
-                    result = hasFieldValueChange(doc, previousDoc, trigger);
-                    break;
-                case XrefTrigger.TriggerType.None:
-                    // do nothing here
-                    break;
-                case XrefTrigger.TriggerType.Regex:
-                    result = Regex.IsMatch(doc.Metadata[trigger.FieldName], trigger.RegexPattern);
-                    break;
-                default:
-                    // do nothing here
-                    break;
+                switch (trigger.Type)
+                {
+                    case XrefTrigger.TriggerType.Family:
+                        result = (docid.Equals(parentid) || String.IsNullOrEmpty(parentid));
+                        break;
+                    case XrefTrigger.TriggerType.FieldValueChange:
+                        result = hasFieldValueChange(doc, previousDoc, trigger);
+                        break;
+                    case XrefTrigger.TriggerType.None:
+                        // do nothing here
+                        break;
+                    case XrefTrigger.TriggerType.Regex:
+                        result = Regex.IsMatch(doc.Metadata[trigger.FieldName], trigger.RegexPattern);
+                        break;
+                    default:
+                        // do nothing here
+                        break;
+                }
             }
 
             return result;
@@ -461,7 +471,8 @@ namespace LoadFileAdapter.Exporters
             Representative imageRep = doc.Representatives
                 .Where(r => r.Type.Equals(Representative.FileType.Image))
                 .FirstOrDefault();
-            int nextImageDocIndex = (imageRep.Files.ContainsKey(nextImageKey)) ? docIndex : docIndex++;
+            int nextImageDocIndex = (nextImageKey != null && imageRep.Files.ContainsKey(nextImageKey)) 
+                ? docIndex : docIndex++;
             
             if (nextDoc == null && this.waitingForGroupEnd)
             {
@@ -496,11 +507,11 @@ namespace LoadFileAdapter.Exporters
             Representative imageRep = doc.Representatives
                 .Where(r => r.Type.Equals(Representative.FileType.Image))
                 .FirstOrDefault();
-            string nextImageKey = getNextImageKey(imageIndex, docIndex);
-            Document nextImageDoc = (imageRep.Files.ContainsKey(nextImageKey))
-                ? doc : (String.IsNullOrEmpty(nextImageKey)) ? null : nextDoc;
-            Document nextImagePreviousDoc = (imageRep.Files.ContainsKey(nextImageKey))
-                ? previousDoc : (String.IsNullOrEmpty(nextImageKey)) ? null : doc;
+            string nextImageKey = getNextImageKey(imageIndex, docIndex);            
+            Document nextImageDoc = (String.IsNullOrEmpty(nextImageKey))
+                ? null : (imageRep.Files.ContainsKey(nextImageKey)) ? doc : nextDoc;
+            Document nextImagePreviousDoc = (String.IsNullOrEmpty(nextImageKey))
+                ? null : (imageRep.Files.ContainsKey(nextImageKey)) ? previousDoc : doc;
 
             if (nextDoc == null && this.waitingForCodeEnd)
             {
@@ -530,7 +541,9 @@ namespace LoadFileAdapter.Exporters
         {
             string result = String.Empty;
 
-            if (doc.Key.Equals(imageKey))
+            if (doc.Key.Equals(imageKey) && 
+                !String.IsNullOrEmpty(customValueField) && 
+                doc.Metadata.ContainsKey(customValueField))
             {
                 result = doc.Metadata[customValueField];
             }

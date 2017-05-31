@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -34,6 +35,51 @@ namespace LoadFileAdapterTests.Exporters
             public new bool isFlagNeeded(Document doc, XrefTrigger trigger, Document previousDoc)
             {
                 return base.isFlagNeeded(doc, trigger, previousDoc);
+            }
+
+            public static bool hasFieldValueChanged(Document doc, Document previousDoc, XrefTrigger trigger)
+            {
+                return TestExporter.hasFieldValueChange(doc, previousDoc, trigger);
+            }
+
+            public new Document getNextDoc(int index)
+            {
+                return base.getNextDoc(index);
+            }
+
+            public new Document getPreviousDoc(int index)
+            {
+                return base.getPreviousDoc(index);
+            }
+
+            public new static string boolToString(bool b)
+            {
+                return XrefExporter.boolToString(b);
+            }
+
+            public new string getNextImageKey(int imgIndex, int docIndex)
+            {
+                return base.getNextImageKey(imgIndex, docIndex);
+            }
+
+            public new string[] getRecordComponents(IExportXrefSettings args, int docIndex, int imageIndex)
+            {
+                return base.getRecordComponents(args, docIndex, imageIndex);
+            }
+
+            public new string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex)
+            {
+                return base.getGhostBoxLine(imageKey, pageRecord, boxTrigger, docIndex);
+            }
+
+            public new List<string> getPageRecords(IExportXrefSettings args, int docIndex, SlipSheets slipsheets)
+            {
+                return base.getPageRecords(args, docIndex, slipsheets);
+            }
+
+            public void SetBoxNo(int n)
+            {
+                base.boxNumber = n;
             }
 
             public void SetWaitingForFlag(bool flag)
@@ -91,6 +137,7 @@ namespace LoadFileAdapterTests.Exporters
             BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(optLines, String.Empty, null);            
             List<Document> optDocs = optBuilder.BuildDocuments(args);
             docs.AddRange(optDocs);
+            docs[1].SetParent(docs[0]);
             return docs;
         }
 
@@ -102,11 +149,12 @@ namespace LoadFileAdapterTests.Exporters
             string field = "DocType";
             string value = "Email";
             Document doc = new Document(key1, null, null, new Dictionary<string, string>() { { field, value } }, null);
-            TestExporter exporter = new TestExporter();
-            string result = exporter.getCustomValue(key1, doc, field);
-            Assert.AreEqual(value, result);
-            result = exporter.getCustomValue(key2, doc, field);
-            Assert.AreEqual(String.Empty, result);            
+            TestExporter exporter = new TestExporter();            
+            Assert.AreEqual(value, exporter.getCustomValue(key1, doc, field));            
+            Assert.AreEqual(String.Empty, exporter.getCustomValue(key2, doc, field));
+            Assert.AreEqual(String.Empty, exporter.getCustomValue(key1, doc, null));
+            Assert.AreEqual(String.Empty, exporter.getCustomValue(key1, doc, String.Empty));
+            Assert.AreEqual(String.Empty, exporter.getCustomValue(key1, doc, "bananas"));
         }
 
         [TestMethod]
@@ -151,6 +199,154 @@ namespace LoadFileAdapterTests.Exporters
             Assert.IsTrue(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
             doc.Metadata["TEST"] = "123nope";
             Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
+        }
+
+        [TestMethod]
+        public void Exporters_XrefExporter_hasFieldValueChanged()
+        {
+            Document parent = new Document("DOC122", null, null, 
+                new Dictionary<string, string>() {
+                    { "FILE", @"X:\ROOT\VOL\DIR1\FILE1.TXT" },
+                    { "EXT", "TXT" } }, null);
+            Document doc = new Document("DOC123", parent, null, 
+                new Dictionary<string, string>() {
+                    { "FILE", @"X:\ROOT\VOL\DIR2\FILE2.TXT" },
+                    { "EXT", "TXT" } }, null);
+            Document child = new Document("DOC124", doc, null, 
+                new Dictionary<string, string>() {
+                    { "FILE", @"X:\ROOT\VOL\DIR2\FILE3.PDF" },
+                    { "EXT", "PDF" } }, null);
+            Trigger trigger = new Trigger();
+            trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            trigger.FieldName = "EXT";
+            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.None;
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            trigger.FieldName = "FILE";
+            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.StripFileName;
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.UseStartingSegments;
+            trigger.SegmentDelimiter = "\\";
+            trigger.SegmentCount = 4;
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.UseEndingSegments;
+            trigger.SegmentDelimiter = ".";
+            trigger.SegmentCount = 1;
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+        }
+
+        [TestMethod]
+        public void Exporters_XrefExporter_moveDocPos()
+        {
+            var docs = GetDocs();
+            Document first = docs[0];
+            Document last = docs[1];
+            TestExporter exporter = new TestExporter();
+            exporter.SetDocs(docs);
+            Assert.AreEqual(last, exporter.getNextDoc(0));
+            Assert.AreEqual(first, exporter.getPreviousDoc(1));
+            Assert.AreEqual(null, exporter.getNextDoc(1));
+            Assert.AreEqual(null, exporter.getPreviousDoc(0));
+        }
+
+        [TestMethod]
+        public void Exporters_XrefExporter_boolToString()
+        {
+            Assert.AreEqual("1", TestExporter.boolToString(true));
+            Assert.AreEqual("0", TestExporter.boolToString(false));
+        }
+
+        [TestMethod]
+        public void Exporters_XrefExporter_getNextImageKey()
+        {
+            var docs = GetDocs();            
+            TestExporter exporter = new TestExporter();
+            exporter.SetDocs(docs);
+            Assert.AreEqual("DOC000002", exporter.getNextImageKey(0, 0));
+            Assert.AreEqual("DOC000003", exporter.getNextImageKey(0, 1));
+            Assert.AreEqual(null, exporter.getNextImageKey(1, 1));
+            Assert.AreEqual(null, exporter.getNextImageKey(2, 1));
+        }
+
+        [TestMethod]
+        public void Exporters_XrefExporter_getRecordComponents()
+        {
+            var docs = GetDocs();
+            TestExporter exporter = new TestExporter();
+            exporter.SetDocs(docs);
+            var settings = new XrefExport();
+            var args = settings.GetFileSettings(docs);
+            string record = String.Join(", ", exporter.getRecordComponents(args, 0, 0));
+            string expected = "X:\\VOL001\\IMAGES\\0001\\DOC000001.jpg, DOC, 000001, , 0, 0, 1, 0, 0, 0, 0, , , ";
+            Assert.AreEqual(expected, record);
+        }
+
+        [TestMethod]
+        public void Exporters_XrefExporter_getGhostBoxLine()
+        {
+            var docs = GetDocs();
+            TestExporter exporter = new TestExporter();
+            exporter.SetDocs(docs);
+            exporter.SetBoxNo(0);
+            Trigger trigger = new Trigger();
+            trigger.Type = XrefTrigger.TriggerType.Family;
+            string result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0);
+            Assert.AreEqual(@"\Box001\..", result);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1);
+            Assert.AreEqual(@"\Box001\..", result);
+            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1);
+            Assert.AreEqual(@"\Box001\..", result);
+            trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            trigger.FieldName = "DOCID";
+            exporter.SetBoxNo(0);
+            result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0);
+            Assert.AreEqual(@"\Box001\..", result);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1);
+            Assert.AreEqual(@"\Box002\..", result);
+            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1);
+            Assert.AreEqual(@"\Box002\..", result);
+        }
+
+        [TestMethod]
+        public void Exporters_XrefExporter_getPageRecords()
+        {
+            var docs = GetDocs();
+            TestExporter exporter = new TestExporter();
+            var settings = new XrefExport();
+            var args = settings.GetFileSettings(docs);
+            exporter.SetDocs(docs);
+            var ssinfo = new SlipsheetsInfo();
+            ssinfo.BindSlipsheets = false;
+            ssinfo.FolderName = "SlipSheets";
+            ssinfo.FontStyle = FontStyle.Regular;
+            ssinfo.FontSize = 12;
+            ssinfo.Resolution = 300;
+            ssinfo.HorizontalPlacement = XrefSlipSheetSettings.HorizontalPlacementOption.Center;
+            ssinfo.VerticalPlacement = XrefSlipSheetSettings.VerticalPlacementOption.Center;
+            ssinfo.UseFieldLabels = true;
+            var field = new SlipsheetField();
+            field.FieldName = "DOCID";
+            field.Alias = "begno";
+            ssinfo.Fields = new SlipsheetField[] { field };
+            Trigger trigger = new Trigger();
+            trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            trigger.FieldName = "DOCID";
+            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.None;
+            ssinfo.Trigger = trigger;
+            var ss = new SlipSheets(docs, ssinfo.GetSlipsheetSettings(), null);
+            var actual = exporter.getPageRecords(args, 1, ss);
+            List<string> expected = new List<string>();
+            expected.Add("\\SlipSheets\\DOC000001.001.TIF, DOC, 000001, .001, 0, 0, 1, 0, 0, 0, 1, , , ");
+            expected.Add("X:\\VOL001\\IMAGES\\0001\\DOC000002.tif, DOC, 000002, , 0, 0, 1, 0, 0, 0, 0, , , ");
+            expected.Add("X:\\VOL001\\IMAGES\\0001\\DOC000003.tif, DOC, 000003, , 0, 0, 0, 0, 0, 0, 0, , , ");
+
+            for (int i = 0; i < actual.Count; i++)
+            {
+                Assert.AreEqual(expected[i], actual[i]);
+            }
         }
     }
 }
