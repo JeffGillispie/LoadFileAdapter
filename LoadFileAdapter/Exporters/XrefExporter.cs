@@ -23,11 +23,11 @@ namespace LoadFileAdapter.Exporters
         private const int CUSTOMER_DATA_INDEX = 11;
         private const int NAMED_FOLDER_INDEX = 12;
         private const int NAMED_FILES_INDEX = 13;        
-        private bool waitingForGroupEnd = false;
-        private bool waitingForCodeEnd = false;
+        protected bool waitingForGroupEnd = false;
+        protected bool waitingForCodeEnd = false;
         private int boxNumber = 0;
         private DirectoryInfo volumeDirectory = null;
-        private DocumentCollection docs = null;
+        protected DocumentCollection docs = null;
 
         /// <summary>
         /// Exports a document collection to an XREF.
@@ -312,7 +312,7 @@ namespace LoadFileAdapter.Exporters
         /// segments of the previous doc. Returns true if the change option is starting segments
         /// and the specified starting segments fo the current doc are different from the starting 
         /// segments of the previous doc. Otherwise returns false.</returns>
-        internal static bool hasFieldValueChange(Document doc, Document previousDoc, XrefTrigger trigger)
+        protected static bool hasFieldValueChange(Document doc, Document previousDoc, XrefTrigger trigger)
         {
             bool result = false;
             string changeFieldValue = doc.Metadata[trigger.FieldName].ToString();
@@ -355,6 +355,21 @@ namespace LoadFileAdapter.Exporters
 
             return result;
         }
+
+        /// <summary>
+        /// Tests if a flag is needed for the supplied document and trigger.
+        /// </summary>
+        /// <param name="doc">The document to test.</param>
+        /// <param name="trigger">The trigger that signals a flag is needed.</param>
+        /// <param name="previousDoc">Used to test if a flag is needed if the trigger is a field value change trigger.</param>
+        /// <returns>Returns true if the trigger is a family trigger and the doc key matches the parent doc key.
+        /// Returns true if the trigger is a regex trigger and target metadata field matches the trigger pattern.
+        /// Returns true if the trigger is a field value change trigger and the target metadata field is different 
+        /// from the metadata in the previous document. Otherwise it returns false.</returns>
+        protected bool isFlagNeeded(Document doc, XrefTrigger trigger, Document previousDoc)
+        {
+            return IsFlagNeeded(doc, trigger, previousDoc);
+        }
                 
         /// <summary>
         /// Tests if a flag is needed for the supplied document and trigger.
@@ -366,7 +381,7 @@ namespace LoadFileAdapter.Exporters
         /// Returns true if the trigger is a regex trigger and target metadata field matches the trigger pattern.
         /// Returns true if the trigger is a field value change trigger and the target metadata field is different 
         /// from the metadata in the previous document. Otherwise it returns false.</returns>
-        internal static bool isFlagNeeded(Document doc, XrefTrigger trigger, Document previousDoc)
+        internal static bool IsFlagNeeded(Document doc, XrefTrigger trigger, Document previousDoc)
         {
             bool result = false;
             string docid = doc.Key;
@@ -493,7 +508,7 @@ namespace LoadFileAdapter.Exporters
             }
             else if (nextDoc == null && !this.waitingForCodeEnd)
             {
-                result = true;
+                result = false;
             }
             else
             {

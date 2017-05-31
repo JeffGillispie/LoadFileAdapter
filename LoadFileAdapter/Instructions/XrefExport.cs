@@ -20,15 +20,15 @@ namespace LoadFileAdapter.Instructions
         public ExportXrefFileSettings GetFileSettings(DocumentCollection docs)
         {
             return new ExportXrefFileSettings(docs, 
-                base.File, 
-                base.Encoding, 
-                this.BoxBreakTrigger.GetXrefTrigger(),
-                this.GroupStartTrigger.GetXrefTrigger(),
-                this.CodeStartTrigger.GetXrefTrigger(),
+                (base.File != null) ? base.File : null, 
+                (base.Encoding != null) ? base.Encoding : null, 
+                (this.BoxBreakTrigger != null) ? this.BoxBreakTrigger.GetXrefTrigger() : null,
+                (this.GroupStartTrigger != null) ? this.GroupStartTrigger.GetXrefTrigger() : null,
+                (this.CodeStartTrigger != null) ? this.CodeStartTrigger.GetXrefTrigger() : null,
                 this.CustomerDataField,
                 this.NamedFolderField,
                 this.NamedFileField,
-                this.SlipsheetSettings.GetSlipsheetSettings());
+                (this.SlipsheetSettings != null) ? this.SlipsheetSettings.GetSlipsheetSettings() : null);
         }
     }
 }

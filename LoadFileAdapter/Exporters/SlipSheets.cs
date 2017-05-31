@@ -87,7 +87,7 @@ namespace LoadFileAdapter.Exporters
             
             foreach (Document doc in this.documents)
             {                
-                if (XrefExporter.isFlagNeeded(doc, this.slipsheetSettings.Trigger, previousDoc))
+                if (XrefExporter.IsFlagNeeded(doc, this.slipsheetSettings.Trigger, previousDoc))
                 {
                     string text = getSlipSheetText(doc);
                     slipsheetLookup.Add(doc.Key, new SlipSheet(doc.Key, text));

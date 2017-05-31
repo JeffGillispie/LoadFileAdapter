@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace LoadFileAdapter
@@ -7,7 +9,7 @@ namespace LoadFileAdapter
     /// a list of children, a collection of metadata key / value pairs, and a
     /// set of all linked files.
     /// </summary>
-    public class Document
+    public class Document : IComparable
     {
         /// <summary>
         /// The document key or DOCID value of this document.
@@ -117,12 +119,15 @@ namespace LoadFileAdapter
             // collections in the builders
             this.parent = parent;
 
-            if (parent.children == null)
+            if (parent != null)
             {
-                parent.children = new HashSet<Document>();
+                if (parent.children == null)
+                {
+                    parent.children = new HashSet<Document>();
+                }
+
+                parent.Children.Add(this);
             }
-            
-            parent.Children.Add(this);            
         }
         
         /// <summary>
@@ -133,6 +138,20 @@ namespace LoadFileAdapter
         {
             // this setter was added to support transformations
             this.representatives = representatives;
-        }                
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj == null) return 1;
+
+            Document doc = obj as Document;
+
+            if (doc != null)
+            {
+                return this.key.CompareTo(doc.key);
+            }
+            else
+                throw new ArgumentException("Object is not a Document");            
+        }
     }
 }

@@ -76,6 +76,7 @@
     <Compile Include="Core\TU_Document.cs" />
     <Compile Include="Core\TU_DocumentCollection.cs" />
     <Compile Include="Exporters\TU_XlsExporter.cs" />
+    <Compile Include="Exporters\TU_XrefExporter.cs" />
     <Compile Include="Instructions\TU_Job.cs" />
     <Compile Include="Exporters\TU_LfpExporter.cs" />
     <Compile Include="Builders\TU_LfpBuilder.cs" />
