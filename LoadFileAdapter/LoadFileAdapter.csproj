@@ -15,11 +15,12 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\LoadFileAdapter.XML</DocumentationFile>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EPPlus, Version=4.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
@@ -58,6 +60,7 @@
     <Compile Include="Builders\BuildDocDatSettings.cs" />
     <Compile Include="Builders\BuildDocCollectionDatSettings.cs" />
     <Compile Include="DocumentCollection.cs" />
+    <Compile Include="Exporters\ExportFileSettingsExtension.cs" />
     <Compile Include="Exporters\ExportXlsLinkSettings.cs" />
     <Compile Include="Exporters\ExportXrefFileSettings.cs" />
     <Compile Include="Exporters\ExportXrefWriterSettings.cs" />

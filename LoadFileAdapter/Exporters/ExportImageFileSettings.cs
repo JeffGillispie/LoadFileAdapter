@@ -43,7 +43,7 @@ namespace LoadFileAdapter.Exporters
         /// </summary>
         /// <returns>Returns the destination <see cref="FileInfo"/> object.</returns>
         public FileInfo GetFile()
-        {
+        {            
             return this.file;
         }
 

@@ -21,10 +21,13 @@ namespace LoadFileAdapter.Exporters
         /// </summary>
         /// <param name="args">Excel export settings.</param>
         public void Export(ExportXlsSettings args)
-        {            
+        {                        
             FileInfo file = args.GetFile();
             DocumentCollection docs = args.GetDocuments();
             ExportXlsLinkSettings[] links = args.GetLinks();
+
+            if (!file.Directory.Exists)
+                file.Directory.Create();
 
             if (file.Exists)
                 file.Delete();

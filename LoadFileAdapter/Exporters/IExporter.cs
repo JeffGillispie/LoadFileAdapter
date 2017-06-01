@@ -11,6 +11,6 @@ namespace LoadFileAdapter.Exporters
         /// Exports a <see cref="DocumentCollection"/>.
         /// </summary>
         /// <param name="args">Export settings.</param>
-        void Export(T args);        
+        void Export(T args);                       
     }
 }

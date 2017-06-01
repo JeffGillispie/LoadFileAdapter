@@ -36,6 +36,7 @@ namespace LoadFileAdapter.Exporters
         /// <param name="args">Export file settings.</param>
         public void Export(ExportDatFileSettings args)
         {
+            args.CreateDestination();
             bool append = false;
             string file = args.GetFile().FullName;
             Encoding encoding = args.GetEncoding();
@@ -68,6 +69,14 @@ namespace LoadFileAdapter.Exporters
             {
                 string record = getRecord(document, delims, fields);
                 writer.WriteLine(record);
+            }
+        }
+
+        public void CreateDestination(DirectoryInfo destination)
+        {
+            if (destination.Exists == false)
+            {
+                destination.Create();
             }
         }
 

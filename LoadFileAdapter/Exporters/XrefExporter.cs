@@ -47,6 +47,7 @@ namespace LoadFileAdapter.Exporters
         /// <param name="args">The XREF export file settings to use.</param>
         public void Export(ExportXrefFileSettings args)
         {
+            args.CreateDestination();
             bool append = false;
             string file = args.GetFile().FullName;
             Encoding encoding = args.GetEncoding();
@@ -117,6 +118,7 @@ namespace LoadFileAdapter.Exporters
                 {
                     string[] recordComponents = getRecordComponents(args, docIndex, i);
                     string pageRecord = String.Join(", ", recordComponents);
+                    bool hasSlipsheet = false;
                                         
                     if (i == 0)
                     {
@@ -127,9 +129,11 @@ namespace LoadFileAdapter.Exporters
                         string namedFiles = recordComponents[NAMED_FILES_INDEX];
                         string ssLine = slipsheets.GetSlipSheetXrefLine(
                             document, gs, cs, custData, namedFolder, namedFiles);
-
-                        if (!String.IsNullOrEmpty(ssLine))
+                        hasSlipsheet = !String.IsNullOrEmpty(ssLine);
+                        
+                        if (hasSlipsheet)
                         {
+                            ssLine = getGhostBoxLine(imageFiles[i].Key, ssLine, boxBreak, docIndex, false);
                             pageRecords.Add(ssLine);
                             recordComponents[GROUP_START_INDEX] = "0";
                             recordComponents[CODE_START_INDEX] = "0";
@@ -144,7 +148,7 @@ namespace LoadFileAdapter.Exporters
                     }
 
                     pageRecord = getGhostBoxLine(
-                        imageFiles[i].Key, pageRecord, boxBreak, docIndex);
+                        imageFiles[i].Key, pageRecord, boxBreak, docIndex, hasSlipsheet);
                     pageRecords.Add(pageRecord);
                 }
             }
@@ -162,14 +166,14 @@ namespace LoadFileAdapter.Exporters
         /// <param name="docIndex">The index of the current document in the collection being exported.</param>
         /// <returns>Returns the unaltered page record if the trigger type is none. Otherwise the CDPath value
         /// is prepended with a ghost box.</returns>
-        protected string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex)
+        protected string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex, bool hasSlipsheet)
         {
             if (boxTrigger != null && boxTrigger.Type != XrefTrigger.TriggerType.None)
             {
                 Document doc = this.docs[docIndex];
                 Document previousDoc = getPreviousDoc(docIndex);
 
-                if (doc.Key.Equals(imageKey) && isFlagNeeded(doc, boxTrigger, previousDoc))
+                if (doc.Key.Equals(imageKey) && isFlagNeeded(doc, boxTrigger, previousDoc) && !hasSlipsheet)
                 {
                     this.boxNumber++;
                 }

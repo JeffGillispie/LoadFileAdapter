@@ -39,6 +39,7 @@ namespace LoadFileAdapter.Exporters
         /// <param name="args">The export settings used to export data to a file.</param>
         public void Export(ExportImageFileSettings args)
         {
+            args.CreateDestination();
             DocumentCollection docs = args.GetDocuments();
             string file = args.GetFile().FullName;
             Encoding encoding = args.GetEncoding();

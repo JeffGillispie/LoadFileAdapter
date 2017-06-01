@@ -67,9 +67,9 @@ namespace LoadFileAdapterTests.Exporters
                 return base.getRecordComponents(args, docIndex, imageIndex);
             }
 
-            public new string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex)
+            public new string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex, bool hasSlipsheet)
             {
-                return base.getGhostBoxLine(imageKey, pageRecord, boxTrigger, docIndex);
+                return base.getGhostBoxLine(imageKey, pageRecord, boxTrigger, docIndex, hasSlipsheet);
             }
 
             public new List<string> getPageRecords(IExportXrefSettings args, int docIndex, SlipSheets slipsheets)
@@ -293,20 +293,25 @@ namespace LoadFileAdapterTests.Exporters
             exporter.SetBoxNo(0);
             Trigger trigger = new Trigger();
             trigger.Type = XrefTrigger.TriggerType.Family;
-            string result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0);
+            string result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0, false);
             Assert.AreEqual(@"\Box001\..", result);
-            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, false);
             Assert.AreEqual(@"\Box001\..", result);
-            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1);
+            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1, false);
             Assert.AreEqual(@"\Box001\..", result);
             trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
             trigger.FieldName = "DOCID";
             exporter.SetBoxNo(0);
-            result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0);
+            result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0, false);
             Assert.AreEqual(@"\Box001\..", result);
-            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, false);
             Assert.AreEqual(@"\Box002\..", result);
-            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1);
+            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1, false);
+            Assert.AreEqual(@"\Box002\..", result);
+            exporter.SetBoxNo(1);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, true);
+            Assert.AreEqual(@"\Box001\..", result);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, false);
             Assert.AreEqual(@"\Box002\..", result);
         }
 

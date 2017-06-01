@@ -21,6 +21,8 @@ namespace LoadFileAdapterTests
             Executor e = new Executor();
             e.Execute(job);
 
+            xml = System.IO.File.ReadAllText(@"X:\dev\TestData\XREF_TEST.xml");
+            job = Job.Deserialize(xml);
 
         }
 
