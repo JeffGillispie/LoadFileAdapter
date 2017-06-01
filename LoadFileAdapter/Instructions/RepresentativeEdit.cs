@@ -47,7 +47,7 @@ namespace LoadFileAdapter.Instructions
         /// Gets <see cref="RepresentativeTransformation"/> value of the edit.
         /// </summary>
         /// <returns>A <see cref="RepresentativeTransformation"/>.</returns>
-        public new RepresentativeTransformation GetEdit()
+        public override Transformation GetTransformation()
         {
             return new RepresentativeTransformation(
                 this.TargetType, 

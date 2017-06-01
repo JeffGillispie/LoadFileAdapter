@@ -130,12 +130,12 @@ namespace LoadFileAdapterTests
             // assert
             for (int i = 0; i < job.Edits.Length; i++)
             {
-                Transformation editA = job.Edits[i].GetEdit();
+                Transformation editA = job.Edits[i].GetTransformation();
                 
                 if (editA.GetType().Equals(typeof(MetaDataTransformation)))
                 {
                     MetaDataTransformation a = (MetaDataTransformation)editA;
-                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].GetEdit();
+                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].GetTransformation();
                     Assert.AreEqual(a.AlternateDestinationField, b.AlternateDestinationField);
                     Assert.AreEqual(a.AppendField, b.AppendField);
                     Assert.AreEqual(a.FieldName, b.FieldName);
@@ -150,7 +150,7 @@ namespace LoadFileAdapterTests
                 else
                 {
                     RepresentativeTransformation a = (RepresentativeTransformation)editA;
-                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].GetEdit();
+                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].GetTransformation();
                     Assert.AreEqual(a.FilterField, b.FilterField);
                     Assert.AreEqual(a.FilterText.ToString(), b.FilterText.ToString());
                     Assert.AreEqual(a.FindText.ToString(), b.FindText.ToString());
@@ -328,12 +328,12 @@ namespace LoadFileAdapterTests
             // check edits
             for (int i = 0; i < job.Edits.Length; i++)
             {
-                Transformation editA = job.Edits[i].GetEdit();
+                Transformation editA = job.Edits[i].GetTransformation();
 
                 if (editA.GetType().Equals(typeof(MetaDataTransformation)))
                 {
                     MetaDataTransformation a = (MetaDataTransformation)editA;
-                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].GetEdit();
+                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].GetTransformation();
                     Assert.AreEqual(a.AlternateDestinationField, b.AlternateDestinationField);
                     Assert.AreEqual(a.AppendField, b.AppendField);
                     Assert.AreEqual(a.FieldName, b.FieldName);
@@ -354,7 +354,7 @@ namespace LoadFileAdapterTests
                 else
                 {
                     RepresentativeTransformation a = (RepresentativeTransformation)editA;
-                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].GetEdit();
+                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].GetTransformation();
                     Assert.AreEqual(a.FilterField, b.FilterField);
                     Assert.AreEqual(a.FilterText.ToString(), b.FilterText.ToString());
                     Assert.AreEqual(a.FindText.ToString(), b.FindText.ToString());
