@@ -1,11 +1,12 @@
-﻿using LoadFileAdapter.Exporters;
+﻿using System;
+using LoadFileAdapter.Exporters;
 
 namespace LoadFileAdapter.Instructions
 {
     /// <summary>
     /// Defines a trigger which causes value in an XREF to change.
     /// </summary>
-    public class Trigger
+    public class Trigger : IEquatable<Trigger>
     {
         /// <summary>
         /// Defines which trigger type will be used.
@@ -67,6 +68,18 @@ namespace LoadFileAdapter.Instructions
         {
             return new XrefTrigger(this.Type, this.RegexPattern, this.FieldName, 
                 this.SegmentCount, this.SegmentDelimiter, this.FieldChangeOption);
+        }
+
+        public bool Equals(Trigger trigger)
+        {
+            if (trigger == null) return false;
+
+            return this.Type == trigger.Type &&
+                this.FieldChangeOption == trigger.FieldChangeOption &&
+                (this.FieldName == trigger.FieldName || this.FieldName.Equals(trigger.FieldName)) &&
+                (this.RegexPattern == trigger.RegexPattern || this.RegexPattern.Equals(trigger.RegexPattern)) &&
+                (this.SegmentDelimiter == trigger.SegmentDelimiter || this.SegmentDelimiter.Equals(trigger.SegmentDelimiter)) &&
+                this.SegmentCount == trigger.SegmentCount;                
         }
     }
 }

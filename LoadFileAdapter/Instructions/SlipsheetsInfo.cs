@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Linq;
 using System.Xml.Serialization;
 using LoadFileAdapter.Exporters;
@@ -8,7 +9,7 @@ namespace LoadFileAdapter.Instructions
     /// <summary>
     /// Defines how slipsheets will be created.
     /// </summary>
-    public class SlipsheetsInfo
+    public class SlipsheetsInfo : IEquatable<SlipsheetsInfo>
     {
         /// <summary>
         /// Determines if field labels will be printed on the slipsheet.
@@ -101,6 +102,23 @@ namespace LoadFileAdapter.Instructions
         public Font GetFont()
         {
             return new Font(this.FontFamilyName, this.FontSize * (this.Resolution / 100), this.FontStyle);
+        }
+
+        public bool Equals(SlipsheetsInfo slipsheetsInfo)
+        {
+            if (slipsheetsInfo == null) return false;
+
+            return this.UseFieldLabels == slipsheetsInfo.UseFieldLabels &&
+                this.BindSlipsheets == slipsheetsInfo.BindSlipsheets &&
+                (this.FolderName == slipsheetsInfo.FolderName || this.FolderName.Equals(slipsheetsInfo.FolderName)) &&
+                this.FontFamilyName.Equals(slipsheetsInfo.FontFamilyName) &&
+                this.FontSize == slipsheetsInfo.FontSize &&
+                this.FontStyle == slipsheetsInfo.FontStyle &&
+                this.Resolution == slipsheetsInfo.Resolution &&
+                this.HorizontalPlacement == slipsheetsInfo.HorizontalPlacement &&
+                this.VerticalPlacement == slipsheetsInfo.VerticalPlacement &&
+                this.Trigger.Equals(slipsheetsInfo.Trigger) &&
+                this.Fields.SequenceEqual(slipsheetsInfo.Fields);
         }
     }
 }
