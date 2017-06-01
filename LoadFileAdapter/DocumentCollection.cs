@@ -144,6 +144,11 @@ namespace LoadFileAdapter
             }
         }
         
+        /// <summary>
+        /// Access the document collection by index.
+        /// </summary>
+        /// <param name="index">The index of the document.</param>
+        /// <returns>Returns a <see cref="Document"/>.</returns>
         public Document this[int index]
         {
             get
@@ -160,6 +165,11 @@ namespace LoadFileAdapter
             }
         }
 
+        /// <summary>
+        /// Access the document collection by the document key value.
+        /// </summary>
+        /// <param name="key">The document key.</param>
+        /// <returns>Returns a <see cref="Document"/>.</returns>
         public Document this[string key]
         {
             get
@@ -189,7 +199,7 @@ namespace LoadFileAdapter
         /// <summary>
         /// Adds a <see cref="Document"/> to the collection.
         /// </summary>
-        /// <param name="doc">The document to add to the collection.</param>
+        /// <param name="document">The document to add to the collection.</param>
         public void Add(Document document)
         {
             AddRange(new Document[] { document });

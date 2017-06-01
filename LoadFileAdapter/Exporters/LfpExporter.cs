@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace LoadFileAdapter.Exporters
 {
     /// <summary>
     /// An exporter that export data from a document collection to a LFP file.
     /// </summary>
-    public class LfpExporter : IExporter<ExportFileImageSettings, ExportWriterImageSettings>
+    public class LfpExporter : IExporter<IExportImageSettings>
     {
+        /// <summary>
+        /// Map of image file extensions to the LFP numeric type indicator.
+        /// </summary>
         protected static Dictionary<string, int> ImageFileTypes = new Dictionary<string, int>() {
             { ".TIF", 2 },
             { ".JPG", 4 },
@@ -17,16 +21,40 @@ namespace LoadFileAdapter.Exporters
         };
 
         /// <summary>
+        /// Exports a LFP load file.
+        /// </summary>
+        /// <param name="args">The export settings used to export data.</param>
+        public void Export(IExportImageSettings args)
+        {
+            if (args.GetType().Equals(typeof(ExportImageFileSettings)))
+            {
+                Export((ExportImageFileSettings)args);
+            }
+            else if (args.GetType().Equals(typeof(ExportImageWriterSettings)))
+            {
+                Export((ExportImageWriterSettings)args);
+            }
+            else
+            {
+                throw new Exception("LfpExporter Export Exception: The export settings were not a valid type.");
+            }
+        }
+
+        /// <summary>
         /// Exports a LFP load file to a supplied <see cref="FileInfo"/> destination.
         /// </summary>
         /// <param name="args">The export settings used to export data to a file.</param>
-        public void Export(ExportFileImageSettings args)
+        public void Export(ExportImageFileSettings args)
         {
+            DocumentCollection docs = args.GetDocuments();
+            string file = args.GetFile().FullName;
+            Encoding encoding = args.GetEncoding();
+            string vol = args.GetVolumeName();
             bool append = false;
 
-            using (TextWriter writer = new StreamWriter(args.File.FullName, append, args.Encoding))
+            using (TextWriter writer = new StreamWriter(file, append, encoding))
             {
-                ExportWriterImageSettings writerArgs = new ExportWriterImageSettings(writer, args.Documents, args.VolumeName);
+                ExportImageWriterSettings writerArgs = new ExportImageWriterSettings(writer, docs, vol);
                 Export(writerArgs);
             }
         }
@@ -35,15 +63,19 @@ namespace LoadFileAdapter.Exporters
         /// Uses a <see cref="TextWriter"/> to export data to a LFP file.
         /// </summary>
         /// <param name="args">The export settings used to write a LFP file.</param>
-        public void Export(ExportWriterImageSettings args)
+        public void Export(ExportImageWriterSettings args)
         {
-            foreach (Document document in args.Documents)
+            DocumentCollection docs = args.GetDocuments();
+            TextWriter writer = args.GetWriter();
+            string vol = args.GetVolumeName();
+
+            foreach (Document document in docs)
             {
-                List<string> pages = getPageRecords(document, args.VolumeName);
+                List<string> pages = getPageRecords(document, vol);
                 // write pages
                 foreach (string page in pages)
                 {
-                    args.Writer.WriteLine(page);
+                    writer.WriteLine(page);
                 }
             }
         }

@@ -38,7 +38,18 @@ namespace LoadFileAdapter.Builders
         /// </summary>
         public enum TextLevel
         {
-            None, Page, Doc
+            /// <summary>
+            /// No text exists.
+            /// </summary>
+            None,
+            /// <summary>
+            /// There is a text file for each page.
+            /// </summary>
+            Page,
+            /// <summary>
+            ///  There is a single text file for the document.
+            /// </summary>
+            Doc
         }
 
         /// <summary>
@@ -47,7 +58,22 @@ namespace LoadFileAdapter.Builders
         /// </summary>
         public enum TextLocation
         {
-            None, SameAsImages, AlternateLocation
+            /// <summary>
+            /// No text exits.
+            /// </summary>
+            None,
+            /// <summary>
+            /// The text files are in the same folder as the image files.
+            /// With the same base name.
+            /// </summary>
+            SameAsImages,
+            /// <summary>
+            /// The text files are in a different folder, but the text
+            /// sub-folder structure matches the image sub-folder structure
+            /// and the base name of the text files match the base name of 
+            /// the image files.
+            /// </summary>
+            AlternateLocation
         }
 
         /// <summary>

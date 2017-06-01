@@ -64,7 +64,7 @@ namespace LoadFileAdapter.Builders
         {
             // validate the field count
             if (args.Header.Length != args.Record.Length)
-                throw new Exception("The document record does not contains the correct number of fields.");
+                throw new Exception("The document record does not contain the correct number of fields.");
             // setup for building
             Dictionary<string, string> metadata = new Dictionary<string, string>();
             HashSet<Representative> reps = new HashSet<Representative>();
@@ -170,8 +170,12 @@ namespace LoadFileAdapter.Builders
             Document doc, Dictionary<string, Document> docs, Dictionary<string, Document> paternity, 
             string parentColName, string childColName, string childSeparator)
         {
-            // if we have a parent column
-            string parentKey = doc.Metadata[parentColName];
+            string parentKey = String.Empty;
+
+            if (doc.Metadata.ContainsKey(parentColName))
+            {
+                parentKey = doc.Metadata[parentColName];
+            }
             // check that the parentKey doesn't refer to itself
             if (String.IsNullOrWhiteSpace(parentKey) || parentKey.Equals(doc.Key))
             {
@@ -180,51 +184,58 @@ namespace LoadFileAdapter.Builders
             }
             else
             {
-                Document parent = docs[parentKey];
-                // check if there is no parent
-                if (parent == null)
+                Document parent = null;
+
+                try
+                {
+                    parent = docs[parentKey];
+                }
+                catch (KeyNotFoundException )
                 {
                     string msg = String.Format(
-                        "Broken Families, the parent ({0}) is missing for the document ({1}).", 
+                        "Broken Families, the parent ({0}) is missing for the document ({1}).",
                         parentKey, doc.Key);
                     throw new Exception(msg);
                 }
-                else
-                {
-                    // a parent exists
-                    doc.SetParent(parent);
-                    // validate relationships if both parent and child fields exists
-                    if (!String.IsNullOrWhiteSpace(childColName))
+                                
+                // a parent exists
+                doc.SetParent(parent);
+                // validate relationships if both parent and child fields exists
+                if (!String.IsNullOrWhiteSpace(childColName))
+                {                    
+                    // check for replationships that are not reciprocal
+                    if (!parent.Metadata[childColName].Contains(doc.Key))
                     {
-                        // log paternity so we can check for children who disown their parent
-                        string childrenLine = doc.Metadata[childColName];
-
-                        if (String.IsNullOrWhiteSpace(childrenLine))
-                        {
-                            string[] childKeys = childrenLine.Split(
-                                new string[] { childSeparator }, 
-                                StringSplitOptions.RemoveEmptyEntries);
-                            // the child docs haven't been added yet so we'll record the relationships and add them later
-                            foreach (string childKey in childKeys)
-                            {
-                                paternity.Add(childKey, doc); // paternity maps childKey >> parentDoc
-                            }
-                        }
-                        // check for replationships that are not reciprocal
-                        if (!parent.Metadata[childColName].Contains(doc.Key))
-                        {
-                            string msg = String.Format(
-                                "Broken families, the parent ({0}) disowns a child document ({1})", 
-                                parentKey, doc.Key);
-                            throw new Exception(msg);
-                        }
-                        else
-                        {
-                            // the relationship is reciprocal
-                            // we'll check for orphans later
-                            paternity.Remove(doc.Key);
-                        }
+                        string msg = String.Format(
+                            "Broken families, the parent ({0}) disowns a child document ({1}).", 
+                            parentKey, doc.Key);
+                        throw new Exception(msg);
                     }
+                    else
+                    {
+                        // the relationship is reciprocal
+                        // we'll check for orphans later
+                        paternity.Remove(doc.Key);
+                    }
+                }                
+            }
+            // log paternity so we can check for children who disown their parent
+            string childrenLine = String.Empty;
+
+            if (doc.Metadata.ContainsKey(childColName))
+            {
+                childrenLine = doc.Metadata[childColName];
+            }
+
+            if (!String.IsNullOrWhiteSpace(childrenLine))
+            {
+                string[] childKeys = childrenLine.Split(
+                    new string[] { childSeparator },
+                    StringSplitOptions.RemoveEmptyEntries);
+                // the child docs haven't been added yet so we'll record the relationships and add them later
+                foreach (string childKey in childKeys)
+                {
+                    paternity.Add(childKey, doc); // paternity maps childKey >> parentDoc
                 }
             }
         }
@@ -240,7 +251,12 @@ namespace LoadFileAdapter.Builders
             Document doc, string childColName, string childSeparator, Dictionary<string, Document> paternity)
         {
             // we don't have a parent column name but we have a child column name
-            string childrenLine = doc.Metadata[childColName];
+            string childrenLine = string.Empty;
+
+            if (doc.Metadata.ContainsKey(childColName))
+            {
+                childrenLine = doc.Metadata[childColName];
+            }
 
             if (String.IsNullOrEmpty(childrenLine))
             {

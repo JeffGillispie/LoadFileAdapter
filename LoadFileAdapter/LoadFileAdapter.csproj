@@ -31,8 +31,13 @@
     <DocumentationFile>bin\Release\LoadFileAdapter.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EPPlus, Version=4.1.0.0, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.4.1.0\lib\net40\EPPlus.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -53,16 +58,22 @@
     <Compile Include="Builders\BuildDocDatSettings.cs" />
     <Compile Include="Builders\BuildDocCollectionDatSettings.cs" />
     <Compile Include="DocumentCollection.cs" />
+    <Compile Include="Exporters\ExportXlsLinkSettings.cs" />
+    <Compile Include="Exporters\IExportDatSettings.cs" />
+    <Compile Include="Exporters\IExportImageSettings.cs" />
+    <Compile Include="Exporters\IExportSettings.cs" />
+    <Compile Include="Exporters\ExportXlsSettings.cs" />
     <Compile Include="Exporters\IExporter.cs" />
-    <Compile Include="Exporters\ExportFileSettings.cs" />
-    <Compile Include="Exporters\ExportWriterSettings.cs" />
-    <Compile Include="Exporters\ExportFileImageSettings.cs" />
-    <Compile Include="Exporters\ExportWriterImageSettings.cs" />
+    <Compile Include="Exporters\IExportFileSettings.cs" />
+    <Compile Include="Exporters\IExportWriterSettings.cs" />
+    <Compile Include="Exporters\ExportImageFileSettings.cs" />
+    <Compile Include="Exporters\ExportImageWriterSettings.cs" />
     <Compile Include="Exporters\LfpExporter.cs" />
     <Compile Include="Exporters\OptExporter.cs" />
     <Compile Include="Exporters\DatExporter.cs" />
-    <Compile Include="Exporters\ExportFileDatSettings.cs" />
-    <Compile Include="Exporters\ExportWriterDatSettings.cs" />
+    <Compile Include="Exporters\ExportDatFileSettings.cs" />
+    <Compile Include="Exporters\ExportDatWriterSettings.cs" />
+    <Compile Include="Exporters\XlsExporter.cs" />
     <Compile Include="Importers\LfpImporter.cs" />
     <Compile Include="Importers\OptImporter.cs" />
     <Compile Include="Importers\DatImporter.cs" />
@@ -72,6 +83,7 @@
     <Compile Include="Instructions\Edit.cs" />
     <Compile Include="Instructions\Executor.cs" />
     <Compile Include="Instructions\Export.cs" />
+    <Compile Include="Instructions\Hyperlink.cs" />
     <Compile Include="Instructions\ImgExport.cs" />
     <Compile Include="Instructions\ImgImport.cs" />
     <Compile Include="Instructions\Import.cs" />
@@ -80,6 +92,7 @@
     <Compile Include="Instructions\RepresentativeSettings.cs" />
     <Compile Include="Instructions\MetaDataEdit.cs" />
     <Compile Include="Instructions\TextFileSettingsBuilder.cs" />
+    <Compile Include="Instructions\XlsExport.cs" />
     <Compile Include="Parsers\Delimiters.cs" />
     <Compile Include="Document.cs" />
     <Compile Include="Builders\LfpBuilder.cs" />
@@ -103,7 +116,9 @@
     <Compile Include="Transformers\Transformer.cs" />
     <Compile Include="Transformers\RepresentativeTransformation.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

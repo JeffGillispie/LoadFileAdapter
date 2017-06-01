@@ -2,25 +2,15 @@
 namespace LoadFileAdapter.Exporters
 {
     /// <summary>
-    /// The interface for an exporter to export data from a document collection.
+    /// The interface for an exporter to export data from a <see cref="DocumentCollection"/>.
     /// </summary>
-    /// <typeparam name="T">export file setting</typeparam>
-    /// <typeparam name="S">export writer settings</typeparam>
-    public interface IExporter<T, S> 
-        where T: ExportFileSettings
-        where S: ExportWriterSettings
+    /// <typeparam name="T">Export Settings</typeparam>
+    public interface IExporter<T> where T: IExportSettings
     {
         /// <summary>
-        /// Uses a <see cref="FileInfo"/> object as the destination to export data 
-        /// from a document collection.
+        /// Exports a <see cref="DocumentCollection"/>.
         /// </summary>
-        /// <param name="args">The <see cref="ExportFileSettings"/> used to export data.</param>
-        void Export(T args);
-
-        /// <summary>
-        /// Uses a <see cref="TextWriter"/> to export data from a document collection.
-        /// </summary>
-        /// <param name="args">The <see cref="ExportWriterSettings"/> used to export data.</param>
-        void Export(S args);
+        /// <param name="args">Export settings.</param>
+        void Export(T args);        
     }
 }

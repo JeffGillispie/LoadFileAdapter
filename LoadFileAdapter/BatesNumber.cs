@@ -158,7 +158,7 @@ namespace LoadFileAdapter
             else
             {
                 string msg = String.Format(
-                    "BatesNumber Exception: No numeric sequences were detected in the bates number {1}.", 
+                    "BatesNumber Exception: No numeric sequences were detected in the bates number {0}.", 
                     batesNumber);
                 throw new Exception(msg);
             }
@@ -188,6 +188,10 @@ namespace LoadFileAdapter
             return bates.ToString();
         }
 
+        /// <summary>
+        /// Obtains the string representation of the bates number.
+        /// </summary>
+        /// <returns>Returns a bates number string.</returns>
         public override string ToString()
         {
             return this.value;
@@ -315,7 +319,7 @@ namespace LoadFileAdapter
                 else if (nextToLastSequence != suspectedNumber)
                 {
                     string msg = String.Format(
-                        "BatesNumber Exception: The suspected number {1} does not match the next to last numeric sequence {1} from the value {2}.",
+                        "BatesNumber Exception: The suspected number {0} does not match the next to last numeric sequence {1} from the value {2}.",
                         suspectedNumber, nextToLastSequence, batesNumber);
                     throw new Exception(msg);
                 }

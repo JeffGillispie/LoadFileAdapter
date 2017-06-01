@@ -16,6 +16,12 @@ namespace LoadFileAdapter.Instructions
         public TextFileSettingsBuilder TextSetting;
 
         /// <summary>
+        /// Indicates if the load file path should be used to build
+        /// an absolute path for representative files.
+        /// </summary>
+        public bool BuildAbsolutePath;
+
+        /// <summary>
         /// Initializes a new instance of <see cref="ImgImport"/>.
         /// </summary>
         public ImgImport() : base(null, null)
@@ -29,10 +35,13 @@ namespace LoadFileAdapter.Instructions
         /// <param name="file">The file to import.</param>
         /// <param name="encoding">The encoding used to read the import.</param>
         /// <param name="txtSetting">The text representative settings for the import.</param>
-        public ImgImport(FileInfo file, Encoding encoding, TextRepresentativeSettings txtSetting) : 
+        /// <param name="buildAbsolutePath">Setting for building representative absolute paths.</param>
+        public ImgImport(FileInfo file, Encoding encoding, 
+            TextRepresentativeSettings txtSetting, bool buildAbsolutePath) : 
             base(file, encoding)
         {
             this.TextSetting = new TextFileSettingsBuilder(txtSetting);
+            this.BuildAbsolutePath = buildAbsolutePath;
         }                
     }
 }
