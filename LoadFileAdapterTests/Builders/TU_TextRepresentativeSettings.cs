@@ -9,20 +9,6 @@ namespace LoadFileAdapterTests.Builders
     public class TU_TextRepresentativeSettings
     {
         [TestMethod]
-        public void Buliders_TextrepresentativeSettings_Properties()
-        {
-            TextRepresentativeSettings.TextLevel textLevel = TextRepresentativeSettings.TextLevel.Doc;
-            TextRepresentativeSettings.TextLocation textLocation = TextRepresentativeSettings.TextLocation.None;
-            Regex regex = new Regex("IMAGES", RegexOptions.IgnoreCase);
-            string replace = "replace";
-            TextRepresentativeSettings settings = new TextRepresentativeSettings(textLevel, textLocation, regex, replace);
-            Assert.AreEqual(textLevel, settings.FileLevel);
-            Assert.AreEqual(textLocation, settings.FileLocation);
-            Assert.AreEqual(regex, settings.PathFind);
-            Assert.AreEqual(replace, settings.PathReplace);
-        }
-
-        [TestMethod]
         public void Builders_TextRepresentativeSettings_GetTextPath()
         {
             TextRepresentativeSettings settingsA = new TextRepresentativeSettings(

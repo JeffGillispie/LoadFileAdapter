@@ -256,6 +256,47 @@ namespace LoadFileAdapterTests
                 new FileInfo("x:\\test\\test.xlsx"), 
                 new string[] { "three", "four", "shut", "the", "door" }, 
                 new ExportXlsLinkSettings[] { new ExportXlsLinkSettings(Representative.FileType.Native, "displayText", 2) }));
+            var xref = new XrefExport();
+            xref.File = new FileInfo("x:\\test\\CrossRef.txt");
+            xref.CustomerDataField = "CustomerData";
+            xref.NamedFolderField = "NamedFolder";
+            xref.NamedFileField = "NamedFile";
+            xref.CodePage = 1251;
+            Trigger boxTrigger = new Trigger();
+            Trigger csTrigger = new Trigger();
+            Trigger gsTrigger = new Trigger();
+            boxTrigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            boxTrigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.StripFileName;
+            boxTrigger.FieldName = "FilePath";
+            csTrigger.Type = XrefTrigger.TriggerType.Regex;
+            csTrigger.RegexPattern = "\\d";
+            csTrigger.FieldName = "Group";
+            gsTrigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            gsTrigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.UseStartingSegments;
+            gsTrigger.SegmentCount = 2;
+            gsTrigger.SegmentDelimiter = "\\";            
+            xref.BoxBreakTrigger = boxTrigger;
+            xref.CodeStartTrigger = csTrigger;
+            xref.GroupStartTrigger = gsTrigger;
+            var ss = new SlipsheetsInfo();
+            ss.BindSlipsheets = false;
+            ss.FolderName = "SlipSheets";
+            ss.FontSize = 12;
+            ss.FontStyle = System.Drawing.FontStyle.Bold;
+            ss.FontFamilyName = "Arial";
+            ss.HorizontalPlacement = XrefSlipSheetSettings.HorizontalPlacementOption.Center;
+            ss.VerticalPlacement = XrefSlipSheetSettings.VerticalPlacementOption.Center;
+            ss.Resolution = 300;
+            ss.UseFieldLabels = true;
+            Trigger ssTrigger = new Trigger();
+            ssTrigger.Type = XrefTrigger.TriggerType.Family;
+            ss.Trigger = ssTrigger;
+            List<SlipsheetField> ssFields = new List<SlipsheetField>();
+            ssFields.Add(new SlipsheetField("DOCID", "BegNo"));
+            ssFields.Add(new SlipsheetField("DOCTYPE", "FileType"));
+            ss.Fields = ssFields.ToArray();
+            xref.SlipsheetSettings = ss;
+            exports.Add(xref);
             List<Transformation> edits = new List<Transformation>();
             edits.Add(new MetaDataTransformation(
                 "field name", new Regex("find text"), "replace text", "alt", 
@@ -264,6 +305,18 @@ namespace LoadFileAdapterTests
             edits.Add(new RepresentativeTransformation(
                 Representative.FileType.Text, null, new Regex("find", RegexOptions.IgnoreCase), "replace", 
                 "filter field", new Regex("filter text")));
+            var dateEdit = new DateFormatEdit();
+            dateEdit.FieldName = "DateCreated";
+            dateEdit.InputFormat = "dd/MM/yyyy";
+            TimeZoneInfo outTZ = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+            TimeZoneInfo inTZ = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+            dateEdit.InputTimeZone = inTZ;
+            dateEdit.OutputTimeZone = outTZ;
+            dateEdit.OutputFormat = "yyyy-MM-dd";
+            dateEdit.OnFailure = DateFormatTransformation.FailAction.ReplaceWithNull;
+            dateEdit.RangeStart = new DateTime(1999, 5, 3);
+            dateEdit.RangeEnd = DateTime.Today;
+            edits.Add(dateEdit.GetTransformation());
             Job job = new Job(imports.ToArray(), exports.ToArray(), edits.ToArray());
 
             // act
@@ -351,7 +404,7 @@ namespace LoadFileAdapterTests
                     Assert.AreEqual(a.PrependField, b.PrependField);
                     Assert.AreEqual(a.ReplaceText, b.ReplaceText);
                 }
-                else
+                else if (editA.GetType().Equals(typeof(RepresentativeTransformation)))
                 {
                     RepresentativeTransformation a = (RepresentativeTransformation)editA;
                     RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].GetTransformation();
@@ -362,6 +415,27 @@ namespace LoadFileAdapterTests
                     Assert.AreEqual(a.NewType, b.NewType);
                     Assert.AreEqual(a.ReplaceText, b.ReplaceText);
                     Assert.AreEqual(a.TargetType, b.TargetType);
+                }
+                else if (editA.GetType().Equals(typeof(DateFormatTransformation)))
+                {
+                    DateFormatTransformation a = (DateFormatTransformation)editA;
+                    DateFormatTransformation b = (DateFormatTransformation)testJob.Edits[i].GetTransformation();
+                    Assert.AreEqual(a.FieldName, b.FieldName);
+                    Assert.AreEqual(a.FilterField, b.FilterField);
+                    Assert.AreEqual(a.FilterText, b.FilterText);
+                    Assert.AreEqual(a.FindText, b.FindText);
+                    Assert.AreEqual(a.InputFormat, b.InputFormat);
+                    Assert.AreEqual(a.InputTimeZone, b.InputTimeZone);
+                    Assert.AreEqual(a.OnFailure, b.OnFailure);
+                    Assert.AreEqual(a.OutputFormat, b.OutputFormat);
+                    Assert.AreEqual(a.OutputTimeZone, b.OutputTimeZone);
+                    Assert.AreEqual(a.RangeEnd, b.RangeEnd);
+                    Assert.AreEqual(a.RangeStart, b.RangeStart);
+                    Assert.AreEqual(a.ReplaceText, b.ReplaceText);
+                }
+                else
+                {
+                    throw new Exception("Invalid type.");
                 }
             }
             // check exports
@@ -409,6 +483,20 @@ namespace LoadFileAdapterTests
                         Assert.AreEqual(link.DisplayText, testLink.DisplayText);
                         Assert.AreEqual(link.ColumnIndex, testLink.ColumnIndex);
                     }
+                }
+                else if (job.Exports[i].GetType().Equals(typeof(XrefExport)))
+                {
+                    XrefExport actual = (XrefExport)testJob.Exports[i];
+                    XrefExport expected = (XrefExport)job.Exports[i];
+                    Assert.AreEqual(expected.Encoding, actual.Encoding);
+                    Assert.AreEqual(expected.FilePath, actual.FilePath);
+                    Assert.AreEqual(expected.CustomerDataField, actual.CustomerDataField);
+                    Assert.AreEqual(expected.NamedFolderField, actual.NamedFolderField);
+                    Assert.AreEqual(expected.NamedFileField, actual.NamedFileField);
+                    Assert.IsTrue(expected.CodeStartTrigger.Equals(actual.CodeStartTrigger));
+                    Assert.IsTrue(expected.GroupStartTrigger.Equals(actual.GroupStartTrigger));
+                    Assert.IsTrue(expected.BoxBreakTrigger.Equals(actual.BoxBreakTrigger));
+                    Assert.IsTrue(expected.SlipsheetSettings.Equals(actual.SlipsheetSettings));
                 }
                 else
                 {

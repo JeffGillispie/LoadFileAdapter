@@ -129,7 +129,7 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return InputTimeZone.ToString();
+                return InputTimeZone.StandardName;
             }
 
             set
@@ -143,7 +143,7 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return OutputTimeZone.ToString();
+                return OutputTimeZone.StandardName;
             }
 
             set

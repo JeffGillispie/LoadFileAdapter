@@ -20,8 +20,10 @@ namespace LoadFileAdapter.Instructions
     [XmlInclude(typeof(DatExport))]
     [XmlInclude(typeof(ImgExport))]
     [XmlInclude(typeof(XlsExport))]
+    [XmlInclude(typeof(XrefExport))]
     [XmlInclude(typeof(MetaDataEdit))]
     [XmlInclude(typeof(RepresentativeEdit))]
+    [XmlInclude(typeof(DateFormatEdit))]
     public class Job
     {
         /// <summary>

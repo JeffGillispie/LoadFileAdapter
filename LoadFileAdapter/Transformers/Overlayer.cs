@@ -89,7 +89,7 @@ namespace LoadFileAdapter.Transformers
 
                 foreach (Document child in original.Children)
                 {
-                    if (!updated.Children.Contains(child))
+                    if (updated.Children == null || !updated.Children.Contains(child))
                     {
                         childrenToRemove.Add(child);
                     }
