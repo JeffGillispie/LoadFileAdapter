@@ -24,12 +24,12 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The horizontal placement of the slipsheet text.
         /// </summary>
-        public XrefSlipSheetSettings.HorizontalPlacementOption HorizontalPlacement = XrefSlipSheetSettings.HorizontalPlacementOption.Left;
+        public SlipSheet.HorizontalPlacementOption HorizontalPlacement = SlipSheet.HorizontalPlacementOption.Left;
 
         /// <summary>
         /// The vertical placement of the slipsheet text.
         /// </summary>
-        public XrefSlipSheetSettings.VerticalPlacementOption VerticalPlacement = XrefSlipSheetSettings.VerticalPlacementOption.Top;
+        public SlipSheet.VerticalPlacementOption VerticalPlacement = SlipSheet.VerticalPlacementOption.Top;
 
         /// <summary>
         /// The name of the slipsheet folder or empty if slipsheets are saved to the images folder.
@@ -80,19 +80,19 @@ namespace LoadFileAdapter.Instructions
         /// Gets an XREF slipsheet settings object.
         /// </summary>
         /// <returns>Returns a <see cref="XrefSlipSheetSettings"/>.</returns>
-        public XrefSlipSheetSettings GetSlipsheetSettings()
+        public SlipSheets GetSlipsheets()
         {
-            return new XrefSlipSheetSettings(
-                this.UseFieldLabels,
-                this.BindSlipsheets,
-                !string.IsNullOrEmpty(this.FolderName),
-                this.HorizontalPlacement,
-                this.VerticalPlacement,
-                this.FolderName,
-                GetFont(),
-                this.Resolution,
-                this.Fields.ToDictionary(f => f.FieldName, f => f.Alias), 
-                this.Trigger.GetXrefTrigger());
+            return SlipSheets.Builder
+                .Start(Trigger.GetXrefTrigger())
+                .SetUseFieldLabels(UseFieldLabels)
+                .SetBindSlipsheets(BindSlipsheets)
+                .SetHorizontalTextPlacement(HorizontalPlacement)
+                .SetVerticalTextPlacement(VerticalPlacement)
+                .SetFolderName(FolderName)
+                .SetFont(GetFont())
+                .SetResolution(Resolution)
+                .SetAliasMap(Fields.ToDictionary(f => f.FieldName, f=> f.Alias))
+                .Build();            
         }
 
         /// <summary>

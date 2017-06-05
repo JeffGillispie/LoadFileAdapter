@@ -17,8 +17,7 @@ namespace LoadFileAdapter.Exporters
         /// <param name="fileType">The type of the file to link.</param>
         /// <param name="displayText">The display text to insert.</param>
         /// <param name="columnIndex">The column index of the destination link.</param>
-        public ExportXlsLinkSettings(Representative.FileType fileType, 
-            string displayText, int columnIndex)
+        public ExportXlsLinkSettings(Representative.FileType fileType, string displayText, int columnIndex)
         {
             this.fileType = fileType;
             this.displayText = displayText;

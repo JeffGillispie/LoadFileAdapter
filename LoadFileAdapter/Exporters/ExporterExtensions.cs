@@ -3,15 +3,15 @@ using System.IO;
 
 namespace LoadFileAdapter.Exporters
 {
-    public static class ExportFileSettingsExtension
+    public static class ExporterExtensions
     {
-        public static bool CreateDestination(this IExportFileSettings settings)
+        internal static bool CreateDestination(this IExporter exporter, FileInfo outfile)
         {            
             bool result = false;
 
             try
             {
-                DirectoryInfo destination = settings.GetFile().Directory;
+                DirectoryInfo destination = outfile.Directory;
 
                 result = destination.Exists;
 

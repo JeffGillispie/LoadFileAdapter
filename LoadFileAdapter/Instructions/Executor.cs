@@ -73,42 +73,53 @@ namespace LoadFileAdapter.Instructions
             if (export.GetType().Equals(typeof(DatExport)))
             {
                 DatExport ex = (DatExport)export;
-                ExportDatFileSettings settings = new ExportDatFileSettings(
-                    docs, ex.File, ex.Encoding, ex.Delimiters.GetDelimiters(), ex.ExportFields);
-                DatExporter exporter = new DatExporter();
-                exporter.Export(settings);
+                DatExporter exporter = DatExporter.Builder
+                    .Start(ex.File, ex.Encoding, ex.ExportFields)
+                    .SetDelimiters(ex.Delimiters.GetDelimiters())
+                    .Build();
+                exporter.Export(docs);
             }
             else if (export.GetType().Equals(typeof(XlsExport)))
             {
-                XlsExport ex = (XlsExport)export;
-                ExportXlsSettings settings = new ExportXlsSettings(
-                    docs, ex.File, ex.ExportFields, 
-                    ex.Hyperlinks.Select(l => l.GetLinkSettings()).ToArray());
-                XlsExporter exporter = new XlsExporter();
-                exporter.Export(settings);
+                XlsExport ex = (XlsExport)export;                
+                XlsExporter exporter = XlsExporter.Builder
+                    .Start(ex.File, ex.ExportFields)
+                    .SetLinks(ex.Hyperlinks.Select(l => l.GetLinkSettings()).ToArray())
+                    .Build();                    
+                exporter.Export(docs);
             }
             else if (export.GetType().Equals(typeof(XrefExport)))
             {
-                XrefExport ex = (XrefExport)export;
-                ExportXrefFileSettings settings = ex.GetFileSettings(docs);
-                XrefExporter exporter = new XrefExporter();
-                exporter.Export(settings);
+                XrefExport ex = (XrefExport)export;                
+                XrefExporter exporter = XrefExporter.Builder
+                    .Start(ex.File, ex.Encoding)
+                    .SetSlipsheets(ex.SlipsheetSettings.GetSlipsheets())                    
+                    .SetBoxTrigger(ex.BoxBreakTrigger.GetXrefTrigger())
+                    .SetGroupStartTrigger(ex.GroupStartTrigger.GetXrefTrigger())
+                    .SetCodeStartTrigger(ex.CodeStartTrigger.GetXrefTrigger())
+                    .SetCustomerDataField(ex.CustomerDataField)
+                    .SetNamedFolderField(ex.NamedFolderField)
+                    .SetNamedFileField(ex.NamedFileField)
+                    .Build();                   
+                exporter.Export(docs);
             }
             else if (export.File.Extension.ToUpper().Equals(LFP_EXT))
             {
-                ImgExport ex = (ImgExport)export;
-                ExportImageFileSettings settings = new ExportImageFileSettings(
-                    docs, ex.File, ex.Encoding, ex.VolumeName);
-                LfpExporter exporter = new LfpExporter();
-                exporter.Export(settings);
+                ImgExport ex = (ImgExport)export;                
+                LfpExporter exporter = LfpExporter.Builder
+                    .Start(ex.File, ex.Encoding)
+                    .SetVolumeName(ex.VolumeName)
+                    .Build();
+                exporter.Export(docs);
             }
             else if (export.File.Extension.ToUpper().Equals(OPT_EXT))
             {
                 ImgExport ex = (ImgExport)export;
-                ExportImageFileSettings settings = new ExportImageFileSettings(
-                    docs, ex.File, ex.Encoding, ex.VolumeName);
-                OptExporter exporter = new OptExporter();
-                exporter.Export(settings);
+                OptExporter exporter = OptExporter.Builder
+                    .Start(ex.File, ex.Encoding)
+                    .SetVolumeName(ex.VolumeName)
+                    .Build();                
+                exporter.Export(docs);
             }            
             else
             {

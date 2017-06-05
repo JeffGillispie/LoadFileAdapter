@@ -24,9 +24,21 @@ namespace LoadFileAdapterTests.Exporters
                 
         class TestXlsExporter : XlsExporter
         {
-            public new DataTable getMetaDataTable(ExportXlsSettings args)
+            public TestXlsExporter()
             {
-                return base.getMetaDataTable(args);
+
+            }
+
+            public TestXlsExporter(FileInfo file, string[] fields, ExportXlsLinkSettings[] links)
+            {
+                base.file = file;
+                base.exportFields = fields;
+                base.links = links;
+            }
+
+            public new DataTable getMetaDataTable(DocumentCollection docs)
+            {
+                return base.getMetaDataTable(docs);
             }
 
             public new string[] getRowValues(Document doc, string[] fields)
@@ -93,11 +105,9 @@ namespace LoadFileAdapterTests.Exporters
         {
             FileInfo outfile = new FileInfo(@"X:\noWhere.xlsx");
             string[] exportFields = new string[] { "DOCID", "BEGATT", "VOLUME", "NATIVE" };
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { };            
+            TestXlsExporter tester = new TestXlsExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             
             for (int i = 0; i < dt.Columns.Count; i++)
             {
@@ -210,10 +220,9 @@ namespace LoadFileAdapterTests.Exporters
             string display = "display text";
             int index = 1;
             ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };            
+            TestXlsExporter tester = new TestXlsExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -238,10 +247,9 @@ namespace LoadFileAdapterTests.Exporters
             string display = null;
             int index = 3;            
             ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };            
+            TestXlsExporter tester = new TestXlsExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -268,10 +276,9 @@ namespace LoadFileAdapterTests.Exporters
             docs.First().Metadata["NATIVE"] = @"\NATIVE\0001\DOC000001.XLSX";
             docs.First().Representatives.First().Files["DOC000001"] = @"\NATIVE\0001\DOC000001.XLSX";            
             ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);            
+            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };            
+            TestXlsExporter tester = new TestXlsExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);            
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -297,10 +304,9 @@ namespace LoadFileAdapterTests.Exporters
             string display = null;
             int index = 3;
             ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };            
+            TestXlsExporter tester = new TestXlsExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");

@@ -15,19 +15,6 @@ namespace LoadFileAdapter.Instructions
         public XrefExport() : base(null, null)
         {
             // do nothing here
-        }
-
-        public ExportXrefFileSettings GetFileSettings(DocumentCollection docs)
-        {
-            return ExportXrefFileSettings.Builder.Start(docs, base.File, base.Encoding)
-                .SetBoxTrigger((this.BoxBreakTrigger != null) ? this.BoxBreakTrigger.GetXrefTrigger() : null)
-                .SetGroupStartTrigger((this.GroupStartTrigger != null) ? this.GroupStartTrigger.GetXrefTrigger() : null)
-                .SetCodeStartTrigger((this.CodeStartTrigger != null) ? this.CodeStartTrigger.GetXrefTrigger() : null)
-                .SetSlipsheets((this.SlipsheetSettings != null) ? this.SlipsheetSettings.GetSlipsheetSettings() : null)
-                .SetCustomerData(this.CustomerDataField)
-                .SetNamedFolder(this.NamedFolderField)
-                .SetNamedFile(this.NamedFileField)
-                .Build();            
-        }
+        }                
     }
 }

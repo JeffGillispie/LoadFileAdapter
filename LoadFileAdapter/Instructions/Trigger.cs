@@ -11,12 +11,12 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Defines which trigger type will be used.
         /// </summary>
-        public XrefTrigger.TriggerType Type = XrefTrigger.TriggerType.None;
+        public Switch.SwitchType Type = Switch.SwitchType.None;
 
         /// <summary>
         /// The type of field change event to test for.
         /// </summary>
-        public XrefTrigger.FieldValueChangeOption FieldChangeOption = XrefTrigger.FieldValueChangeOption.None;
+        public Switch.ValueChangeOption FieldChangeOption = Switch.ValueChangeOption.None;
 
         /// <summary>
         /// The pattern to used for match testing.
@@ -49,8 +49,8 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Initializes a new instance of <see cref="Trigger"/>.
         /// </summary>
-        /// <param name="trigger">The <see cref="XrefTrigger"/> used to initialize the object.</param>
-        public Trigger(XrefTrigger trigger)
+        /// <param name="trigger">The <see cref="Switch"/> used to initialize the object.</param>
+        public Trigger(Switch trigger)
         {
             this.Type = trigger.Type;
             this.FieldName = trigger.FieldName;
@@ -61,12 +61,12 @@ namespace LoadFileAdapter.Instructions
         }
 
         /// <summary>
-        /// Gets a <see cref="XrefTrigger"/>.
+        /// Gets a <see cref="Switch"/>.
         /// </summary>
-        /// <returns>Returns a <see cref="XrefTrigger"/>.</returns>
-        public XrefTrigger GetXrefTrigger()
+        /// <returns>Returns a <see cref="Switch"/>.</returns>
+        public Switch GetXrefTrigger()
         {
-            return new XrefTrigger(this.Type, this.RegexPattern, this.FieldName, 
+            return new Switch(this.Type, this.RegexPattern, this.FieldName, 
                 this.SegmentCount, this.SegmentDelimiter, this.FieldChangeOption);
         }
 

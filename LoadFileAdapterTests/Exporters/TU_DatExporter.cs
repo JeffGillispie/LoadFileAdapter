@@ -81,10 +81,12 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);                        
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportDatSettings> exporter = new DatExporter();
             string[] fields = new string[] { "DOCID", "BEGATT", "VOLUME", "NATIVE" };
-            ExportDatWriterSettings exportArgs = new ExportDatWriterSettings(mockWriter.Object, docs, Delimiters.PIPE_CARET, fields);            
-            exporter.Export(exportArgs);
+            var exporter = DatExporter.Builder
+                .Start(mockWriter.Object, fields)
+                .SetDelimiters(Delimiters.PIPE_CARET)
+                .Build();                
+            exporter.Export(docs);
 
             // assert            
             Assert.AreEqual("^DOCID^|^BEGATT^|^VOLUME^|^NATIVE^", output[0]);
@@ -121,10 +123,12 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportDatSettings> exporter = new DatExporter();
             string[] fields = new string[] { "DocID", "Page Count", "Volume Name" };
-            ExportDatWriterSettings exportArgs = new ExportDatWriterSettings(mockWriter.Object, docs, Delimiters.COMMA_DELIMITED, fields);            
-            exporter.Export(exportArgs);
+            var exporter = DatExporter.Builder
+                .Start(mockWriter.Object, fields)
+                .SetDelimiters(Delimiters.COMMA_DELIMITED)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("DocID,Page Count,Volume Name", output[0]);
@@ -160,10 +164,12 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportDatSettings> exporter = new DatExporter();
             string[] fields = new string[] { "DocID", "Page Count" };
-            ExportDatWriterSettings exportArgs = new ExportDatWriterSettings(mockWriter.Object, docs, Delimiters.COMMA_QUOTE, fields);            
-            exporter.Export(exportArgs);
+            var exporter = DatExporter.Builder
+                .Start(mockWriter.Object, fields)
+                .SetDelimiters(Delimiters.COMMA_QUOTE)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("\"DocID\",\"Page Count\"", output[0]);

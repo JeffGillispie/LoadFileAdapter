@@ -82,9 +82,8 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new OptExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = OptExporter.Builder.Start(mockWriter.Object).SetVolumeName(vol).Build();                
+            exporter.Export(docs);
 
             // assert            
             Assert.IsTrue(output.Count == 0);
@@ -120,9 +119,8 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new OptExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = OptExporter.Builder.Start(mockWriter.Object).SetVolumeName(vol).Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("000000001,TEST001,IMG_0001\\000000001.jpg,Y,,,3", output[0]);
@@ -160,9 +158,8 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new OptExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = OptExporter.Builder.Start(mockWriter.Object).SetVolumeName(vol).Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("000000001,TEST001,X:\\VOL001\\IMAGES\\0001\\000000001.jpg,Y,,,1", output[0]);

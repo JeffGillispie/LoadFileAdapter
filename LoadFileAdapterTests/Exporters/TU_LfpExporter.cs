@@ -91,9 +91,10 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder.Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("OF,DOC000001,@TEST001;X:\\VOL001\\NATIVE\\0001;DOC000001.XLSX,1", output[0]);
@@ -129,9 +130,11 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder
+                .Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("IM,000000001,D,0,@TEST001;IMG_0001;000000001.jpg;4,0", output[0]);
@@ -169,9 +172,11 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder
+                .Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("IM,000000001,D,1,@TEST001;IMG_0001;000000001.pdf;7,0", output[0]);
@@ -209,9 +214,11 @@ namespace LoadFileAdapterTests
             List<string[]> records = parser.Parse(mockReader.Object);            
             List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder
+                .Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("IM,000000001,D,0,@TEST001;X:\\VOL001\\IMAGES\\0001;000000001.jpg;4,0", output[0]);

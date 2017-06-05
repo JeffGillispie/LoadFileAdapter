@@ -12,20 +12,21 @@ namespace LoadFileAdapter.Exporters
     /// <summary>
     /// An exporter that export a <see cref="DocumentCollection"/> to an Excel file.
     /// </summary>
-    public class XlsExporter : IExporter<ExportXlsSettings>
+    public class XlsExporter : IExporter
     {
         private const string ROOT_REGEX = "^[A-Za-z]:\\\\";
+        protected FileInfo file;
+        protected ExportXlsLinkSettings[] links;
+        protected string[] exportFields;
 
-        /// <summary>
-        /// Exports an excel file.
-        /// </summary>
-        /// <param name="args">Excel export settings.</param>
-        public void Export(ExportXlsSettings args)
-        {                        
-            FileInfo file = args.GetFile();
-            DocumentCollection docs = args.GetDocuments();
-            ExportXlsLinkSettings[] links = args.GetLinks();
+        protected XlsExporter()
+        {
+            // do nothing
+        }
 
+        
+        public void Export(DocumentCollection docs)
+        {               
             if (!file.Directory.Exists)
                 file.Directory.Create();
 
@@ -34,7 +35,7 @@ namespace LoadFileAdapter.Exporters
 
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
-            DataTable dt = getMetaDataTable(args);
+            DataTable dt = getMetaDataTable(docs);
             worksheet.Cells[1, 1].LoadFromDataTable(dt, true);
             insertLinks(worksheet, docs, dt, links);
             package.Save();
@@ -45,14 +46,11 @@ namespace LoadFileAdapter.Exporters
         /// </summary>
         /// <param name="args">Excel export settings.</param>
         /// <returns>Returns the data table to export.</returns>
-        protected DataTable getMetaDataTable(ExportXlsSettings args)
-        {
-            DocumentCollection docs = args.GetDocuments();
-            string[] fields = args.GetExportFields();
-            ExportXlsLinkSettings[] links = args.GetLinks();
+        protected DataTable getMetaDataTable(DocumentCollection docs)
+        {            
             DataTable dt = new DataTable();
-            fields.ToList().ForEach(f => dt.Columns.Add(f));
-            docs.ToList().ForEach(d => dt.Rows.Add(getRowValues(d, fields)));
+            exportFields.ToList().ForEach(f => dt.Columns.Add(f));
+            docs.ToList().ForEach(d => dt.Rows.Add(getRowValues(d, exportFields)));
             insertLinkColumns(dt, links);
             return dt;
         }
@@ -160,6 +158,38 @@ namespace LoadFileAdapter.Exporters
                     ws.Cells[row + 2, col + 1].Formula = cellValue;
                     ws.Cells[row + 2, col + 1].Style.Font.Color.SetColor(Color.Blue);
                 }
+            }
+        }
+
+        public class Builder
+        {
+            private XlsExporter instance;
+
+            private Builder()
+            {
+                this.instance = new XlsExporter();
+            }
+
+            public static Builder Start(FileInfo file, string[] exportFields)
+            {
+                Builder builder = new Builder();
+                builder.instance.file = file;                
+                builder.instance.exportFields = exportFields;
+                builder.instance.CreateDestination(file);
+                return builder;
+            }
+
+            public Builder SetLinks(ExportXlsLinkSettings[] value)
+            {
+                instance.links = value;
+                return this;
+            }
+                        
+            public XlsExporter Build()
+            {
+                XlsExporter instance = this.instance;
+                this.instance = null;
+                return instance;
             }
         }
     }
