@@ -156,7 +156,8 @@ namespace LoadFileAdapter.Transformers
             }
             else
             {
-                Dictionary<Representative.FileType, Representative> files = new Dictionary<Representative.FileType, Representative>();
+                Dictionary<Representative.FileType, Representative> files;
+                files = new Dictionary<Representative.FileType, Representative>();
 
                 foreach (Representative file in original.Representatives)
                 {

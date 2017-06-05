@@ -55,20 +55,24 @@ namespace LoadFileAdapterTests
             // arrange
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.lfp");
             Encoding encoding = Encoding.GetEncoding(1252);
-            TextRepresentativeSettings.TextLevel textLevel = TextRepresentativeSettings.TextLevel.None;
-            TextRepresentativeSettings.TextLocation textLocation = TextRepresentativeSettings.TextLocation.None;
+            TextBuilder.TextLevel textLevel = TextBuilder.TextLevel.None;
+            TextBuilder.TextLocation textLocation = TextBuilder.TextLocation.None;
             string pattern = String.Empty;
             Regex find = new Regex(pattern);
             string replace = String.Empty;
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(textLevel, textLocation, find, replace);
-            IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> builder = new OptBuilder();
+            TextBuilder repSetting = new TextBuilder(textLevel, textLocation, find, replace);
+            var builder = new OptBuilder();
+            builder.PathPrefix = infile.Directory.FullName;
+            builder.TextBuilder = repSetting;
             var mockParser = new Mock<DatParser>(MockBehavior.Strict);
-            mockParser.Setup(p => p.Parse(It.IsAny<ParseReaderDatSettings>())).Returns(records);
-            mockParser.Setup(p => p.Parse(It.IsAny<ParseFileDatSettings>())).Returns(records);
-            importer = new OptImporter(mockParser.Object, builder);
+            mockParser.Setup(p => p.Parse(It.IsAny<TextReader>())).Returns(records);
+            mockParser.Setup(p => p.Parse(It.IsAny<FileInfo>(), It.IsAny<Encoding>())).Returns(records);
+            importer = new OptImporter();
+            importer.Parser = mockParser.Object;
+            importer.Builder = builder;
 
             // act
-            DocumentCollection docs = importer.Import(infile, encoding, repSetting, true);
+            DocumentCollection docs = importer.Import(infile, encoding);
 
             // assert
             Assert.AreEqual(10, docs.Count);

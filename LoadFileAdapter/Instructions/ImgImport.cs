@@ -37,7 +37,7 @@ namespace LoadFileAdapter.Instructions
         /// <param name="txtSetting">The text representative settings for the import.</param>
         /// <param name="buildAbsolutePath">Setting for building representative absolute paths.</param>
         public ImgImport(FileInfo file, Encoding encoding, 
-            TextRepresentativeSettings txtSetting, bool buildAbsolutePath) : 
+            TextBuilder txtSetting, bool buildAbsolutePath) : 
             base(file, encoding)
         {
             this.TextSetting = new TextFileSettingsBuilder(txtSetting);

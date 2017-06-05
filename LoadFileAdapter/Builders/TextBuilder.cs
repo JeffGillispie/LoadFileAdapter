@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -6,9 +7,9 @@ using System.Text.RegularExpressions;
 namespace LoadFileAdapter.Builders
 {
     /// <summary>
-    /// Represents the settings used to create text representatives from an image load file.
+    /// Builds text representatives from an image load file.
     /// </summary>
-    public class TextRepresentativeSettings
+    public class TextBuilder
     {
         private const string FILE_DELIM = "\\";
         private const string TEXT_EXT = ".txt";                
@@ -18,13 +19,13 @@ namespace LoadFileAdapter.Builders
         private string pathReplace = String.Empty;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="TextRepresentativeSettings"/>.
+        /// Initializes a new instance of <see cref="TextBuilder"/>.
         /// </summary>
         /// <param name="textLevel">The level of the text file representatives.</param>
         /// <param name="textLocation">The location of the text file representatives.</param>
         /// <param name="textPathFind">The regex used to find a part of the image path to replace.</param>
         /// <param name="textPathReplace">The replace value that results in the correct text path.</param>
-        public TextRepresentativeSettings(TextLevel textLevel, TextLocation textLocation, Regex textPathFind, string textPathReplace)
+        public TextBuilder(TextLevel textLevel, TextLocation textLocation, Regex textPathFind, string textPathReplace)
         {
             this.fileLevel = textLevel;
             this.fileLocation = textLocation;
@@ -34,7 +35,7 @@ namespace LoadFileAdapter.Builders
 
         /// <summary>
         /// The level or scope of the text files (i.e. page level,
-        /// document level, or nonoe).
+        /// document level, or none).
         /// </summary>
         public enum TextLevel
         {
@@ -114,21 +115,49 @@ namespace LoadFileAdapter.Builders
             string textFolder = String.Join(FILE_DELIM, path);
             string textFile = Path.GetFileNameWithoutExtension(imagePath) + TEXT_EXT;
 
-            switch(this.fileLocation)
+            if (this.fileLocation == TextLocation.AlternateLocation)
             {
-                case TextLocation.SameAsImages:
-                    // nothing to replace
-                    // do nothing here
-                    break;
-                case TextLocation.AlternateLocation:
-                    textFolder = this.pathFind.Replace(textFolder, this.pathReplace);
-                    break;
-                default:
-                    // do nothing here
-                    break;
+                textFolder = this.pathFind.Replace(textFolder, this.pathReplace);
+            }
+                        
+            return Path.Combine(textFolder, textFile);
+        }
+
+        /// <summary>
+        /// Builds a text <see cref="Representative"/> from an image load file.
+        /// </summary>
+        /// <param name="pages">The parsed lines from a load file which span all pages for a <see cref="Document"/>.</param>
+        /// <param name="assembler">A function that assembles the parsed line from a page into a image key and image path.</param>
+        /// <returns>Returns a text <see cref="Representative"/>.</returns>
+        public Representative Build(IEnumerable<string[]> pages, Func<string[], KeyValuePair<string, string>> assembler)
+        {
+            SortedDictionary<string, string> files = new SortedDictionary<string, string>();
+            List<string[]> records = new List<string[]>();
+
+            if (FileLevel == TextLevel.Page)
+            {
+                foreach (string[] page in pages)
+                {
+                    records.Add(page);                    
+                }
+            }
+            else if (FileLevel == TextLevel.Doc)
+            {
+                records.Add(pages.First());
             }
 
-            return Path.Combine(textFolder, textFile);
+            foreach (string[] record in records)
+            {
+                var result = assembler.Invoke(record);
+                string key = result.Key;
+                string path = GetTextPathFromImagePath(result.Value);
+                files.Add(key, path);
+            }
+
+            Representative text = (files.Count > 0 ) 
+                ? new Representative(Representative.FileType.Text, files) 
+                : null;
+            return text;
         }
     }
 }

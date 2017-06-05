@@ -159,10 +159,16 @@ namespace LoadFileAdapter.Instructions
         /// <returns>Returns a <see cref="DateFormatTransformation"/>.</returns>
         public override Transformation GetTransformation()
         {
-            return new DateFormatTransformation(FieldName, 
-                FindText, ReplaceText, FilterField, FilterText, 
-                OutputFormat, InputFormat, OutputTimeZone, InputTimeZone, 
-                RangeStart, RangeEnd, OnFailure);
+            return DateFormatTransformation.Builder.Start()
+                .SetFieldName(FieldName)
+                .SetOutputFormat(OutputFormat)
+                .SetInputFormat(InputFormat)
+                .SetOutputTimeZone(OutputTimeZone)
+                .SetInputTimeZone(InputTimeZone)
+                .SetRangeStart(RangeStart)
+                .SetRangeEnd(RangeEnd)
+                .SetOnFailure(OnFailure)
+                .Build();            
         }
     }
 }

@@ -15,7 +15,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -50,15 +50,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatesNumber.cs" />
-    <Compile Include="Builders\BuildDocSettings.cs" />
-    <Compile Include="Builders\BuildDocCollectionSettings.cs" />
     <Compile Include="Builders\IBuilder.cs" />
-    <Compile Include="Builders\BuildDocImageSettings.cs" />
-    <Compile Include="Builders\BuildDocCollectionImageSettings.cs" />
-    <Compile Include="Builders\BuildDocLfpSettings.cs" />
-    <Compile Include="Builders\DatRepresentativeSettings.cs" />
-    <Compile Include="Builders\BuildDocDatSettings.cs" />
-    <Compile Include="Builders\BuildDocCollectionDatSettings.cs" />
+    <Compile Include="Builders\RepresentativeBuilder.cs" />
     <Compile Include="DocumentCollection.cs" />
     <Compile Include="Exporters\ExportFileSettingsExtension.cs" />
     <Compile Include="Exporters\ExportXlsLinkSettings.cs" />
@@ -85,6 +78,7 @@
     <Compile Include="Exporters\XrefExporter.cs" />
     <Compile Include="Exporters\XrefSlipSheetSettings.cs" />
     <Compile Include="Exporters\XrefTrigger.cs" />
+    <Compile Include="Importers\IImporter.cs" />
     <Compile Include="Importers\LfpImporter.cs" />
     <Compile Include="Importers\OptImporter.cs" />
     <Compile Include="Importers\DatImporter.cs" />
@@ -114,17 +108,11 @@
     <Compile Include="Builders\LfpBuilder.cs" />
     <Compile Include="Builders\OptBuilder.cs" />
     <Compile Include="Parsers\LfpParser.cs" />
-    <Compile Include="Parsers\ParseLineSettings.cs" />
-    <Compile Include="Parsers\ParseReaderSettings.cs" />
-    <Compile Include="Parsers\ParseLineDatSettings.cs" />
-    <Compile Include="Parsers\ParseFileDatSettings.cs" />
     <Compile Include="Parsers\IParser.cs" />
-    <Compile Include="Parsers\ParseFileSettings.cs" />
     <Compile Include="Parsers\DatParser.cs" />
-    <Compile Include="Parsers\ParseReaderDatSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Representative.cs" />
-    <Compile Include="Builders\TextRepresentativeSettings.cs" />
+    <Compile Include="Builders\TextBuilder.cs" />
     <Compile Include="Builders\DatBuilder.cs" />
     <Compile Include="Transformers\DateFormatTransformation.cs" />
     <Compile Include="Transformers\Overlayer.cs" />

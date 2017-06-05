@@ -114,28 +114,32 @@ namespace LoadFileAdapterTests.Exporters
             mockReader
                 .Setup(r => r.ReadLine())
                 .Returns(() => datLines[calls])
-                .Callback(() => calls++);
-            Delimiters delimiters = Delimiters.CONCORDANCE;
-            ParseReaderDatSettings readArgs = new ParseReaderDatSettings(mockReader.Object, delimiters);
+                .Callback(() => calls++);            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.dat");
             bool hasHeader = true;
             string keyColName = "DOCID";
             string parentColName = "BEGATT";
             string childColName = String.Empty;
             string childColDelim = ";";
-            DatRepresentativeSettings repSetting = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);
-            List<DatRepresentativeSettings> reps = new List<DatRepresentativeSettings>();
+            RepresentativeBuilder repSetting = new RepresentativeBuilder("NATIVE", Representative.FileType.Native);
+            List<RepresentativeBuilder> reps = new List<RepresentativeBuilder>();
             reps.Add(repSetting);
-            IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
-            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionDatSettings buildArgs = new BuildDocCollectionDatSettings(
-                records, infile.Directory.FullName, hasHeader, keyColName, parentColName, childColName, childColDelim, reps);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            var builder = new DatBuilder();
+            IParser parser = new DatParser(Delimiters.CONCORDANCE);
+            List<string[]> records = parser.Parse(mockReader.Object);
+            builder.HasHeader = hasHeader;
+            builder.KeyColumnName = keyColName;
+            builder.ParentColumnName = parentColName;
+            builder.ChildColumnName = childColName;
+            builder.ChildSeparator = childColDelim;
+            builder.RepresentativeBuilders = reps;
+            builder.ParentColumnName = infile.Directory.FullName;            
+            List<Document> documents = builder.Build(records);
             var docs = new DocumentCollection(documents);
-            IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> optBuilder = new OptBuilder();
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(optLines, String.Empty, null);            
-            List<Document> optDocs = optBuilder.BuildDocuments(args);
+            var optBuilder = new OptBuilder();
+            optBuilder.PathPrefix = String.Empty;
+            optBuilder.TextBuilder = null;            
+            List<Document> optDocs = optBuilder.Build(optLines);
             docs.AddRange(optDocs);
             docs[1].SetParent(docs[0]);
             return docs;

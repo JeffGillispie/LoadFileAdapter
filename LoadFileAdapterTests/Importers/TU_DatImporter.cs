@@ -16,7 +16,7 @@ namespace LoadFileAdapterTests
     {
         private DatImporter importer;
         private List<string[]> records;
-
+                
         public TU_DatImporter()
         {
             records = new List<string[]>() {
@@ -35,7 +35,7 @@ namespace LoadFileAdapterTests
         }
 
         [TestMethod]
-        public void Importers_TabularImporter_Test()
+        public void Importers_DatImporter_Test()
         {
             // arrange
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.lfp");
@@ -46,27 +46,26 @@ namespace LoadFileAdapterTests
             string parentColName = "BEGATT";
             string childColName = String.Empty;
             string childColDelim = ";";
-            DatRepresentativeSettings repSetting = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);            
-            List<DatRepresentativeSettings> reps = new List<DatRepresentativeSettings>();
+            RepresentativeBuilder repSetting = new RepresentativeBuilder("NATIVE", Representative.FileType.Native);            
+            List<RepresentativeBuilder> reps = new List<RepresentativeBuilder>();
             reps.Add(repSetting);
-            IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
+            var builder = new DatBuilder();
+            builder.HasHeader = hasHeader;
+            builder.KeyColumnName = keyColName;
+            builder.ParentColumnName = parentColName;
+            builder.ChildColumnName = childColName;
+            builder.ChildSeparator = childColDelim;
+            builder.RepresentativeBuilders = reps;
+            builder.PathPrefix = infile.Directory.FullName;
             var mockParser = new Mock<DatParser>(MockBehavior.Strict);
-            mockParser.Setup(p => p.Parse(It.IsAny<ParseReaderDatSettings>())).Returns(records);
-            mockParser.Setup(p => p.Parse(It.IsAny<ParseFileDatSettings>())).Returns(records);            
-            importer = new DatImporter(mockParser.Object, builder);
+            mockParser.Setup(p => p.Parse(It.IsAny<TextReader>())).Returns(records);
+            mockParser.Setup(p => p.Parse(It.IsAny<FileInfo>(), It.IsAny<Encoding>())).Returns(records);
+            importer = new DatImporter(mockParser.Object);
+            importer.Builder = builder;
 
             // act
-            DocumentCollection docs = importer.Import(
-                infile, 
-                encoding, 
-                delimiters, 
-                hasHeader, 
-                keyColName, 
-                parentColName, 
-                childColName, 
-                childColDelim,
-                reps
-                );
+            DocumentCollection docs = importer.Import(infile, encoding);
+                
 
             // assert
             Assert.AreEqual(10, docs.Count);

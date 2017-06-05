@@ -25,43 +25,36 @@ namespace LoadFileAdapter.Instructions
             if (instructions.GetType().Equals(typeof(DatImport)))
             {
                 DatImport import = (DatImport)instructions;
-                DatImporter importer = new DatImporter();
-                return importer.Import(
-                    import.File, 
-                    import.Encoding, 
-                    import.Delimiters.GetDelimiters(), 
-                    import.HasHeader,
-                    import.KeyColumnName, 
-                    import.ParentColumnName, 
-                    import.ChildColumnName, 
-                    import.ChildColumnDelimiter,
-                    (import.LinkedFiles != null) 
-                        ? import.LinkedFiles.Select(f => f.GetSetting()).ToList()
-                        : null);
+                DatImporter importer = new DatImporter(import.Delimiters.GetDelimiters());
+                importer.Builder.HasHeader = import.HasHeader;
+                importer.Builder.KeyColumnName = import.KeyColumnName;
+                importer.Builder.ParentColumnName = import.ParentColumnName;
+                importer.Builder.ChildColumnName = import.ChildColumnName;
+                importer.Builder.ChildSeparator = import.ChildColumnDelimiter;
+                importer.Builder.RepresentativeBuilders = (import.LinkedFiles != null)
+                    ? import.LinkedFiles.Select(f => f.GetSetting()).ToList()
+                    : null;                
+                return importer.Import(import.File, import.Encoding);
             }
             else if (instructions.File.Extension.ToUpper().Equals(LFP_EXT))
             {
                 ImgImport import = (ImgImport)instructions;
                 LfpImporter importer = new LfpImporter();
-                return importer.Import(
-                    import.File, 
-                    import.Encoding, 
-                    (import.TextSetting != null)
-                        ? import.TextSetting.GetSettings()
-                        : null,
-                    import.BuildAbsolutePath);
+                importer.Builder.PathPrefix = (import.BuildAbsolutePath) 
+                    ? import.File.Directory.FullName : null;
+                importer.Builder.TextBuilder = (import.TextSetting != null)
+                    ? import.TextSetting.GetSettings() : null;
+                return importer.Import(import.File, import.Encoding);
             }
             else if (instructions.File.Extension.ToUpper().Equals(OPT_EXT))
             {
                 ImgImport import = (ImgImport)instructions;
                 OptImporter importer = new OptImporter();
-                return importer.Import(
-                    import.File, 
-                    import.Encoding,
-                    (import.TextSetting != null)
-                        ? import.TextSetting.GetSettings()
-                        : null,
-                    import.BuildAbsolutePath);
+                importer.Builder.PathPrefix = (import.BuildAbsolutePath)
+                    ? import.File.Directory.FullName : null;
+                importer.Builder.TextBuilder = (import.TextSetting != null)
+                    ? import.TextSetting.GetSettings() : null;
+                return importer.Import(import.File, import.Encoding);
             }
             else
             {

@@ -57,26 +57,29 @@ namespace LoadFileAdapterTests
             List<string> output = new List<string>();
             mockWriter
                 .Setup(r => r.WriteLine(It.IsAny<string>()))
-                .Callback((string s) => output.Add(s));
-            Delimiters delimiters = Delimiters.CONCORDANCE;
-            ParseReaderDatSettings readArgs = new ParseReaderDatSettings(mockReader.Object, delimiters);
+                .Callback((string s) => output.Add(s));            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.dat");
             bool hasHeader = true;
             string keyColName = "DOCID";
             string parentColName = "BEGATT";
             string childColName = String.Empty;
             string childColDelim = ";";            
-            DatRepresentativeSettings repSetting = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);
-            List<DatRepresentativeSettings> reps = new List<DatRepresentativeSettings>();
+            RepresentativeBuilder repSetting = new RepresentativeBuilder("NATIVE", Representative.FileType.Native);
+            List<RepresentativeBuilder> reps = new List<RepresentativeBuilder>();
             reps.Add(repSetting);
-            IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
-            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
+            var builder = new DatBuilder();
+            IParser parser = new DatParser(Delimiters.CONCORDANCE);
+            builder.ChildColumnName = childColName;
+            builder.ChildSeparator = childColDelim;
+            builder.RepresentativeBuilders = reps;
+            builder.PathPrefix = infile.Directory.FullName;
+            builder.HasHeader = hasHeader;
+            builder.ParentColumnName = parentColName;
+            builder.KeyColumnName = keyColName;
 
             // act
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionDatSettings buildArgs = new BuildDocCollectionDatSettings(
-                records, infile.Directory.FullName, hasHeader, keyColName, parentColName, childColName, childColDelim, reps);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            List<string[]> records = parser.Parse(mockReader.Object);                        
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
             IExporter<IExportDatSettings> exporter = new DatExporter();
             string[] fields = new string[] { "DOCID", "BEGATT", "VOLUME", "NATIVE" };
@@ -103,20 +106,20 @@ namespace LoadFileAdapterTests
             List<string> output = new List<string>();
             mockWriter
                 .Setup(r => r.WriteLine(It.IsAny<string>()))
-                .Callback((string s) => output.Add(s));
-            ParseReaderSettings readArgs = new ParseReaderSettings(mockReader.Object);
+                .Callback((string s) => output.Add(s));            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.lfp");
-            TextRepresentativeSettings rep = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.None,
-                TextRepresentativeSettings.TextLocation.None,
+            TextBuilder rep = new TextBuilder(
+                TextBuilder.TextLevel.None,
+                TextBuilder.TextLocation.None,
                 null, null);
-            IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder = new LfpBuilder();
-            IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings> parser = new LfpParser();
+            var builder = new LfpBuilder();
+            IParser parser = new LfpParser();
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = rep;
 
             // act
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionImageSettings buildArgs = new BuildDocCollectionImageSettings(records, String.Empty, rep);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            List<string[]> records = parser.Parse(mockReader.Object);            
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
             IExporter<IExportDatSettings> exporter = new DatExporter();
             string[] fields = new string[] { "DocID", "Page Count", "Volume Name" };
@@ -142,20 +145,20 @@ namespace LoadFileAdapterTests
             List<string> output = new List<string>();
             mockWriter
                 .Setup(r => r.WriteLine(It.IsAny<string>()))
-                .Callback((string s) => output.Add(s));
-            ParseReaderDatSettings readArgs = new ParseReaderDatSettings(mockReader.Object, Delimiters.COMMA_DELIMITED);
+                .Callback((string s) => output.Add(s));            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.opt");
-            TextRepresentativeSettings rep = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.None,
-                TextRepresentativeSettings.TextLocation.None,
+            TextBuilder rep = new TextBuilder(
+                TextBuilder.TextLevel.None,
+                TextBuilder.TextLocation.None,
                 null, null);
-            IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> builder = new OptBuilder();
-            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
+            var builder = new OptBuilder();
+            IParser parser = new DatParser(Delimiters.COMMA_DELIMITED);
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = rep;
 
             // act
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionImageSettings buildArgs = new BuildDocCollectionImageSettings(records, String.Empty, rep);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            List<string[]> records = parser.Parse(mockReader.Object);            
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
             IExporter<IExportDatSettings> exporter = new DatExporter();
             string[] fields = new string[] { "DocID", "Page Count" };

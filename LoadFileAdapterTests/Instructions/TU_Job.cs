@@ -23,8 +23,8 @@ namespace LoadFileAdapterTests
             FileInfo infile = new FileInfo("x:\\test\\testfile.dat");
             Encoding encoding = Encoding.GetEncoding(1252);
             Delimiters delims = Delimiters.COMMA_DELIMITED;
-            List<DatRepresentativeSettings> linkedFiles = new List<DatRepresentativeSettings>();
-            linkedFiles.Add(new DatRepresentativeSettings("NativeLink", Representative.FileType.Native));
+            List<RepresentativeBuilder> linkedFiles = new List<RepresentativeBuilder>();
+            linkedFiles.Add(new RepresentativeBuilder("NativeLink", Representative.FileType.Native));
             Import import = new DatImport(
                 infile, encoding, delims, true, "DOCID", "BEGATT", "ATTIDS", ";", linkedFiles.ToArray());            
             Job job = new Job(new Import[] { import }, null, null);
@@ -76,9 +76,9 @@ namespace LoadFileAdapterTests
             // arrange
             FileInfo infile = new FileInfo("x:\\test\\testfile.lfp");
             Encoding encoding = Encoding.GetEncoding(1252);            
-            TextRepresentativeSettings textSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.AlternateLocation,
+            TextBuilder textSetting = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.AlternateLocation,
                 new Regex("IMAGES"),
                 "TEXT"
                 );            
@@ -115,12 +115,19 @@ namespace LoadFileAdapterTests
         {
             // arrange
             List<Transformation> edits = new List<Transformation>();
-            edits.Add(new MetaDataTransformation("field name", 
-                new Regex("find text"), "replace text", "alt destination",
-                "prepend field", "append field", "join", 
-                "filter field", new Regex("filter pattern"), new DirectoryInfo("X:\\path")));
-            edits.Add(new RepresentativeTransformation(
-                Representative.FileType.Image, null, new Regex("find"), "replace", "filter", new Regex("pattern")));
+            edits.Add(MetaDataTransformation.Builder
+                .Start("field name", new Regex("find text"), "replace text", "filter field", new Regex("filter pattern"))
+                .SetAltDestinationField("alt destination")
+                .SetPrependField("preprend field")
+                .SetAppendField("append field")
+                .SetJoinDelimiter("join delim")
+                .SetPrependDir(new DirectoryInfo("X:\\path"))
+                .Build());
+            edits.Add(RepresentativeTransformation.Builder
+                .Start(Representative.FileType.Image, new Regex("find"), "replace")
+                .SetFilterField("filter field")
+                .SetFilterText(new Regex("filter text"))
+                .Build());                
             Job job = new Job(null, null, edits.ToArray());
 
             // act
@@ -230,14 +237,14 @@ namespace LoadFileAdapterTests
                 Encoding.Unicode,
                 Delimiters.COMMA_QUOTE,
                 true, "DOCID", "PARENT", null, ";", 
-                new DatRepresentativeSettings[] {
-                    new DatRepresentativeSettings("NATIVE", Representative.FileType.Native) }));
+                new RepresentativeBuilder[] {
+                    new RepresentativeBuilder("NATIVE", Representative.FileType.Native) }));
             imports.Add(new ImgImport(
                 new FileInfo("x:\\test\\test.lfp"),
                 Encoding.GetEncoding(1252),
-                new TextRepresentativeSettings(
-                    TextRepresentativeSettings.TextLevel.Page, 
-                    TextRepresentativeSettings.TextLocation.AlternateLocation, 
+                new TextBuilder(
+                    TextBuilder.TextLevel.Page, 
+                    TextBuilder.TextLocation.AlternateLocation, 
                     new Regex(@"\\IMAGES", RegexOptions.IgnoreCase), 
                     "\\TEXT"), 
                 true
@@ -298,13 +305,19 @@ namespace LoadFileAdapterTests
             xref.SlipsheetSettings = ss;
             exports.Add(xref);
             List<Transformation> edits = new List<Transformation>();
-            edits.Add(new MetaDataTransformation(
-                "field name", new Regex("find text"), "replace text", "alt", 
-                "prepend", "append", ";", "filter field name", 
-                new Regex("filter pattern"), new DirectoryInfo("X:\\path")));
-            edits.Add(new RepresentativeTransformation(
-                Representative.FileType.Text, null, new Regex("find", RegexOptions.IgnoreCase), "replace", 
-                "filter field", new Regex("filter text")));
+            edits.Add(MetaDataTransformation.Builder
+                .Start("field name", new Regex("find text"), "replace text", "filter field", new Regex("filter pattern"))
+                .SetAltDestinationField("alt destination")
+                .SetPrependField("preprend field")
+                .SetAppendField("append field")
+                .SetJoinDelimiter("join delim")
+                .SetPrependDir(new DirectoryInfo("X:\\path"))
+                .Build());                
+            edits.Add(RepresentativeTransformation.Builder
+                .Start(Representative.FileType.Text, new Regex("find"), "replace")
+                .SetFilterField("filter field")
+                .SetFilterText(new Regex("filter text"))
+                .Build());            
             var dateEdit = new DateFormatEdit();
             dateEdit.FieldName = "DateCreated";
             dateEdit.InputFormat = "dd/MM/yyyy";

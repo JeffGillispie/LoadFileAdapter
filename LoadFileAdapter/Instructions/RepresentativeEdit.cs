@@ -49,13 +49,12 @@ namespace LoadFileAdapter.Instructions
         /// <returns>A <see cref="RepresentativeTransformation"/>.</returns>
         public override Transformation GetTransformation()
         {
-            return new RepresentativeTransformation(
-                this.TargetType, 
-                this.NewType, 
-                this.FindText, 
-                this.ReplaceText, 
-                this.FilterField, 
-                this.FilterText);
+            return RepresentativeTransformation.Builder
+                .Start(TargetType, FindText, ReplaceText)
+                .SetNewType(NewType)
+                .SetFilterField(FilterField)
+                .SetFilterText(FilterText)
+                .Build();            
         }
     }
 }

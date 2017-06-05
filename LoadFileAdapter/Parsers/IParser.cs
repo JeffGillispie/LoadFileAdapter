@@ -1,40 +1,34 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
     /// <summary>
-    /// The interface for a parser to parse data from a text delimited file.
+    /// Parses data from a delimited text file.
     /// </summary>
-    /// <typeparam name="T">Settings to parse from a file.</typeparam>
-    /// <typeparam name="S">Settings to parse from a text reader."/></typeparam>
-    /// <typeparam name="R">Settings to parse a single line.</typeparam>
-    public interface IParser<T, S, R> 
-        where T: ParseFileSettings
-        where S: ParseReaderSettings
-        where R: ParseLineSettings
+    public interface IParser        
     {
         /// <summary>
-        /// Parses a list of records from text delimited data.
+        /// Parses a file.
         /// </summary>
-        /// <param name="args">The <see cref="ParseFileSettings"/> used to 
-        /// parse text delimited data from a file.</param>
-        /// <returns>Returns a list of parsed lines.</returns>
-        List<string[]> Parse(T args);
+        /// <param name="file">The file to parse.</param>
+        /// <param name="encoding">The encoding of the file.</param>
+        /// <returns>Returns a list of parsed fields.</returns>
+        List<string[]> Parse(FileInfo file, Encoding encoding);
 
         /// <summary>
-        /// Parses a list of records from text delimited data.
+        /// Parses data from a <see cref="TextReader"/>.
         /// </summary>
-        /// <param name="args">The <see cref="ParseReaderSettings"/> used to 
-        /// parse data.</param>
-        /// <returns>Returns a list of parsed lines.</returns>
-        List<string[]> Parse(S args);
+        /// <param name="reader">The reader used to read the text to parse.</param>
+        /// <returns>Returns a list of parsed fields.</returns>
+        List<string[]> Parse(TextReader reader);
 
         /// <summary>
-        /// Parses a line into an array of fields.
+        /// Parses a line.
         /// </summary>
-        /// <param name="args">The <see cref="ParseLineSettings"/> used to 
-        /// parse data.</param>
-        /// <returns>Returns an array of parsed fields.</returns>
-        string[] ParseLine(R args);
+        /// <param name="line">The line to parse.</param>
+        /// <returns>Returns the parsed fields.</returns>
+        string[] ParseLine(string line);
     }
 }

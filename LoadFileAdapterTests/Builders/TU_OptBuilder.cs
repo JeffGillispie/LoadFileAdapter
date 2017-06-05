@@ -13,7 +13,7 @@ namespace LoadFileAdapterTests
     public class TU_OptBuilder
     {
         private static List<string[]> OptRecords;
-        private IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> builder = new OptBuilder();
+        private OptBuilder builder = new OptBuilder();
 
         public TU_OptBuilder()
         {
@@ -49,16 +49,10 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_OptBuilder_NoText()
         {
-            // Arrange               
-            string pathPrefix = String.Empty;
-            TextRepresentativeSettings repSetting = null;            
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(OptRecords, pathPrefix, repSetting);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = null;                         
+            List<Document> documents = builder.Build(OptRecords);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(0, docs.TextCount);
@@ -71,20 +65,13 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_OptBuilder_WithPageText()
         {
-            // Arrange               
-            string pathPrefix = String.Empty;
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.SameAsImages,
-                null, 
-                null);
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(OptRecords, pathPrefix, repSetting);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.SameAsImages,
+                null, null);
+            List<Document> documents = builder.Build(OptRecords);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(25, docs.TextCount);
@@ -100,20 +87,13 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_OptBuilder_WithDocText()
         {
-            // Arrange               
-            string pathPrefix = String.Empty;
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Doc,
-                TextRepresentativeSettings.TextLocation.SameAsImages,
-                null,
-                null);
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(OptRecords, pathPrefix, repSetting);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Doc,
+                TextBuilder.TextLocation.SameAsImages,
+                null, null);            
+            List<Document> documents = builder.Build(OptRecords);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(10, docs.TextCount);
@@ -129,20 +109,14 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_OptBuilder_WithRegexSameLoc()
         {
-            // Arrange               
-            string pathPrefix = "test preprend";
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.SameAsImages,
+            builder.PathPrefix = "test preprend";
+            builder.TextBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.SameAsImages,
                 new Regex("\\\\IMAGES"),
-                "\\TEXT");
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(OptRecords, pathPrefix, repSetting);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
+                "\\TEXT");            
+            List<Document> documents = builder.Build(OptRecords);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(25, docs.TextCount);
@@ -158,20 +132,14 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_OptBuilder_WithRegexAltLoc()
         {
-            // Arrange               
-            string pathPrefix = "test preprend";
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.AlternateLocation,
+            builder.PathPrefix = "test preprend";
+            builder.TextBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.AlternateLocation,
                 new Regex("\\\\IMAGES"),
-                "\\TEXT");
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(OptRecords, pathPrefix, repSetting);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
+                "\\TEXT");            
+            List<Document> documents = builder.Build(OptRecords);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(25, docs.TextCount);

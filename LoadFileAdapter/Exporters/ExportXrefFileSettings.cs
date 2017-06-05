@@ -18,37 +18,12 @@ namespace LoadFileAdapter.Exporters
         private string namedFolder;
         private string namedFile;
         private XrefSlipSheetSettings slipsheets;
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="ExportXrefFileSettings"/>.
-        /// </summary>
-        /// <param name="documents">The documents to export.</param>
-        /// <param name="file">The destination file.</param>
-        /// <param name="encoding">The encoding to use to write the file.</param>
-        /// <param name="boxBreakTrigger">The box break trigger.</param>
-        /// <param name="groupStartTrigger">The group start trigger.</param>
-        /// <param name="codeStartTrigger">The code start trigger.</param>
-        /// <param name="customerData">The customer data field.</param>
-        /// <param name="namedFolder">The named folder field.</param>
-        /// <param name="namedFile">The named file field.</param>
-        /// <param name="slipsheets">The slipsheet settings to use in the export.</param>
-        public ExportXrefFileSettings(DocumentCollection documents, FileInfo file, Encoding encoding,
-            XrefTrigger boxBreakTrigger, XrefTrigger groupStartTrigger, XrefTrigger codeStartTrigger,
-            string customerData, string namedFolder, string namedFile,
-            XrefSlipSheetSettings slipsheets)
+        
+        private ExportXrefFileSettings()
         {
-            this.documents = documents;
-            this.file = file;
-            this.encoding = encoding;
-            this.boxBreakTrigger = boxBreakTrigger;
-            this.groupStartTrigger = groupStartTrigger;
-            this.codeStartTrigger = codeStartTrigger;
-            this.customerData = customerData;
-            this.namedFolder = namedFolder;
-            this.namedFile = namedFile;
-            this.slipsheets = slipsheets;
+            // do nothing here
         }
-
+                
         /// <summary>
         /// Gets the documents to export from the export settings.
         /// </summary>
@@ -137,6 +112,73 @@ namespace LoadFileAdapter.Exporters
         public XrefSlipSheetSettings GetSlipsheets()
         {
             return slipsheets;
+        }
+
+        public class Builder
+        {
+            private ExportXrefFileSettings instance;
+            
+            private Builder(DocumentCollection documents, FileInfo file, Encoding encoding)
+            {
+                instance = new ExportXrefFileSettings();
+                instance.documents = documents;
+                instance.file = file;
+                instance.encoding = encoding;
+            }
+
+            public static Builder Start(DocumentCollection documents, FileInfo file, Encoding encoding)
+            {
+                return new Builder(documents, file, encoding);
+            }
+
+            public Builder SetBoxTrigger(XrefTrigger trigger)
+            {
+                instance.boxBreakTrigger = trigger;
+                return this;
+            }
+
+            public Builder SetGroupStartTrigger(XrefTrigger trigger)
+            {
+                instance.groupStartTrigger = trigger;
+                return this;
+            }
+
+            public Builder SetCodeStartTrigger(XrefTrigger trigger)
+            {
+                instance.codeStartTrigger = trigger;
+                return this;
+            }
+
+            public Builder SetCustomerData(string value)
+            {
+                instance.customerData = value;
+                return this;
+            }
+
+            public Builder SetNamedFolder(string value)
+            {
+                instance.namedFolder = value;
+                return this;
+            }
+
+            public Builder SetNamedFile(string value)
+            {
+                instance.namedFile = value;
+                return this;
+            }
+
+            public Builder SetSlipsheets(XrefSlipSheetSettings settings)
+            {
+                instance.slipsheets = settings;
+                return this;
+            }
+
+            public ExportXrefFileSettings Build()
+            {
+                ExportXrefFileSettings instance = this.instance;
+                this.instance = null;
+                return instance;
+            }
         }
     }
 }

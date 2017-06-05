@@ -72,7 +72,7 @@ namespace LoadFileAdapter.Instructions
         /// <param name="linkedFiles">Representatives in the DAT file.</param>
         public DatImport(FileInfo file, Encoding encoding, Delimiters delimiters, bool hasHeader, 
             string keyColName, string parentColName, string childColName, string childColDelim,
-            DatRepresentativeSettings[] linkedFiles) :
+            RepresentativeBuilder[] linkedFiles) :
             base(file, encoding)
         {
             this.Delimiters = new DelimitersBuilder(delimiters);

@@ -62,12 +62,12 @@ namespace LoadFileAdapter.Instructions
         /// <returns>Returns a set of <see cref="Delimiters"/>.</returns>
         public Delimiters GetDelimiters()
         {
-            return Delimiters.of(
-                this.FieldSeparator, 
-                this.TextQualifier, 
-                this.NewRecord, 
-                this.EscapeCharacter, 
-                this.FlattenedNewLine);
+            return Delimiters.Builder.Start()
+                .SetFieldSeparator(FieldSeparator)
+                .SetTextQualifier(TextQualifier)
+                .SetEscapeCharacter(EscapeCharacter)
+                .SetFlattenedNewLine(FlattenedNewLine)
+                .Build();            
         }
     }
 }

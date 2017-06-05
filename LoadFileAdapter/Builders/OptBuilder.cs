@@ -8,7 +8,7 @@ namespace LoadFileAdapter.Builders
     /// <summary>
     /// A builder that builds documents from an OPT file.
     /// </summary>
-    public class OptBuilder : IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings>
+    public class OptBuilder : IBuilder
     {
         internal const string IMAGE_KEY_FIELD = "DocID";
         internal const string VOLUME_NAME_FIELD = "Volume Name";
@@ -24,77 +24,111 @@ namespace LoadFileAdapter.Builders
         private const int PAGE_COUNT_INDEX = 6;
         private const string TRUE_VALUE = "Y";        
         private const char FILE_PATH_DELIM = '\\';
-        
+        private string pathPrefix;
+        private TextBuilder textBuilder;
+
         /// <summary>
-        /// Builds a list of documents from an OPT file.
+        /// Gets or sets the builder that makes a <see cref="Representative"/> for 
+        /// a text file.
         /// </summary>
-        /// <param name="args">The document collection build settings.</param>
-        /// <returns>Returns a list of <see cref="Document"/>.</returns>
-        public List<Document> BuildDocuments(BuildDocCollectionImageSettings args)
-        {   
-            // setup for building         
+        public TextBuilder TextBuilder
+        {
+            get
+            {
+                return this.textBuilder;
+            }
+
+            set
+            {
+                this.textBuilder = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the path prefix to prepend to any <see cref="Representative"/>
+        /// file paths.
+        /// </summary>
+        public string PathPrefix
+        {
+            get
+            {
+                return this.pathPrefix;
+            }
+
+            set
+            {
+                this.pathPrefix = value;
+            }
+        }
+
+        /// <summary>
+        /// Builds documents from an OPT file.
+        /// </summary>
+        /// <param name="records">The parsed lines of an OPT file.</param>
+        /// <returns></returns>
+        public List<Document> Build(IEnumerable<string[]> records)
+        {
+            // setup for building            
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
-            List<string[]> pageRecords = new List<string[]>();
+            List<string[]> pages = new List<string[]>();
             // build the documents
-            foreach (string[] record in args.Records)
+            foreach (string[] record in records)
             {
                 // check for a doc break
                 if (record[DOC_BREAK_INDEX].ToUpper().Equals(TRUE_VALUE))
                 {
                     // send data to make a document
-                    if (pageRecords.Count > 0)
-                    {                        
-                        BuildDocImageSettings docArgs = new BuildDocImageSettings(pageRecords, args.TextSettings, args.PathPrefix);
-                        Document doc = BuildDocument(docArgs);
+                    if (pages.Count > 0)
+                    {
+                        Document doc = BuildDocument(pages);
                         string key = doc.Metadata[IMAGE_KEY_FIELD];
                         docs.Add(key, doc);
                     }
                     // clear docPages and add new first page
-                    pageRecords = new List<string[]>();
-                    pageRecords.Add(record);
+                    pages = new List<string[]>();
+                    pages.Add(record);
                 }
                 else
                 {
                     // add page to document pages
-                    pageRecords.Add(record);
+                    pages.Add(record);
                 }
             }
-            // add last doc to the collection            
-            BuildDocImageSettings lastArgs = new BuildDocImageSettings(pageRecords, args.TextSettings, args.PathPrefix);
-            Document lastDoc = BuildDocument(lastArgs);
+            // add last doc to the collection
+            Document lastDoc = BuildDocument(pages);
             string lastKey = lastDoc.Metadata[IMAGE_KEY_FIELD];
             docs.Add(lastKey, lastDoc);
             return docs.Values.ToList();
         }
 
         /// <summary>
-        /// Builds a document from an OPT file.
+        /// Builds a <see cref="Document"/> from an OPT file.
         /// </summary>
-        /// <param name="args">The document build settings for an OPT file.</param>
+        /// <param name="pages">The parsed lines for a document.</param>
         /// <returns>Returns a <see cref="Document"/>.</returns>
-        public Document BuildDocument(BuildDocImageSettings args)
-        {            
+        public Document BuildDocument(IEnumerable<string[]> pages)
+        {
             // get document properties
-            string[] pageOne = args.PageRecords.First();
+            string[] pageOne = pages.First();
             string key = pageOne[IMAGE_KEY_INDEX];
             string vol = pageOne[VOLUME_NAME_INDEX];
             string box = pageOne[BOX_BREAK_INDEX];
             string dir = pageOne[FOLDER_BREAK_INDEX];
-            int pages = args.PageRecords.Count;
+            int pagesCount = pages.Count();
             // set document properties
             Dictionary<string, string> metadata = new Dictionary<string, string>();
             metadata.Add(IMAGE_KEY_FIELD, key);
             metadata.Add(VOLUME_NAME_FIELD, vol);
-            metadata.Add(PAGE_COUNT_FIELD, pages.ToString());
+            metadata.Add(PAGE_COUNT_FIELD, pagesCount.ToString());
             //metadata.Add(BOX_BREAK_FIELD, box); // extraneous meta
             //metadata.Add(FOLDER_BREAK_FIELD, dir); // extraneous meta
             // build the representatives
-            Representative imageRep = getImageRepresentative(args.PageRecords, args.PathPrefix);          
-            Representative textRep = getTextRepresentative(args.PageRecords, args.PathPrefix, args.TextSettings);
+            Representative imageRep = getImageRepresentative(pages);          
+            Representative textRep = getTextRepresentative(pages);
             HashSet<Representative> reps = new HashSet<Representative>();
-            reps.Add(imageRep);
-            if (textRep.Files.Count > 0)
-                reps.Add(textRep);
+            reps.Add(imageRep);            
+            reps.Add(textRep);
+            reps.Remove(null);
             // no family relationships in an opt
             Document parent = null;
             HashSet<Document> children = null;
@@ -104,66 +138,43 @@ namespace LoadFileAdapter.Builders
         /// <summary>
         /// Obtains the image representative for a document.
         /// </summary>
-        /// <param name="pageRecords">The page records from an OPT file for a document.</param>
-        /// <param name="pathPrefix">The value to prepend to the representative path.</param>
+        /// <param name="pages">The page records from an OPT file for a document.</param>
         /// <returns>Returns an image file <see cref="Representative"/>.</returns>
-        protected Representative getImageRepresentative(List<string[]> pageRecords, string pathPrefix)
+        protected Representative getImageRepresentative(IEnumerable<string[]> pages)
         {
             SortedDictionary<string, string> imageFiles = new SortedDictionary<string, string>();
             // add image files
-            pageRecords.ForEach(page => {
+            foreach (string[] page in pages)
+            {             
                 string imageKey = page[IMAGE_KEY_INDEX];
                 string imagePath = (String.IsNullOrEmpty(pathPrefix))
                     ? page[FULL_PATH_INDEX]
                     : Path.Combine(pathPrefix, page[FULL_PATH_INDEX].TrimStart(FILE_PATH_DELIM));                
                 imageFiles.Add(imageKey, imagePath);
-            });
+            }
+
             return new Representative(Representative.FileType.Image, imageFiles);
         }
 
         /// <summary>
         /// Obtains the text representative for a document.
         /// </summary>
-        /// <param name="pageRecords">The page records from an OPT file for a document.</param>
-        /// <param name="pathPrefix">The value to prepend to the representative path.</param>
-        /// <param name="textSetting">The representative settings.</param>
+        /// <param name="pages">The page records from an OPT file for a document.</param>        
         /// <returns>Returns a text file <see cref="Representative"/> of a document.</returns>
-        protected Representative getTextRepresentative(List<string[]> pageRecords, string pathPrefix, TextRepresentativeSettings textSetting)
+        protected Representative getTextRepresentative(IEnumerable<string[]> pages)
         {
-            SortedDictionary<string, string> textFiles = new SortedDictionary<string, string>();
-            TextRepresentativeSettings.TextLevel textLevel = (textSetting != null)
-                ? textSetting.FileLevel
-                : TextRepresentativeSettings.TextLevel.None;
-            // add text files
-            switch (textLevel)
+            Func<string[], KeyValuePair<string, string>> assembler = (page) =>
             {
-                case TextRepresentativeSettings.TextLevel.None:
-                    // do nothing here
-                    break;
-                case TextRepresentativeSettings.TextLevel.Page:
-                    pageRecords.ForEach(page => {
-                        string pageTextKey = page[IMAGE_KEY_INDEX];
-                        string pageTextPath = textSetting.GetTextPathFromImagePath(page[FULL_PATH_INDEX]);
-                        pageTextPath = String.IsNullOrEmpty(pathPrefix)
-                            ? pageTextPath
-                            : Path.Combine(pathPrefix, pageTextPath.TrimStart(FILE_PATH_DELIM));                        
-                        textFiles.Add(pageTextKey, pageTextPath);
-                    });
-                    break;
-                case TextRepresentativeSettings.TextLevel.Doc:
-                    string docTextKey = pageRecords.First()[IMAGE_KEY_INDEX];
-                    string docTextPath = textSetting.GetTextPathFromImagePath(pageRecords.First()[FULL_PATH_INDEX]);
-                    docTextPath = String.IsNullOrEmpty(pathPrefix)
-                            ? docTextPath
-                            : Path.Combine(pathPrefix, docTextPath.TrimStart(FILE_PATH_DELIM));                    
-                    textFiles.Add(docTextKey, docTextPath);
-                    break;
-                default:
-                    // do nothing here
-                    break;
-            }
-            // return a text rep
-            return new Representative(Representative.FileType.Text, textFiles);
+                string key = page[IMAGE_KEY_INDEX];
+                string path = (String.IsNullOrEmpty(pathPrefix))
+                    ? page[FULL_PATH_INDEX]
+                    : Path.Combine(pathPrefix, page[FULL_PATH_INDEX].TrimStart(FILE_PATH_DELIM));
+                return new KeyValuePair<string, string>(key, path);
+            };
+                        
+            return (textBuilder != null)
+                ? textBuilder.Build(pages, assembler)
+                : null;
         }
     }
 }

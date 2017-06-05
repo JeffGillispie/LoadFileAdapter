@@ -10,7 +10,7 @@ namespace LoadFileAdapterTests
     [TestClass]
     public class TU_DatParser
     {
-        private IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
+        private IParser parser;
         private List<string> concordanceInput;
         private List<string> csvInput;
 
@@ -28,12 +28,11 @@ namespace LoadFileAdapterTests
             mockReader
                 .Setup(r => r.ReadLine())
                 .Returns(() => concordanceInput[calls])
-                .Callback(() => calls++);
-            Delimiters delimiters = Delimiters.CONCORDANCE;
-            ParseReaderDatSettings args = new ParseReaderDatSettings(mockReader.Object, delimiters);
+                .Callback(() => calls++);            
+            this.parser = new DatParser(Delimiters.CONCORDANCE);            
 
             // act
-            List<string[]> docs = parser.Parse(args);
+            List<string[]> docs = parser.Parse(mockReader.Object);
 
             // assert
             Assert.IsTrue(docs[0].SequenceEqual(new string[] { "DOCID", "BEGATT", "VOLUME" }));
@@ -51,11 +50,10 @@ namespace LoadFileAdapterTests
                 .Setup(r => r.ReadLine())
                 .Returns(() => csvInput[calls])
                 .Callback(() => calls++);
-            Delimiters delimiters = Delimiters.COMMA_DELIMITED;
-            ParseReaderDatSettings args = new ParseReaderDatSettings(mockReader.Object, delimiters);
-
+            this.parser = new DatParser(Delimiters.COMMA_DELIMITED);
+            
             // act
-            List<string[]> docs = parser.Parse(args);
+            List<string[]> docs = parser.Parse(mockReader.Object);
 
             // assert
             Assert.IsTrue(docs[0].SequenceEqual(new string[] { "DOCID", "BEGATT", "VOLUME" }));
