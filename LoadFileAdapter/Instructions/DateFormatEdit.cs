@@ -157,7 +157,7 @@ namespace LoadFileAdapter.Instructions
         /// Gets the <see cref="DateFormatTransformation"/> value of the edit.
         /// </summary>
         /// <returns>Returns a <see cref="DateFormatTransformation"/>.</returns>
-        public override Transformation GetTransformation()
+        public override Transformation ToTransformation()
         {
             return DateFormatTransformation.Builder.Start()
                 .SetFieldName(FieldName)

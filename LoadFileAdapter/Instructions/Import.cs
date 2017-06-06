@@ -69,6 +69,8 @@ namespace LoadFileAdapter.Instructions
             {
                 this.Encoding = Encoding.GetEncoding(value);
             }
-        }     
+        }
+
+        public abstract Importers.IImporter BuildImporter();        
     }
 }

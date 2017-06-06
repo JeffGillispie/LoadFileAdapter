@@ -105,7 +105,7 @@ namespace LoadFileAdapter.Instructions
         /// Get the <see cref="MetaDataTransformation"/> value of the edit.
         /// </summary>
         /// <returns>Returns a <see cref="MetaDataTransformation"/>.</returns>
-        public override Transformation GetTransformation()
+        public override Transformation ToTransformation()
         {
             return MetaDataTransformation.Builder
                 .Start(FieldName, FindText, ReplaceText, FilterField, FilterText)

@@ -82,7 +82,7 @@ namespace LoadFileAdapterTests
                 new Regex("IMAGES"),
                 "TEXT"
                 );            
-            Import import = new ImgImport(infile, encoding, textSetting, true);
+            Import import = new LfpImport(infile, encoding, textSetting, true);
             Job job = new Job(new Import[] { import }, null, null);
 
             // act
@@ -93,20 +93,20 @@ namespace LoadFileAdapterTests
             Assert.AreEqual(job.Imports[0].Encoding, testJob.Imports[0].Encoding);
             Assert.AreEqual(job.Imports[0].File.FullName, testJob.Imports[0].File.FullName);
             Assert.AreEqual(
-                ((ImgImport)job.Imports[0]).TextSetting.FileLevel,
-                ((ImgImport)testJob.Imports[0]).TextSetting.FileLevel
+                ((ImgImport)job.Imports[0]).TextBuilder.FileLevel,
+                ((ImgImport)testJob.Imports[0]).TextBuilder.FileLevel
                 );
             Assert.AreEqual(
-                ((ImgImport)job.Imports[0]).TextSetting.FileLocation,
-                ((ImgImport)testJob.Imports[0]).TextSetting.FileLocation
+                ((ImgImport)job.Imports[0]).TextBuilder.FileLocation,
+                ((ImgImport)testJob.Imports[0]).TextBuilder.FileLocation
                 );
             Assert.AreEqual(
-                ((ImgImport)job.Imports[0]).TextSetting.PathFind.ToString(),
-                ((ImgImport)testJob.Imports[0]).TextSetting.PathFind.ToString()
+                ((ImgImport)job.Imports[0]).TextBuilder.PathFind.ToString(),
+                ((ImgImport)testJob.Imports[0]).TextBuilder.PathFind.ToString()
                 );
             Assert.AreEqual(
-                ((ImgImport)job.Imports[0]).TextSetting.PathReplace,
-                ((ImgImport)testJob.Imports[0]).TextSetting.PathReplace
+                ((ImgImport)job.Imports[0]).TextBuilder.PathReplace,
+                ((ImgImport)testJob.Imports[0]).TextBuilder.PathReplace
                 );            
         }
 
@@ -137,12 +137,12 @@ namespace LoadFileAdapterTests
             // assert
             for (int i = 0; i < job.Edits.Length; i++)
             {
-                Transformation editA = job.Edits[i].GetTransformation();
+                Transformation editA = job.Edits[i].ToTransformation();
                 
                 if (editA.GetType().Equals(typeof(MetaDataTransformation)))
                 {
                     MetaDataTransformation a = (MetaDataTransformation)editA;
-                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].GetTransformation();
+                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].ToTransformation();
                     Assert.AreEqual(a.AlternateDestinationField, b.AlternateDestinationField);
                     Assert.AreEqual(a.AppendField, b.AppendField);
                     Assert.AreEqual(a.FieldName, b.FieldName);
@@ -157,7 +157,7 @@ namespace LoadFileAdapterTests
                 else
                 {
                     RepresentativeTransformation a = (RepresentativeTransformation)editA;
-                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].GetTransformation();
+                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].ToTransformation();
                     Assert.AreEqual(a.FilterField, b.FilterField);
                     Assert.AreEqual(a.FilterText.ToString(), b.FilterText.ToString());
                     Assert.AreEqual(a.FindText.ToString(), b.FindText.ToString());
@@ -212,7 +212,7 @@ namespace LoadFileAdapterTests
             // arrange
             FileInfo file = new FileInfo("x:\\test\\testfile.opt");
             Encoding encoding = Encoding.GetEncoding(1252);
-            Export instructions = new ImgExport(file, encoding, "TEST001");            
+            Export instructions = new OptExport(file, encoding, "TEST001");            
             Job job = new Job(null, new Export[] { instructions }, null);
 
             // act
@@ -239,7 +239,7 @@ namespace LoadFileAdapterTests
                 true, "DOCID", "PARENT", null, ";", 
                 new RepresentativeBuilder[] {
                     new RepresentativeBuilder("NATIVE", Representative.FileType.Native) }));
-            imports.Add(new ImgImport(
+            imports.Add(new LfpImport(
                 new FileInfo("x:\\test\\test.lfp"),
                 Encoding.GetEncoding(1252),
                 new TextBuilder(
@@ -255,7 +255,7 @@ namespace LoadFileAdapterTests
                 Encoding.Unicode, 
                 Delimiters.CONCORDANCE, 
                 new string[] { "one", "two", "buckle", "my", "shoe" }));
-            exports.Add(new ImgExport(
+            exports.Add(new OptExport(
                 new FileInfo("x:\\test\\test.opt"), 
                 Encoding.Unicode, 
                 "TEST001"));
@@ -282,7 +282,7 @@ namespace LoadFileAdapterTests
             gsTrigger.FieldChangeOption = Switch.ValueChangeOption.UseStartingSegments;
             gsTrigger.SegmentCount = 2;
             gsTrigger.SegmentDelimiter = "\\";            
-            xref.BoxBreakTrigger = boxTrigger;
+            xref.BoxTrigger = boxTrigger;
             xref.CodeStartTrigger = csTrigger;
             xref.GroupStartTrigger = gsTrigger;
             var ss = new SlipsheetsInfo();
@@ -302,7 +302,7 @@ namespace LoadFileAdapterTests
             ssFields.Add(new SlipsheetField("DOCID", "BegNo"));
             ssFields.Add(new SlipsheetField("DOCTYPE", "FileType"));
             ss.Fields = ssFields.ToArray();
-            xref.SlipsheetSettings = ss;
+            xref.Slipsheets = ss;
             exports.Add(xref);
             List<Transformation> edits = new List<Transformation>();
             edits.Add(MetaDataTransformation.Builder
@@ -329,7 +329,7 @@ namespace LoadFileAdapterTests
             dateEdit.OnFailure = DateFormatTransformation.FailAction.ReplaceWithNull;
             dateEdit.RangeStart = new DateTime(1999, 5, 3);
             dateEdit.RangeEnd = DateTime.Today;
-            edits.Add(dateEdit.GetTransformation());
+            edits.Add(dateEdit.ToTransformation());
             Job job = new Job(imports.ToArray(), exports.ToArray(), edits.ToArray());
 
             // act
@@ -374,32 +374,32 @@ namespace LoadFileAdapterTests
                 else
                 {
                     Assert.AreEqual(
-                        ((ImgImport)job.Imports[n]).TextSetting.FileLevel,
-                        ((ImgImport)testJob.Imports[n]).TextSetting.FileLevel
+                        ((ImgImport)job.Imports[n]).TextBuilder.FileLevel,
+                        ((ImgImport)testJob.Imports[n]).TextBuilder.FileLevel
                         );
                     Assert.AreEqual(
-                        ((ImgImport)job.Imports[n]).TextSetting.FileLocation,
-                        ((ImgImport)testJob.Imports[n]).TextSetting.FileLocation
+                        ((ImgImport)job.Imports[n]).TextBuilder.FileLocation,
+                        ((ImgImport)testJob.Imports[n]).TextBuilder.FileLocation
                         );
                     Assert.AreEqual(
-                        ((ImgImport)job.Imports[n]).TextSetting.PathFind.ToString(),
-                        ((ImgImport)testJob.Imports[n]).TextSetting.PathFind.ToString()
+                        ((ImgImport)job.Imports[n]).TextBuilder.PathFind.ToString(),
+                        ((ImgImport)testJob.Imports[n]).TextBuilder.PathFind.ToString()
                         );
                     Assert.AreEqual(
-                        ((ImgImport)job.Imports[n]).TextSetting.PathReplace,
-                        ((ImgImport)testJob.Imports[n]).TextSetting.PathReplace
+                        ((ImgImport)job.Imports[n]).TextBuilder.PathReplace,
+                        ((ImgImport)testJob.Imports[n]).TextBuilder.PathReplace
                         );
                 }
             }
             // check edits
             for (int i = 0; i < job.Edits.Length; i++)
             {
-                Transformation editA = job.Edits[i].GetTransformation();
+                Transformation editA = job.Edits[i].ToTransformation();
 
                 if (editA.GetType().Equals(typeof(MetaDataTransformation)))
                 {
                     MetaDataTransformation a = (MetaDataTransformation)editA;
-                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].GetTransformation();
+                    MetaDataTransformation b = (MetaDataTransformation)testJob.Edits[i].ToTransformation();
                     Assert.AreEqual(a.AlternateDestinationField, b.AlternateDestinationField);
                     Assert.AreEqual(a.AppendField, b.AppendField);
                     Assert.AreEqual(a.FieldName, b.FieldName);
@@ -420,7 +420,7 @@ namespace LoadFileAdapterTests
                 else if (editA.GetType().Equals(typeof(RepresentativeTransformation)))
                 {
                     RepresentativeTransformation a = (RepresentativeTransformation)editA;
-                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].GetTransformation();
+                    RepresentativeTransformation b = (RepresentativeTransformation)testJob.Edits[i].ToTransformation();
                     Assert.AreEqual(a.FilterField, b.FilterField);
                     Assert.AreEqual(a.FilterText.ToString(), b.FilterText.ToString());
                     Assert.AreEqual(a.FindText.ToString(), b.FindText.ToString());
@@ -432,7 +432,7 @@ namespace LoadFileAdapterTests
                 else if (editA.GetType().Equals(typeof(DateFormatTransformation)))
                 {
                     DateFormatTransformation a = (DateFormatTransformation)editA;
-                    DateFormatTransformation b = (DateFormatTransformation)testJob.Edits[i].GetTransformation();
+                    DateFormatTransformation b = (DateFormatTransformation)testJob.Edits[i].ToTransformation();
                     Assert.AreEqual(a.FieldName, b.FieldName);
                     Assert.AreEqual(a.FilterField, b.FilterField);
                     Assert.AreEqual(a.FilterText, b.FilterText);
@@ -508,8 +508,8 @@ namespace LoadFileAdapterTests
                     Assert.AreEqual(expected.NamedFileField, actual.NamedFileField);
                     Assert.IsTrue(expected.CodeStartTrigger.Equals(actual.CodeStartTrigger));
                     Assert.IsTrue(expected.GroupStartTrigger.Equals(actual.GroupStartTrigger));
-                    Assert.IsTrue(expected.BoxBreakTrigger.Equals(actual.BoxBreakTrigger));
-                    Assert.IsTrue(expected.SlipsheetSettings.Equals(actual.SlipsheetSettings));
+                    Assert.IsTrue(expected.BoxTrigger.Equals(actual.BoxTrigger));
+                    Assert.IsTrue(expected.Slipsheets.Equals(actual.Slipsheets));
                 }
                 else
                 {

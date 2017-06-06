@@ -6,7 +6,7 @@ namespace LoadFileAdapter.Importers
     /// <summary>
     /// Imports load file data into a <see cref="DocumentCollection"/>.
     /// </summary>
-    interface IImporter
+    public interface IImporter
     {
         /// <summary>
         /// Imports data into a <see cref="DocumentCollection"/> from a file.

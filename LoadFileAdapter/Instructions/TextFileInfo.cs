@@ -10,7 +10,7 @@ namespace LoadFileAdapter.Instructions
     /// from a <see cref="ImgImport"/>. This wraps the <see cref="TextBuilder"/> class.
     /// It is used to serialize instructions and deserialize instructions from XML.
     /// </summary>
-    public class TextFileSettingsBuilder
+    public class TextFileInfo
     {
         /// <summary>
         /// Defines the level or scope of the text <see cref="Representative"/>.
@@ -40,18 +40,18 @@ namespace LoadFileAdapter.Instructions
         public string PathReplace = String.Empty;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="TextFileSettingsBuilder"/>.
+        /// Initializes a new instance of <see cref="TextFileInfo"/>.
         /// </summary>
-        public TextFileSettingsBuilder()
+        public TextFileInfo()
         {
             // do nothing here
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="TextFileSettingsBuilder"/>.
+        /// Initializes a new instance of <see cref="TextFileInfo"/>.
         /// </summary>
         /// <param name="textSettings">The <see cref="TextBuilder"/> used to build this object.</param>
-        public TextFileSettingsBuilder(TextBuilder textSettings)
+        public TextFileInfo(TextBuilder textSettings)
         {
             this.FileLevel = textSettings.FileLevel;
             this.FileLocation = textSettings.FileLocation;
@@ -129,7 +129,7 @@ namespace LoadFileAdapter.Instructions
         /// Gets the underlying <see cref="TextBuilder"/> value.
         /// </summary>
         /// <returns>Returns a <see cref="TextBuilder"/>.</returns>
-        public TextBuilder GetSettings()
+        public TextBuilder GetBuilder()
         {
             return new TextBuilder(this.FileLevel, this.FileLocation, this.PathFind, this.PathReplace);
         }

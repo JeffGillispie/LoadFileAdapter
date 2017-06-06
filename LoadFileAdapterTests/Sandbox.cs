@@ -31,9 +31,7 @@ namespace LoadFileAdapterTests
             Job job = Job.Deserialize(xml);
             job.Imports.First().File = new System.IO.FileInfo(@"X:\dev\TestData\SAMPLE.DAT");
             job.Exports.First().File = new System.IO.FileInfo(@"X:\dev\TestData\OUTPUT.DAT");
-            Executor e = new Executor();
-            e.Execute(job);
-
+            job.Execute();            
             xml = System.IO.File.ReadAllText(@"X:\dev\TestData\XREF_TEST.xml");
             job = Job.Deserialize(xml);
 

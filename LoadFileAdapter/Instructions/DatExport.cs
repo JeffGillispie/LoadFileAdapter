@@ -14,7 +14,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The delimiters to use in the DAT export.
         /// </summary>
-        public DelimitersBuilder Delimiters = new DelimitersBuilder(LoadFileAdapter.Parsers.Delimiters.CONCORDANCE);
+        public Separators Delimiters = new Separators(Parsers.Delimiters.CONCORDANCE);
 
         /// <summary>
         /// The fields to export.
@@ -41,8 +41,16 @@ namespace LoadFileAdapter.Instructions
         public DatExport(FileInfo file, Encoding encoding, Delimiters delimiters, string[] exportFields) : 
             base(file, encoding)
         {
-            this.Delimiters = new DelimitersBuilder(delimiters);
+            this.Delimiters = new Separators(delimiters);
             this.ExportFields = exportFields; 
+        }
+        
+        public override Exporters.IExporter BuildExporter()
+        {
+            return Exporters.DatExporter.Builder
+                .Start(File, Encoding, ExportFields)
+                .SetDelimiters(Delimiters.ToDelimiters())                
+                .Build();
         }                
     }
 }

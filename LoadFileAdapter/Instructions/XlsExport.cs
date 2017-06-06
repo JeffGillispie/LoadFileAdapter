@@ -61,5 +61,13 @@ namespace LoadFileAdapter.Instructions
             this.ExportFields = exportFields;
             this.Hyperlinks = links.Select(l => new Hyperlink(l)).ToArray();
         }
+
+        public override IExporter BuildExporter()
+        {
+            return XlsExporter.Builder
+                .Start(File, ExportFields)
+                .SetLinks(Hyperlinks.Select(l => l.GetLinkSettings()).ToArray())
+                .Build();
+        }
     }
 }

@@ -80,10 +80,10 @@ namespace LoadFileAdapter.Instructions
         /// Gets an XREF slipsheet settings object.
         /// </summary>
         /// <returns>Returns a <see cref="XrefSlipSheetSettings"/>.</returns>
-        public SlipSheets GetSlipsheets()
+        public SlipSheets ToSlipSheets()
         {
             return SlipSheets.Builder
-                .Start(Trigger.GetSwitch())
+                .Start(Trigger.ToSwitch())
                 .SetUseFieldLabels(UseFieldLabels)
                 .SetBindSlipsheets(BindSlipsheets)
                 .SetHorizontalTextPlacement(HorizontalPlacement)

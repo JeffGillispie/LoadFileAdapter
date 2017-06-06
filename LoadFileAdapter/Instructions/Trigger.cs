@@ -64,7 +64,7 @@ namespace LoadFileAdapter.Instructions
         /// Gets a <see cref="Switch"/>.
         /// </summary>
         /// <returns>Returns a <see cref="Switch"/>.</returns>
-        public Switch GetSwitch()
+        public Switch ToSwitch()
         {
             return Switch.Builder
                 .Start(Type)

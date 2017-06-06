@@ -13,7 +13,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The text representative settings for the image import.
         /// </summary>
-        public TextFileSettingsBuilder TextSetting;
+        public TextFileInfo TextBuilder;
 
         /// <summary>
         /// Indicates if the load file path should be used to build
@@ -24,9 +24,9 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Initializes a new instance of <see cref="ImgImport"/>.
         /// </summary>
-        public ImgImport() : base(null, null)
+        protected ImgImport() : base(null, null)
         {
-
+            // do nothing here
         }
 
         /// <summary>
@@ -36,12 +36,14 @@ namespace LoadFileAdapter.Instructions
         /// <param name="encoding">The encoding used to read the import.</param>
         /// <param name="txtSetting">The text representative settings for the import.</param>
         /// <param name="buildAbsolutePath">Setting for building representative absolute paths.</param>
-        public ImgImport(FileInfo file, Encoding encoding, 
+        protected ImgImport(FileInfo file, Encoding encoding, 
             TextBuilder txtSetting, bool buildAbsolutePath) : 
             base(file, encoding)
         {
-            this.TextSetting = new TextFileSettingsBuilder(txtSetting);
+            this.TextBuilder = new TextFileInfo(txtSetting);
             this.BuildAbsolutePath = buildAbsolutePath;
-        }                
+        }
+
+        public override Importers.IImporter BuildImporter() { return null; }
     }
 }

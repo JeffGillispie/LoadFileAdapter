@@ -16,9 +16,11 @@ namespace LoadFileAdapter.Instructions
     /// </summary>
     [Serializable, XmlRoot("Job")]
     [XmlInclude(typeof(DatImport))]
-    [XmlInclude(typeof(ImgImport))]
+    [XmlInclude(typeof(LfpImport))]
+    [XmlInclude(typeof(OptImport))]
     [XmlInclude(typeof(DatExport))]
-    [XmlInclude(typeof(ImgExport))]
+    [XmlInclude(typeof(LfpExport))]
+    [XmlInclude(typeof(OptExport))]
     [XmlInclude(typeof(XlsExport))]
     [XmlInclude(typeof(XrefExport))]
     [XmlInclude(typeof(MetaDataEdit))]
@@ -99,8 +101,8 @@ namespace LoadFileAdapter.Instructions
         /// <returns>An array of <see cref="Transformation"/>.</returns>
         public Transformation[] GetTransformations()
         {
-            return (this.Edits != null ) 
-                ? this.Edits.Select(e => e.GetTransformation()).ToArray()
+            return (this.Edits != null) 
+                ? this.Edits.Select(e => e.ToTransformation()).ToArray()
                 : null;
         }
         
@@ -141,6 +143,30 @@ namespace LoadFileAdapter.Instructions
             }
 
             return job;
+        }
+
+        /// <summary>
+        /// Executes the imports, edits, and exports in the job.        
+        /// </summary>
+        public void Execute()
+        {
+            DocumentCollection docs = new DocumentCollection();
+            Transformer transformer = new Transformer();
+
+            foreach (Import import in Imports)
+            {
+                DocumentCollection importedDocs = import.BuildImporter()
+                    .Import(import.File, import.Encoding);
+                docs.AddRange(importedDocs);
+            }
+
+            Transformation[] transformations = GetTransformations();
+            transformer.Transform(docs, transformations);
+
+            foreach (Export export in Exports)
+            {
+                export.BuildExporter().Export(docs);
+            }
         }
     }
 }

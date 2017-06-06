@@ -6,7 +6,7 @@ namespace LoadFileAdapter.Instructions
     /// Contains instructions on what delimiters to use to read an import or to use in
     /// writing an export. It is also used to serialize/deserialize data to/from XML.
     /// </summary>
-    public class DelimitersBuilder
+    public class Separators
     {
         /// <summary>
         /// This character is used to separate fields.
@@ -36,18 +36,18 @@ namespace LoadFileAdapter.Instructions
         public char FlattenedNewLine = Delimiters.Null;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="DelimitersBuilder"/>.
+        /// Initializes a new instance of <see cref="Separators"/>.
         /// </summary>
-        public DelimitersBuilder()
+        public Separators()
         {
             // do nothing here
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="DelimitersBuilder"/>.
+        /// Initializes a new instance of <see cref="Separators"/>.
         /// </summary>
         /// <param name="delims">The <see cref="Delimiters"/> used to initialize the object.</param>
-        public DelimitersBuilder(Delimiters delims)
+        public Separators(Delimiters delims)
         {
             this.FieldSeparator = delims.FieldSeparator;
             this.TextQualifier = delims.TextQualifier;
@@ -57,10 +57,10 @@ namespace LoadFileAdapter.Instructions
         }
 
         /// <summary>
-        /// Gets <see cref="Delimiters"/> from a <see cref="DelimitersBuilder"/>.
+        /// Gets <see cref="Delimiters"/> from a <see cref="Separators"/>.
         /// </summary>
         /// <returns>Returns a set of <see cref="Delimiters"/>.</returns>
-        public Delimiters GetDelimiters()
+        public Delimiters ToDelimiters()
         {
             return Delimiters.Builder.Start()
                 .SetFieldSeparator(FieldSeparator)

@@ -4,6 +4,7 @@ using System.Text;
 using System.Xml.Serialization;
 using LoadFileAdapter.Builders;
 using LoadFileAdapter.Parsers;
+using LoadFileAdapter.Importers;
 
 namespace LoadFileAdapter.Instructions
 {
@@ -16,7 +17,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The delimiters used to parse the import.
         /// </summary>
-        public DelimitersBuilder Delimiters = new DelimitersBuilder(LoadFileAdapter.Parsers.Delimiters.CONCORDANCE);
+        public Separators Delimiters = new Separators(LoadFileAdapter.Parsers.Delimiters.CONCORDANCE);
 
         /// <summary>
         /// Indicates if the import has a header.
@@ -47,8 +48,8 @@ namespace LoadFileAdapter.Instructions
         /// Representative files in the DAT file.
         /// </summary>
         [XmlArray("LinkedFiles")]
-        [XmlArrayItem(typeof(RepresentativeSettings), ElementName = "LinkedFile")]
-        public RepresentativeSettings[] LinkedFiles = null;
+        [XmlArrayItem(typeof(RepresentativeInfo), ElementName = "LinkedFile")]
+        public RepresentativeInfo[] LinkedFiles = null;
 
         /// <summary>
         /// Initializes a new instance of <see cref="DatImport"/>.
@@ -75,13 +76,27 @@ namespace LoadFileAdapter.Instructions
             RepresentativeBuilder[] linkedFiles) :
             base(file, encoding)
         {
-            this.Delimiters = new DelimitersBuilder(delimiters);
+            this.Delimiters = new Separators(delimiters);
             this.HasHeader = hasHeader;
             this.KeyColumnName = keyColName;
             this.ParentColumnName = parentColName;
             this.ChildColumnName = childColName;
             this.ChildColumnDelimiter = childColDelim;
-            this.LinkedFiles = (linkedFiles != null) ? linkedFiles.Select(f => new RepresentativeSettings(f)).ToArray() : null;
+            this.LinkedFiles = (linkedFiles != null) ? linkedFiles.Select(f => new RepresentativeInfo(f)).ToArray() : null;
+        }
+        
+        public override IImporter BuildImporter()
+        {
+            DatImporter importer = new DatImporter(Delimiters.ToDelimiters());
+            importer.Builder.HasHeader = HasHeader;
+            importer.Builder.KeyColumnName = KeyColumnName;
+            importer.Builder.ParentColumnName = ParentColumnName;
+            importer.Builder.ChildColumnName = ChildColumnName;
+            importer.Builder.ChildSeparator = ChildColumnDelimiter;
+            importer.Builder.RepresentativeBuilders = (LinkedFiles != null)
+                ? LinkedFiles.Select(f => f.GetBuilder()).ToList()
+                : null;
+            return importer;
         }               
     }
 }
