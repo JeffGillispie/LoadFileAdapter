@@ -27,7 +27,6 @@ namespace LoadFileAdapter.Importers
         /// Initializes a new instance of <see cref="DatImporter"/>.
         /// </summary>
         /// <param name="parser">The parser used to import the DAT file.</param>
-        /// <param name="builder">The builder used to build the document collection.</param>
         public DatImporter(DatParser parser)
         {
             this.parser = parser;

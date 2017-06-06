@@ -83,7 +83,7 @@ namespace LoadFileAdapter.Instructions
         public SlipSheets GetSlipsheets()
         {
             return SlipSheets.Builder
-                .Start(Trigger.GetXrefTrigger())
+                .Start(Trigger.GetSwitch())
                 .SetUseFieldLabels(UseFieldLabels)
                 .SetBindSlipsheets(BindSlipsheets)
                 .SetHorizontalTextPlacement(HorizontalPlacement)

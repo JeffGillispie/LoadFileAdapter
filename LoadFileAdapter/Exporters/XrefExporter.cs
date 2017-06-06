@@ -17,6 +17,12 @@ namespace LoadFileAdapter.Exporters
         /// </summary>
         public const string HEADER = "CDPath, Prefix, Number, Suffix, GS, GE, Staple, Loose, CS, CE, "
             + "LabelBypass, CustomerData, NamedFolder, NamedFiles";
+        protected Switch boxTrigger;
+        protected SlipSheets slipsheets;
+        protected bool waitingForGroupEnd = false;
+        protected bool waitingForCodeEnd = false;
+        protected int boxNumber = 0;
+        protected DocumentCollection docs;
         private const int GROUP_START_INDEX = 4;
         private const int STAPLE_INDEX = 6;
         private const int CODE_START_INDEX = 8;
@@ -32,13 +38,7 @@ namespace LoadFileAdapter.Exporters
         private string namedFileField;
         private Switch groupStartTrigger;
         private Switch codeStartTrigger;
-        protected Switch boxTrigger;
-        protected SlipSheets slipsheets;
-        protected bool waitingForGroupEnd = false;
-        protected bool waitingForCodeEnd = false;
-        protected int boxNumber = 0;        
-        protected DocumentCollection docs;
-
+        
         protected XrefExporter()
         {
             // do nothing here
@@ -52,7 +52,10 @@ namespace LoadFileAdapter.Exporters
             }
         }
                        
-
+        /// <summary>
+        /// Exports documents to a XREF file.
+        /// </summary>
+        /// <param name="docs">The documents to export.</param>
         public void Export(DocumentCollection docs)
         {
             this.docs = docs;
@@ -138,6 +141,8 @@ namespace LoadFileAdapter.Exporters
         /// <param name="imageKey">The imagekey of the current record.</param>
         /// <param name="pageRecord">The XREF record to ghost box.</param>        
         /// <param name="docIndex">The index of the current document in the collection being exported.</param>
+        /// <param name="hasSlipsheet">Indicates if the document has a slipsheet and prevents the box number
+        /// from being incremented.</param>
         /// <returns>Returns the unaltered page record if the trigger type is none. Otherwise the CDPath value
         /// is prepended with a ghost box.</returns>
         protected string getGhostBoxLine(string imageKey, string pageRecord, int docIndex, bool hasSlipsheet)
@@ -410,8 +415,11 @@ namespace LoadFileAdapter.Exporters
             return result;
         }
 
+        /// <summary>
+        /// Builds a <see cref="XrefExporter"/> instance.
+        /// </summary>
         public class Builder
-        {
+        {            
             private XrefExporter instance;
 
             private Builder()
@@ -419,6 +427,12 @@ namespace LoadFileAdapter.Exporters
                 instance = new XrefExporter();
             }
 
+            /// <summary>
+            /// Starts the process of building a <see cref="XrefExporter"/>.
+            /// </summary>
+            /// <param name="file">The destination XREF file.</param>
+            /// <param name="encoding">The encoding of the export file.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public static Builder Start(FileInfo file, Encoding encoding)
             {
                 Builder builder = new Builder();
@@ -431,6 +445,11 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Starts the process of building a <see cref="XrefExporter"/>.
+            /// </summary>
+            /// <param name="writer">The <see cref="TextWriter"/> used to write the export.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public static Builder Start(TextWriter writer)
             {
                 Builder builder = new Builder();
@@ -438,48 +457,89 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Sets the customer data field.
+            /// </summary>
+            /// <param name="value">Metadata field name of the field containing customer data values.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetCustomerDataField(string value)
             {
                 instance.customerDataField = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the named folder field.
+            /// </summary>
+            /// <param name="value">Metadata field name of the field containing named folder values.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetNamedFolderField(string value)
             {
                 instance.namedFolderField = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the named file field.
+            /// </summary>
+            /// <param name="value">Metadata field name of the field containing named file values.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetNamedFileField(string value)
             {
                 instance.namedFileField = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the group start trigger.
+            /// </summary>
+            /// <param name="value">The trigger that activates a group start.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetGroupStartTrigger(Switch value)
             {
                 instance.groupStartTrigger = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the code start trigger.
+            /// </summary>
+            /// <param name="value">The trigger that activates a code start.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetCodeStartTrigger(Switch value)
             {
                 instance.codeStartTrigger = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the box trigger.
+            /// </summary>
+            /// <param name="value">The trigger that causes the use of ghost boxing 
+            /// and increments the box number.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetBoxTrigger(Switch value)
             {
                 instance.boxTrigger = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the <see cref="SlipSheets"/> object that controls the creation of 
+            /// slipsheets in the export.
+            /// </summary>
+            /// <param name="value">The slipsheets value.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetSlipsheets(SlipSheets value)
             {
                 instance.slipsheets = value;
                 return this;
             }
 
+            /// <summary>
+            /// Builds a <see cref="XrefExporter"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="XrefExporter"/>.</returns>
             public XrefExporter Build()
             {
                 XrefExporter instance = this.instance;

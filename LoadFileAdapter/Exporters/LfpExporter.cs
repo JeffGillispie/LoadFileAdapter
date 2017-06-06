@@ -42,7 +42,7 @@ namespace LoadFileAdapter.Exporters
         /// <summary>
         /// Uses a <see cref="TextWriter"/> to export data to a LFP file.
         /// </summary>
-        /// <param name="args">The export settings used to write a LFP file.</param>
+        /// <param name="docs">The docs to export.</param>
         public void Export(DocumentCollection docs)
         {
             foreach (Document document in docs)
@@ -197,6 +197,9 @@ namespace LoadFileAdapter.Exporters
             }
         }
 
+        /// <summary>
+        /// Builds an instance of <see cref="LfpExporter"/>.
+        /// </summary>
         public class Builder
         {
             private LfpExporter instance;
@@ -206,6 +209,12 @@ namespace LoadFileAdapter.Exporters
                 this.instance = new LfpExporter();
             }
 
+            /// <summary>
+            /// Starts the process of building a <see cref="LfpExporter"/>.
+            /// </summary>
+            /// <param name="file">The file to export.</param>
+            /// <param name="encoding">The encoding of the export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public static Builder Start(FileInfo file, Encoding encoding)
             {
                 Builder builder = new Builder();
@@ -218,6 +227,11 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Starts the process of building a <see cref="LfpExporter"/>.
+            /// </summary>
+            /// <param name="writer">The <see cref="TextWriter"/> used to write the export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public static Builder Start(TextWriter writer)
             {
                 Builder builder = new Builder();
@@ -225,12 +239,21 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Sets the volume name.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetVolumeName(string value)
             {
                 instance.volumeName = value;
                 return this;
             }
 
+            /// <summary>
+            /// Builds an instance of <see cref="LfpExporter"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="LfpExporter"/>.</returns>
             public LfpExporter Build()
             {
                 LfpExporter instance = this.instance;

@@ -34,7 +34,7 @@ namespace LoadFileAdapter.Instructions
         /// Initializes a new instance of <see cref="Hyperlink"/>.
         /// </summary>
         /// <param name="link">The settings used to build this object.</param>
-        public Hyperlink(ExportXlsLinkSettings link)
+        public Hyperlink(HyperLinkInfo link)
         {
             this.FileType = link.GetFileType();
             this.DisplayText = link.GetDisplayText();
@@ -42,12 +42,12 @@ namespace LoadFileAdapter.Instructions
         }
 
         /// <summary>
-        /// Gets a <see cref="ExportXlsLinkSettings"/> value of this object.
+        /// Gets a <see cref="HyperLinkInfo"/> value of this object.
         /// </summary>
-        /// <returns>Returns <see cref="ExportXlsLinkSettings"/>.</returns>
-        public ExportXlsLinkSettings GetLinkSettings()
+        /// <returns>Returns <see cref="HyperLinkInfo"/>.</returns>
+        public HyperLinkInfo GetLinkSettings()
         {
-            return new ExportXlsLinkSettings(
+            return new HyperLinkInfo(
                 this.FileType, this.DisplayText, this.ColumnIndex);
         }
     }

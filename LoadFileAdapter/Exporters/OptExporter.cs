@@ -30,7 +30,10 @@ namespace LoadFileAdapter.Exporters
             }
         }
                                 
-
+        /// <summary>
+        /// Exports documents to an OPT file.
+        /// </summary>
+        /// <param name="docs">The docs to export.</param>
         public void Export(DocumentCollection docs)
         {
             foreach (Document document in docs)
@@ -92,6 +95,9 @@ namespace LoadFileAdapter.Exporters
             return pageRecords;
         }
 
+        /// <summary>
+        /// Builds a <see cref="OptExporter"/> instance.
+        /// </summary>
         public class Builder
         {
             private OptExporter instance;
@@ -101,6 +107,12 @@ namespace LoadFileAdapter.Exporters
                 this.instance = new OptExporter();
             }
 
+            /// <summary>
+            /// Starts the process of building a <see cref="OptExporter"/> instance.
+            /// </summary>
+            /// <param name="file">The destination file.</param>
+            /// <param name="encoding">The encoding of the export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public static Builder Start(FileInfo file, Encoding encoding)
             {
                 Builder builder = new Builder();
@@ -113,6 +125,11 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Starts the process of building a <see cref="OptExporter"/> instance.
+            /// </summary>
+            /// <param name="writer">The <see cref="TextWriter"/> used to export data.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public static Builder Start(TextWriter writer)
             {
                 Builder builder = new Builder();
@@ -120,12 +137,21 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Sets the volume name.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetVolumeName(string value)
             {
                 instance.volumeName = value;
                 return this;
             }
 
+            /// <summary>
+            /// Builds a <see cref="OptExporter"/> instance.
+            /// </summary>
+            /// <returns>Returns a <see cref="OptExporter"/>.</returns>
             public OptExporter Build()
             {
                 OptExporter instance = this.instance;

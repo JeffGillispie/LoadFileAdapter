@@ -262,7 +262,7 @@ namespace LoadFileAdapterTests
             exports.Add(new XlsExport(
                 new FileInfo("x:\\test\\test.xlsx"), 
                 new string[] { "three", "four", "shut", "the", "door" }, 
-                new ExportXlsLinkSettings[] { new ExportXlsLinkSettings(Representative.FileType.Native, "displayText", 2) }));
+                new HyperLinkInfo[] { new HyperLinkInfo(Representative.FileType.Native, "displayText", 2) }));
             var xref = new XrefExport();
             xref.File = new FileInfo("x:\\test\\CrossRef.txt");
             xref.CustomerDataField = "CustomerData";

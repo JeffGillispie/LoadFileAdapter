@@ -12,9 +12,7 @@ namespace LoadFileAdapter.Exporters
     /// </summary>
     public class SlipSheets
     {
-        private Dictionary<string, SlipSheet> slipsheetLookup = new Dictionary<string, SlipSheet>();
-
-        //private DocumentCollection documents;        
+        private Dictionary<string, SlipSheet> slipsheetLookup = new Dictionary<string, SlipSheet>();                       
         private DirectoryInfo destinationDir;
         private bool useFieldLabels = true;
         private bool bindSlipsheets = false;        
@@ -26,11 +24,19 @@ namespace LoadFileAdapter.Exporters
         private Dictionary<string, string> aliasMap;
         private Switch trigger;
 
+        private SlipSheets()
+        {
+            // do nothing here
+        }
+
         /// <summary>
         /// The count of created slipsheets.
         /// </summary>
         public int Count { get { return slipsheetLookup.Count; } }
 
+        /// <summary>
+        /// Determines if slipsheets should become the first page of the document.
+        /// </summary>
         public bool IsBindSlipsheets { get { return bindSlipsheets; } }
 
         /// <summary>
@@ -46,13 +52,7 @@ namespace LoadFileAdapter.Exporters
                 return slipsheetLookup[key];
             }
         }
-
         
-        private SlipSheets()
-        {
-            // do nothing here
-        }
-
         /// <summary>
         /// Gets the slipsheet text for a specific document.
         /// </summary>
@@ -203,6 +203,9 @@ namespace LoadFileAdapter.Exporters
             slipsheet.SaveImage(ssPath);
         }
 
+        /// <summary>
+        /// Builds an instance of <see cref="SlipSheets"/>.
+        /// </summary>
         public class Builder
         {
             private SlipSheets instance;
@@ -212,6 +215,11 @@ namespace LoadFileAdapter.Exporters
                 instance = new SlipSheets();
             }
 
+            /// <summary>
+            /// Starts the process of building a <see cref="SlipSheets"/> instance.
+            /// </summary>
+            /// <param name="trigger">The <see cref="SlipSheet"/> trigger.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public static Builder Start(Switch trigger)
             {
                 Builder builder = new Builder();                
@@ -219,60 +227,109 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Sets the slipsheet destination folder.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetDestinationFolder(DirectoryInfo value)
             {
                 instance.destinationDir = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the indicator for use of field labels.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetUseFieldLabels(bool value)
             {
                 instance.useFieldLabels = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the indicator for binding slipsheets to documents.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetBindSlipsheets(bool value)
             {
                 instance.bindSlipsheets = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the horizontal text placement option.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
             public Builder SetHorizontalTextPlacement(SlipSheet.HorizontalPlacementOption value)
             {
                 instance.horizontalPlacement = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the vertical text placement option.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetVerticalTextPlacement(SlipSheet.VerticalPlacementOption value)
             {
                 instance.verticalPlacement = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the name of the slipsheet folder.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetFolderName(string value)
             {
                 instance.slipsheetFolderName = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the slipsheet font.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetFont(Font value)
             {
                 instance.slipsheetFont = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the slipsheet resolution.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetResolution(int value)
             {
                 instance.resolution = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the alias map that maps metadata field names to an alias.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetAliasMap(Dictionary<string, string> value)
             {
                 instance.aliasMap = value;
                 return this;
             }
 
+            /// <summary>
+            /// Builds a <see cref="SlipSheets"/> instance.
+            /// </summary>
+            /// <returns>Returns a <see cref="SlipSheets"/> instance.</returns>
             public SlipSheets Build()
             {
                 SlipSheets instance = this.instance;

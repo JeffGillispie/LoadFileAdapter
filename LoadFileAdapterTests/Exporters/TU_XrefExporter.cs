@@ -199,11 +199,11 @@ namespace LoadFileAdapterTests.Exporters
             TestExporter exporter = new TestExporter();
             exporter.SetDocs(docs);
             exporter.SetWaitingForFlag(true);            
-            Assert.IsTrue(exporter.getCodeEndFlag(docIndex, imgIndex, trigger.GetXrefTrigger()));
-            Assert.IsTrue(exporter.getGroupEndFlag(docIndex, imgIndex, trigger.GetXrefTrigger()));
+            Assert.IsTrue(exporter.getCodeEndFlag(docIndex, imgIndex, trigger.GetSwitch()));
+            Assert.IsTrue(exporter.getGroupEndFlag(docIndex, imgIndex, trigger.GetSwitch()));
             exporter.SetWaitingForFlag(false);
-            Assert.IsFalse(exporter.getCodeEndFlag(docIndex, imgIndex, trigger.GetXrefTrigger()));
-            Assert.IsFalse(exporter.getGroupEndFlag(docIndex, imgIndex, trigger.GetXrefTrigger()));
+            Assert.IsFalse(exporter.getCodeEndFlag(docIndex, imgIndex, trigger.GetSwitch()));
+            Assert.IsFalse(exporter.getGroupEndFlag(docIndex, imgIndex, trigger.GetSwitch()));
         }
 
         [TestMethod]
@@ -214,17 +214,17 @@ namespace LoadFileAdapterTests.Exporters
             Trigger trigger = new Trigger();
             trigger.Type = Switch.SwitchType.None;
             TestExporter exporter = new TestExporter();
-            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
+            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetSwitch(), parent));
             trigger.Type = Switch.SwitchType.Family;
-            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.GetXrefTrigger(), null));
-            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
+            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.GetSwitch(), null));
+            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetSwitch(), parent));
             trigger.Type = Switch.SwitchType.Regex;
             trigger.FieldName = "TEST";
             trigger.RegexPattern = "[a-zA-Z]+\\d+";
-            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.GetXrefTrigger(), null));
-            Assert.IsTrue(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
+            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.GetSwitch(), null));
+            Assert.IsTrue(exporter.isFlagNeeded(doc, trigger.GetSwitch(), parent));
             doc.Metadata["TEST"] = "123nope";
-            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
+            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetSwitch(), parent));
         }
 
         [TestMethod]
@@ -246,22 +246,22 @@ namespace LoadFileAdapterTests.Exporters
             trigger.Type = Switch.SwitchType.FieldValueChange;
             trigger.FieldName = "EXT";
             trigger.FieldChangeOption = Switch.ValueChangeOption.None;
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetSwitch()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetSwitch()));
             trigger.FieldName = "FILE";
             trigger.FieldChangeOption = Switch.ValueChangeOption.StripFileName;
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetSwitch()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetSwitch()));
             trigger.FieldChangeOption = Switch.ValueChangeOption.UseStartingSegments;
             trigger.SegmentDelimiter = "\\";
             trigger.SegmentCount = 4;
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetSwitch()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetSwitch()));
             trigger.FieldChangeOption = Switch.ValueChangeOption.UseEndingSegments;
             trigger.SegmentDelimiter = ".";
             trigger.SegmentCount = 1;
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetSwitch()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetSwitch()));
         }
 
         [TestMethod]
@@ -317,7 +317,7 @@ namespace LoadFileAdapterTests.Exporters
             exporter.SetDocs(docs);
             exporter.SetBoxNo(0);
             Trigger trigger = new Trigger() { Type = Switch.SwitchType.Family };
-            exporter.SetBoxTrigger(trigger.GetXrefTrigger());            
+            exporter.SetBoxTrigger(trigger.GetSwitch());            
             string result = exporter.getGhostBoxLine("DOC000001", String.Empty, 0, false);
             Assert.AreEqual(@"\Box001\..", result);
             result = exporter.getGhostBoxLine("DOC000002", String.Empty, 1, false);
@@ -326,7 +326,7 @@ namespace LoadFileAdapterTests.Exporters
             Assert.AreEqual(@"\Box001\..", result);
             trigger.Type = Switch.SwitchType.FieldValueChange;
             trigger.FieldName = "DOCID";
-            exporter.SetBoxTrigger(trigger.GetXrefTrigger());
+            exporter.SetBoxTrigger(trigger.GetSwitch());
             exporter.SetBoxNo(0);
             result = exporter.getGhostBoxLine("DOC000001", String.Empty, 0, false);
             Assert.AreEqual(@"\Box001\..", result);
@@ -356,7 +356,7 @@ namespace LoadFileAdapterTests.Exporters
             trigger.FieldName = "DOCID";
             trigger.FieldChangeOption = Switch.ValueChangeOption.None;            
             var ss = SlipSheets.Builder
-                .Start(trigger.GetXrefTrigger())
+                .Start(trigger.GetSwitch())
                 .SetAliasMap(fields.ToDictionary(f => f.FieldName, f => f.Alias))
                 .SetFolderName("SlipSheets")
                 .Build();

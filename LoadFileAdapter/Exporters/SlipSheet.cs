@@ -256,6 +256,9 @@ namespace LoadFileAdapter.Exporters
             return codec;
         }
 
+        /// <summary>
+        /// Builds a <see cref="SlipSheet"/> instance.
+        /// </summary>
         public class Builder
         {
             private SlipSheet instance;
@@ -265,6 +268,12 @@ namespace LoadFileAdapter.Exporters
                 instance = new SlipSheet();
             }
 
+            /// <summary>
+            /// Starts the process for building a <see cref="SlipSheet"/> instance.
+            /// </summary>
+            /// <param name="key">The slipsheet key.</param>
+            /// <param name="text">The slipsheet text.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public static Builder Start(string key, string text)
             {
                 Builder builder = new Builder();
@@ -273,30 +282,54 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Sets the resolution.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetResolution(int value)
             {
                 instance.resolution = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the slipsheet font.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetFont(Font value)
             {
                 instance.font = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the horizontal text placement.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetHorizontalTextPlacement(HorizontalPlacementOption value)
             {
                 instance.horizontalTextPlacement = value;
                 return this;
             }
 
+            /// <summary>
+            /// Sets the vertical text placement.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetVerticalTextPlacement(VerticalPlacementOption value)
             {
                 instance.verticalTextPlacement = value;
                 return this;
             }
 
+            /// <summary>
+            /// Builds a <see cref="SlipSheet"/> instance.
+            /// </summary>
+            /// <returns>Returns a <see cref="SlipSheet"/> instanc.</returns>
             public SlipSheet Build()
             {
                 SlipSheet instance = this.instance;

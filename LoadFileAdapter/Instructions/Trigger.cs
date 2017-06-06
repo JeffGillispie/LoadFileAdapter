@@ -64,10 +64,16 @@ namespace LoadFileAdapter.Instructions
         /// Gets a <see cref="Switch"/>.
         /// </summary>
         /// <returns>Returns a <see cref="Switch"/>.</returns>
-        public Switch GetXrefTrigger()
+        public Switch GetSwitch()
         {
-            return new Switch(this.Type, this.RegexPattern, this.FieldName, 
-                this.SegmentCount, this.SegmentDelimiter, this.FieldChangeOption);
+            return Switch.Builder
+                .Start(Type)
+                .SetRegexPattern(RegexPattern)
+                .SetFieldName(FieldName)
+                .SetSegmentCount(SegmentCount)
+                .SetSegmentDelimiter(SegmentDelimiter)
+                .SetChangeOption(FieldChangeOption)
+                .Build();            
         }
 
         public bool Equals(Trigger trigger)

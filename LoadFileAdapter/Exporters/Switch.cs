@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace LoadFileAdapter.Exporters
 {
     /// <summary>
-    /// Defines a trigger which causes value in an XREF to change.
+    /// Acts as a trigger to switch a value in an export.
     /// </summary>
     public class Switch
     {        
@@ -16,6 +16,14 @@ namespace LoadFileAdapter.Exporters
         private int segmentCount;        
         private string segmentDelimiter;                
         private ValueChangeOption changeOption;
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="Switch"/>.
+        /// </summary>
+        private Switch()
+        {
+            // do nothing here
+        }
 
         /// <summary>
         /// The type of trigger.
@@ -46,27 +54,7 @@ namespace LoadFileAdapter.Exporters
         /// The change option used with the field value change type.
         /// </summary>
         public ValueChangeOption ChangeOption { get { return changeOption; } }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="Switch"/>.
-        /// </summary>
-        /// <param name="type">The trigger type.</param>
-        /// <param name="regexPattern">The regex pattern to use for a regex trigger type.</param>
-        /// <param name="fieldName">The target field to use for a regex trigger or the field value change types.</param>        
-        /// <param name="segmentCount">The segment count to use for the field value change event type.</param>        
-        /// <param name="segmentDelimiter">The segment delimiter to use for the field value change event type.</param>        
-        /// <param name="changeOption">The option to use for the field value change event type.</param>
-        public Switch(SwitchType type, string regexPattern, string fieldName,
-            int segmentCount, string segmentDelimiter, ValueChangeOption changeOption)
-        {
-            this.type = type;
-            this.regexPattern = regexPattern;
-            this.fieldName = fieldName;            
-            this.segmentCount = segmentCount;            
-            this.segmentDelimiter = segmentDelimiter;                        
-            this.changeOption = changeOption;
-        }
-
+                
         /// <summary>
         /// The type of trigger.
         /// </summary>
@@ -218,6 +206,97 @@ namespace LoadFileAdapter.Exporters
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// The builder for a <see cref="Switch"/>.
+        /// </summary>
+        public class Builder
+        {
+            private Switch instance;
+
+            private Builder()
+            {
+                instance = new Switch();
+            }
+
+            /// <summary>
+            /// Starts the process of creating a <see cref="Switch"/>.
+            /// </summary>
+            /// <param name="type">The type of switch.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public static Builder Start(SwitchType type)
+            {
+                Builder builder = new Builder();
+                builder.instance.type = type;
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the regex pattern for a value change trigger.
+            /// </summary>
+            /// <param name="value">The regex pattern to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetRegexPattern(string value)
+            {
+                instance.regexPattern = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the field name for a value change trigger.
+            /// </summary>
+            /// <param name="value">The name of the target field.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetFieldName(string value)
+            {
+                instance.fieldName = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the count of segments to compare for a value change trigger.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetSegmentCount(int value)
+            {
+                instance.segmentCount = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the delimiter used to split a value for a segment comparison.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Return a <see cref="Builder"/>.</returns>
+            public Builder SetSegmentDelimiter(string value)
+            {
+                instance.segmentDelimiter = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the value change option.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetChangeOption(ValueChangeOption value)
+            {
+                instance.changeOption = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Builds an instance of a <see cref="Switch"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="Switch"/>.</returns>
+            public Switch Build()
+            {
+                Switch instance = this.instance;
+                this.instance = null;
+                return instance;
+            }
         }
     }
 }

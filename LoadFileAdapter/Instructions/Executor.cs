@@ -94,9 +94,9 @@ namespace LoadFileAdapter.Instructions
                 XrefExporter exporter = XrefExporter.Builder
                     .Start(ex.File, ex.Encoding)
                     .SetSlipsheets(ex.SlipsheetSettings.GetSlipsheets())                    
-                    .SetBoxTrigger(ex.BoxBreakTrigger.GetXrefTrigger())
-                    .SetGroupStartTrigger(ex.GroupStartTrigger.GetXrefTrigger())
-                    .SetCodeStartTrigger(ex.CodeStartTrigger.GetXrefTrigger())
+                    .SetBoxTrigger(ex.BoxBreakTrigger.GetSwitch())
+                    .SetGroupStartTrigger(ex.GroupStartTrigger.GetSwitch())
+                    .SetCodeStartTrigger(ex.CodeStartTrigger.GetSwitch())
                     .SetCustomerDataField(ex.CustomerDataField)
                     .SetNamedFolderField(ex.NamedFolderField)
                     .SetNamedFileField(ex.NamedFileField)

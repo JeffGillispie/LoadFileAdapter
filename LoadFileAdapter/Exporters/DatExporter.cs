@@ -29,7 +29,10 @@ namespace LoadFileAdapter.Exporters
             }
         }
         
-        
+        /// <summary>
+        /// Exports documents to a DAT file.
+        /// </summary>
+        /// <param name="docs">The documents to export.</param>
         public void Export(DocumentCollection docs)
         {                                       
             string header = getHeader(exportFields, delimiters);
@@ -138,6 +141,9 @@ namespace LoadFileAdapter.Exporters
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Builds an instance of <see cref="DatExporter"/>.
+        /// </summary>
         public class Builder
         {
             private DatExporter instance;
@@ -147,6 +153,13 @@ namespace LoadFileAdapter.Exporters
                 this.instance = new DatExporter();
             }
 
+            /// <summary>
+            /// Starts the process of making a <see cref="DatExporter"/> instance.
+            /// </summary>
+            /// <param name="file">The destination file.</param>
+            /// <param name="encoding">The encoding of the export.</param>
+            /// <param name="exportFields">The fields to export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public static Builder Start(FileInfo file, Encoding encoding, string[] exportFields)
             {
                 Builder builder = new Builder();
@@ -159,6 +172,12 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Starts the process of making a <see cref="DatExporter"/> instance.
+            /// </summary>
+            /// <param name="writer">The <see cref="TextWriter"/> used to write the export.</param>
+            /// <param name="exportFields">The fields to export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public static Builder Start(TextWriter writer, string[] exportFields)
             {
                 Builder builder = new Builder();
@@ -167,12 +186,21 @@ namespace LoadFileAdapter.Exporters
                 return builder;
             }
 
+            /// <summary>
+            /// Sets the export <see cref="Delimiters"/>.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
             public Builder SetDelimiters(Delimiters value)
             {
                 instance.delimiters = value;
                 return this;
             }
 
+            /// <summary>
+            /// Builds an instance of <see cref="DatExporter"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="DatExporter"/>.</returns>
             public DatExporter Build()
             {
                 DatExporter instance = this.instance;

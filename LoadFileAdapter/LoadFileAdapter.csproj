@@ -54,7 +54,7 @@
     <Compile Include="Builders\RepresentativeBuilder.cs" />
     <Compile Include="DocumentCollection.cs" />
     <Compile Include="Exporters\ExporterExtensions.cs" />
-    <Compile Include="Exporters\ExportXlsLinkSettings.cs" />
+    <Compile Include="Exporters\HyperLinkInfo.cs" />
     <Compile Include="Exporters\IExporter.cs" />
     <Compile Include="Exporters\LfpExporter.cs" />
     <Compile Include="Exporters\OptExporter.cs" />
