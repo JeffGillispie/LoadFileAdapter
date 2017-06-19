@@ -84,6 +84,11 @@ namespace LoadFileAdapter.Parsers
                 fieldValues.Add(fieldValue);
             }
 
+            if (line[line.Length - 1] == delimiters.FieldSeparator)
+            {
+                fieldValues.Add(String.Empty);
+            }
+
             return fieldValues.ToArray();
         }
 
@@ -102,7 +107,7 @@ namespace LoadFileAdapter.Parsers
             int currentIndex = startIndex;
             char currentChar = line[currentIndex];
             // if this is an empty field return an empty value
-            if (currentChar == delimiters.FieldSeparator)
+            if (currentChar == delimiters.FieldSeparator && delimiters.TextQualifier != Delimiters.Null)
             {
                 currentIndex++;
             }

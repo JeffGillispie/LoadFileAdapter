@@ -253,6 +253,30 @@ namespace LoadFileAdapterTests
             Assert.IsTrue(paternity.Count.Equals(0));
             Assert.IsTrue(doc.Parent == null);
 
+            // test that the parent key is empty
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            doc = builder.BuildDocument(records[2]);
+            testBuilder.ParentColumnName = String.Empty;
+            testBuilder.ChildColumnName = String.Empty;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
+            Assert.IsTrue(paternity.Count.Equals(0));
+            Assert.IsTrue(doc.Parent == null);
+
+            // test that the parent key is null            
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            doc = builder.BuildDocument(records[2]);
+            testBuilder.ParentColumnName = null;
+            testBuilder.ChildColumnName = String.Empty;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
+            Assert.IsTrue(paternity.Count.Equals(0));
+            Assert.IsTrue(doc.Parent == null);
+
             // test that the parent key  refers to itself            
             builder.KeyColumnName = "DOCID";
             builder.RepresentativeBuilders = null;

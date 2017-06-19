@@ -309,7 +309,7 @@ namespace LoadFileAdapter.Builders
         {
             string parentKey = String.Empty;
 
-            if (doc.Metadata.ContainsKey(parentColumnName))
+            if (parentColumnName != null && doc.Metadata.ContainsKey(parentColumnName))
             {
                 parentKey = doc.Metadata[parentColumnName];
             }
@@ -359,7 +359,7 @@ namespace LoadFileAdapter.Builders
             // log paternity so we can check for children who disown their parent
             string childrenLine = String.Empty;
 
-            if (doc.Metadata.ContainsKey(childColumnName))
+            if (childColumnName != null && doc.Metadata.ContainsKey(childColumnName))
             {
                 childrenLine = doc.Metadata[childColumnName];
             }
