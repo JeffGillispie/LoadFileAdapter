@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace LoadFileAdapter.Transformers
 {
     /// <summary>
@@ -11,7 +12,7 @@ namespace LoadFileAdapter.Transformers
         /// </summary>
         /// <param name="docs">The collection of <see cref="Document"/>s to edit.</param>
         /// <param name="edits">The edits to perform on the <see cref="DocumentCollection"/>.</param>
-        public void Transform(DocumentCollection docs, Transformation[] edits)
+        public void Transform(DocumentCollection docs, IEnumerable<Transformation> edits)
         {
             if (docs != null && edits != null)
             {

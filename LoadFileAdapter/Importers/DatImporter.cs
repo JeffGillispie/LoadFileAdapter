@@ -13,6 +13,8 @@ namespace LoadFileAdapter.Importers
     {
         private DatParser parser;
         private DatBuilder builder;
+        private string[] fieldsToPrependWithInDir;
+        private Representative.FileType[] repsToPrependWithInDir;
 
         /// <summary>
         /// Initializes a new instance of <see cref="DatImporter"/>.
@@ -46,6 +48,39 @@ namespace LoadFileAdapter.Importers
             set
             {
                 this.builder = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the fields to prepend with the folder path of the input file.
+        /// </summary>
+        public string[] FolderPrependFields
+        {
+            get
+            {
+                return fieldsToPrependWithInDir;
+            }
+
+            set
+            {
+                fieldsToPrependWithInDir = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the <see cref="Representative"/> file types to prepend with
+        /// the folder path of the input file.
+        /// </summary>
+        public Representative.FileType[] FolderPrependLinks
+        {
+            get
+            {
+                return repsToPrependWithInDir;
+            }
+
+            set
+            {
+                repsToPrependWithInDir = value;
             }
         }
 

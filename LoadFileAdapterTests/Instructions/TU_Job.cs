@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,6 +11,7 @@ using LoadFileAdapter.Instructions;
 using LoadFileAdapter.Builders;
 using LoadFileAdapter.Transformers;
 using LoadFileAdapter.Exporters;
+using Moq;
 
 namespace LoadFileAdapterTests
 {
@@ -25,8 +27,12 @@ namespace LoadFileAdapterTests
             Delimiters delims = Delimiters.COMMA_DELIMITED;
             List<RepresentativeBuilder> linkedFiles = new List<RepresentativeBuilder>();
             linkedFiles.Add(new RepresentativeBuilder("NativeLink", Representative.FileType.Native));
-            Import import = new DatImport(
-                infile, encoding, delims, true, "DOCID", "BEGATT", "ATTIDS", ";", linkedFiles.ToArray());            
+            DatImport import = new DatImport(infile, encoding, delims, "DOCID");
+            import.HasHeader = true;
+            import.ParentColumnName = "BEGATT";
+            import.ChildColumnName = "ATTIDS";
+            import.ChildColumnDelimiter = ";";
+            import.LinkedFiles = linkedFiles.Select(f => new RepresentativeInfo(f)).ToArray();                                
             Job job = new Job(new Import[] { import }, null, null);
             
             // act
@@ -231,14 +237,22 @@ namespace LoadFileAdapterTests
         public void Instructions_Job_All()
         {
             // arrange
-            List<Import> imports = new List<Import>();
-            imports.Add(new DatImport(
+            List<Import> imports = new List<Import>();            
+            DatImport import = new DatImport(
                 new FileInfo("x:\\test\\test.csv"),
                 Encoding.Unicode,
                 Delimiters.COMMA_QUOTE,
-                true, "DOCID", "PARENT", null, ";", 
-                new RepresentativeBuilder[] {
-                    new RepresentativeBuilder("NATIVE", Representative.FileType.Native) }));
+                "DOCID");
+            import.HasHeader = true;
+            import.ParentColumnName = "PARENT";
+            import.ChildColumnName = null;
+            import.ChildColumnDelimiter = ";";
+            import.LinkedFiles = new RepresentativeInfo[] {
+                new RepresentativeInfo(new RepresentativeBuilder("NATIVE", Representative.FileType.Native))
+            };
+            import.FolderPrependFields = new string[] { "ITEMPATH" };
+            import.FolderPrependLinks = new Representative.FileType[] { Representative.FileType.Native };
+            imports.Add(import);                
             imports.Add(new LfpImport(
                 new FileInfo("x:\\test\\test.lfp"),
                 Encoding.GetEncoding(1252),
@@ -360,6 +374,12 @@ namespace LoadFileAdapterTests
                     Assert.AreEqual(
                         ((DatImport)job.Imports[n]).HasHeader,
                         ((DatImport)testJob.Imports[n]).HasHeader);
+                    Assert.IsTrue(Enumerable.SequenceEqual(
+                        ((DatImport)job.Imports[n]).FolderPrependFields,
+                        ((DatImport)testJob.Imports[n]).FolderPrependFields));
+                    Assert.IsTrue(Enumerable.SequenceEqual(
+                        ((DatImport)job.Imports[n]).FolderPrependLinks,
+                        ((DatImport)testJob.Imports[n]).FolderPrependLinks));
 
                     for (int i = 0; i < ((DatImport)job.Imports[n]).LinkedFiles.Length; i++)
                     {
@@ -518,6 +538,6 @@ namespace LoadFileAdapterTests
                         ((ImgExport)testJob.Exports[i]).VolumeName);
                 }                
             }
-        }        
+        }                
     }
 }

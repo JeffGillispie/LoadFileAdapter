@@ -31,7 +31,7 @@ namespace LoadFileAdapter.Instructions
             importer.Builder.PathPrefix = (BuildAbsolutePath)
                 ? File.Directory.FullName : null;
             importer.Builder.TextBuilder = (TextBuilder != null)
-                ? TextBuilder.GetBuilder() : null;
+                ? TextBuilder.GetBuilder() : null;            
             return importer;
         }
     }

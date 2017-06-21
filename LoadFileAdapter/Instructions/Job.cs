@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
+using LoadFileAdapter.Importers;
 using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter.Instructions
@@ -99,10 +101,10 @@ namespace LoadFileAdapter.Instructions
         /// an array of <see cref="Transformation"/>, which are immutable.
         /// </summary>
         /// <returns>An array of <see cref="Transformation"/>.</returns>
-        public Transformation[] GetTransformations()
+        public IList<Transformation> GetTransformations()
         {
             return (this.Edits != null) 
-                ? this.Edits.Select(e => e.ToTransformation()).ToArray()
+                ? this.Edits.Select(e => e.ToTransformation()).ToList()
                 : null;
         }
         
@@ -110,7 +112,7 @@ namespace LoadFileAdapter.Instructions
         /// Serializes this job into XML.
         /// </summary>
         /// <returns>A serialized <see cref="Job"/> instance.</returns>
-        public string ToXml()
+        public virtual string ToXml()
         {
             string xml = String.Empty;
             XmlSerializer serializer = new XmlSerializer(typeof(Job));
@@ -148,25 +150,58 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Executes the imports, edits, and exports in the job.        
         /// </summary>
-        public void Execute()
+        public virtual DocumentCollection Execute()
         {
             DocumentCollection docs = new DocumentCollection();
             Transformer transformer = new Transformer();
+            IList<Transformation> transformations = GetTransformations();
 
             foreach (Import import in Imports)
             {
-                DocumentCollection importedDocs = import.BuildImporter()
-                    .Import(import.File, import.Encoding);
+                IImporter importer = import.BuildImporter();
+                DocumentCollection importedDocs = importer.Import(import.File, import.Encoding);
                 docs.AddRange(importedDocs);
-            }
 
-            Transformation[] transformations = GetTransformations();
+                if (import.GetType().Equals(typeof(DatImport)))
+                {
+                    DatImport datImport = (DatImport)import;
+
+                    if (datImport.FolderPrependFields != null)
+                    {
+                        foreach (string field in datImport.FolderPrependFields)
+                        {
+                            MetaDataTransformation edit = MetaDataTransformation.Builder
+                                .Start(field, null, String.Empty)
+                                .SetPrependDir(import.File.Directory)
+                                .Build();
+                            transformations.Add(edit);
+                        }
+                    }
+
+                    if (datImport.FolderPrependLinks != null)
+                    {
+                        Regex find = new Regex("\\?(.+)");
+                        string replace = Path.Combine(import.File.Directory.FullName, "$1");
+
+                        foreach (var type in datImport.FolderPrependLinks)
+                        {                            
+                            RepresentativeTransformation edit = RepresentativeTransformation.Builder
+                                .Start(type, find, replace)
+                                .Build();                                                        
+                            transformations.Add(edit);
+                        }
+                    }
+                }                
+            }
+                        
             transformer.Transform(docs, transformations);
 
             foreach (Export export in Exports)
             {
                 export.BuildExporter().Export(docs);
             }
+
+            return docs;
         }
     }
 }

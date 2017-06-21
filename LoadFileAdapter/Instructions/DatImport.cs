@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using LoadFileAdapter.Builders;
 using LoadFileAdapter.Parsers;
 using LoadFileAdapter.Importers;
 
@@ -17,7 +16,7 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// The delimiters used to parse the import.
         /// </summary>
-        public Separators Delimiters = new Separators(LoadFileAdapter.Parsers.Delimiters.CONCORDANCE);
+        public Separators Delimiters = new Separators(Parsers.Delimiters.CONCORDANCE);
 
         /// <summary>
         /// Indicates if the import has a header.
@@ -52,6 +51,20 @@ namespace LoadFileAdapter.Instructions
         public RepresentativeInfo[] LinkedFiles = null;
 
         /// <summary>
+        /// Fields to prepend with the folder path of the input file.
+        /// </summary>
+        [XmlArray("FolderPrependFields")]
+        [XmlArrayItem(typeof(string), ElementName = "FieldName")]
+        public string[] FolderPrependFields = null;
+
+        /// <summary>
+        /// Representative types to prepend with the folder path of the input file.
+        /// </summary>
+        [XmlArray("FolderPrependLinks")]
+        [XmlArrayItem(typeof(Representative.FileType), ElementName = "LinkType")]
+        public Representative.FileType[] FolderPrependLinks = null;
+
+        /// <summary>
         /// Initializes a new instance of <see cref="DatImport"/>.
         /// </summary>
         public DatImport() : base(null, null)
@@ -64,25 +77,12 @@ namespace LoadFileAdapter.Instructions
         /// </summary>
         /// <param name="file">The file to import.</param>
         /// <param name="encoding">The encoding used to read the import.</param>
-        /// <param name="delimiters">The delimiters used to parse the import.</param>
-        /// <param name="hasHeader">Indicates if the import contains a header.</param>
-        /// <param name="keyColName">The name of the DocID field.</param>
-        /// <param name="parentColName">The name of the ParentID field.</param>
-        /// <param name="childColName">The name of the AttachIDs field.</param>
-        /// <param name="childColDelim">The delimiter used in the AttachIDs field.</param>
-        /// <param name="linkedFiles">Representatives in the DAT file.</param>
-        public DatImport(FileInfo file, Encoding encoding, Delimiters delimiters, bool hasHeader, 
-            string keyColName, string parentColName, string childColName, string childColDelim,
-            RepresentativeBuilder[] linkedFiles) :
-            base(file, encoding)
+        /// <param name="delimiters">The delimiters used to parse the import.</param>        
+        /// <param name="keyColName">The name of the DocID field.</param>        
+        public DatImport(FileInfo file, Encoding encoding, Delimiters delimiters, string keyColName) : base(file, encoding)
         {
             this.Delimiters = new Separators(delimiters);
-            this.HasHeader = hasHeader;
             this.KeyColumnName = keyColName;
-            this.ParentColumnName = parentColName;
-            this.ChildColumnName = childColName;
-            this.ChildColumnDelimiter = childColDelim;
-            this.LinkedFiles = (linkedFiles != null) ? linkedFiles.Select(f => new RepresentativeInfo(f)).ToArray() : null;
         }
         
         public override IImporter BuildImporter()
@@ -96,6 +96,8 @@ namespace LoadFileAdapter.Instructions
             importer.Builder.RepresentativeBuilders = (LinkedFiles != null)
                 ? LinkedFiles.Select(f => f.GetBuilder()).ToList()
                 : null;
+            importer.FolderPrependFields = FolderPrependFields;
+            importer.FolderPrependLinks = FolderPrependLinks;
             return importer;
         }               
     }

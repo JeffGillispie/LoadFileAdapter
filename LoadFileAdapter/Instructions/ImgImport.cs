@@ -41,7 +41,6 @@ namespace LoadFileAdapter.Instructions
             base(file, encoding)
         {
             this.TextBuilder = new TextFileInfo(txtSetting);
-            this.BuildAbsolutePath = buildAbsolutePath;
         }
 
         public override Importers.IImporter BuildImporter() { return null; }
