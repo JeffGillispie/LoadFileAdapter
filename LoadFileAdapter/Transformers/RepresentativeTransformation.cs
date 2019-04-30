@@ -12,6 +12,12 @@ namespace LoadFileAdapter.Transformers
         private Representative.FileType targetType;
         private Representative.FileType? newType;
         
+        private RepresentativeTransformation(Regex findText, string replaceText, string filterField, Regex filterText)
+            : base(findText, replaceText, filterField, filterText)
+        {
+            // do nothing here
+        }
+
         /// <summary>
         /// The target <see cref="Representative"/> to modify.
         /// </summary>
@@ -21,26 +27,7 @@ namespace LoadFileAdapter.Transformers
         /// The udpated type if any. A null value will not trigger a type change.
         /// </summary>
         public Representative.FileType? NewType { get { return newType; } }
-        
-        /// <summary>
-        /// Initializes a new instance of <see cref="RepresentativeTransformation"/>.
-        /// </summary>
-        /// <param name="targetType">The rep type to modify.</param>
-        /// <param name="newType">The updated type if any.</param>
-        /// <param name="findText">The regex of the find / replace operation on file paths.</param>
-        /// <param name="replaceText">The replace value used with the findText regex.</param>
-        /// <param name="filterField">A metafield used to determine if an edit should be performed.</param>
-        /// <param name="filterText">The regex used on the filter field.</param>
-        public RepresentativeTransformation(
-            Representative.FileType targetType, Representative.FileType? newType, 
-            Regex findText, string replaceText,
-            string filterField, Regex filterText) :
-            base (findText, replaceText, filterField, filterText)
-        {
-            this.targetType = targetType;
-            this.newType = newType;            
-        }
-
+                
         /// <summary>
         /// Modifies the type and path or a representative.
         /// </summary>
@@ -75,6 +62,103 @@ namespace LoadFileAdapter.Transformers
                 }
 
                 doc.SetLinkedFiles(representatives);
+            }
+        }
+
+        /// <summary>
+        /// Builds a new instance of <see cref="RepresentativeTransformation"/>.
+        /// </summary>
+        public class Builder
+        {
+            private RepresentativeTransformation instance;
+
+            private Builder(Regex findText, string replaceText, string filterField, Regex filterText)
+            {
+                instance = new RepresentativeTransformation(findText, replaceText, filterField, filterText);
+            }
+
+            /// <summary>
+            /// Starts the process of building a <see cref="RepresentativeTransformation"/>.
+            /// </summary>
+            /// <param name="targetType">The <see cref="Representative"/> <see cref="Representative.FileType"/> to edit.</param>
+            /// <param name="findText">The Regex pattern to find in the file path.</param>
+            /// <param name="replaceText">The file path replacement text.</param>
+            /// <returns>Returns a <see cref="RepresentativeTransformation"/> builder.</returns>
+            public static Builder Start(Representative.FileType targetType, Regex findText, string replaceText)
+            {                
+                Builder builder = new Builder(findText, replaceText, null, null);
+                builder.instance.targetType = targetType;
+                return builder;
+            }
+
+            /// <summary>
+            /// Starts the process of building a <see cref="RepresentativeTransformation"/>.
+            /// </summary>
+            /// <param name="targetType">The <see cref="Representative"/> <see cref="Representative.FileType"/> to edit.</param>
+            /// <returns>Returns a <see cref="RepresentativeTransformation"/> builder.</returns>
+            public static Builder Start(Representative.FileType targetType)
+            {
+                Builder builder = new Builder(null, null, null, null);
+                builder.instance.targetType = targetType;
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the metadata field used to filter documents to edit.
+            /// </summary>
+            /// <param name="value">The filter field value.</param>
+            /// <returns>Returns an updated builder.</returns>
+            public Builder SetFilterField(string value)
+            {
+                var instance = new RepresentativeTransformation(
+                    this.instance.FindText,
+                    this.instance.ReplaceText,
+                    value,
+                    this.instance.FilterText);
+                instance.newType = this.instance.newType;
+                instance.targetType = this.instance.targetType;                
+                this.instance = instance;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the pattern used to filter on the filter field values.
+            /// </summary>
+            /// <param name="value">The filter text value.</param>
+            /// <returns>Returns an updated builder.</returns>
+            public Builder SetFilterText(Regex value)
+            {
+                var instance = new RepresentativeTransformation(
+                    this.instance.FindText,
+                    this.instance.ReplaceText,
+                    this.instance.FilterField,
+                    value);
+                instance.newType = this.instance.newType;
+                instance.targetType = this.instance.targetType;
+                this.instance = instance;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the replacement <see cref="Representative"/> <see cref="Representative.FileType"/>.
+            /// </summary>
+            /// <param name="value">The new representative file type.</param>
+            /// <returns>Returns an updated builder.</returns>
+            public Builder SetNewType(Representative.FileType? value)
+            {
+                instance.newType = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Builds an instance of <see cref="RepresentativeTransformation"/>.
+            /// </summary>
+            /// <returns>Returns the final <see cref="RepresentativeTransformation"/>.</returns>
+            public RepresentativeTransformation Build()
+            {
+                RepresentativeTransformation instance = this.instance;
+                this.instance = null;
+                return instance;
             }
         }
     }

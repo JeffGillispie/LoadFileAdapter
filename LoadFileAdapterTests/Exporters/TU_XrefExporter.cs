@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using LoadFileAdapter;
@@ -16,30 +17,44 @@ namespace LoadFileAdapterTests.Exporters
     public class TU_XrefExporter
     {
         public class TestExporter : XrefExporter
-        {
+        {            
             public new string getCustomValue(string imageKey, Document doc, string customValueField)
             {
                 return base.getCustomValue(imageKey, doc, customValueField);
             }
 
-            public new bool getCodeEndFlag(int docIndex, int imageIndex, IExportXrefSettings settings)
+            public new bool getCodeEndFlag(int docIndex, int imageIndex, Switch trigger)
             {
-                return base.getCodeEndFlag(docIndex, imageIndex, settings);
+                return base.getCodeEndFlag(docIndex, imageIndex, trigger);
             }
 
-            public new bool getGroupEndFlag(int docIndex, int imageIndex, IExportXrefSettings settings)
+            public new bool getGroupEndFlag(int docIndex, int imageIndex, Switch trigger)
             {
-                return base.getGroupEndFlag(docIndex, imageIndex, settings);
+                return base.getGroupEndFlag(docIndex, imageIndex, trigger);
             }
 
-            public new bool isFlagNeeded(Document doc, XrefTrigger trigger, Document previousDoc)
+            public bool isFlagNeeded(Document doc, Switch trigger, Document previousDoc)
             {
-                return base.isFlagNeeded(doc, trigger, previousDoc);
+                bool result = false;
+
+                if (trigger != null)
+                {
+                    result = trigger.IsTriggered(doc, previousDoc);
+                }
+
+                return result;
             }
 
-            public static bool hasFieldValueChanged(Document doc, Document previousDoc, XrefTrigger trigger)
+            public static bool hasFieldValueChanged(Document doc, Document previousDoc, Switch trigger)
             {
-                return TestExporter.hasFieldValueChange(doc, previousDoc, trigger);
+                bool result = false;
+
+                if (trigger != null)
+                {
+                    result = trigger.IsTriggered(doc, previousDoc);
+                }
+
+                return result;
             }
 
             public new Document getNextDoc(int index)
@@ -62,19 +77,19 @@ namespace LoadFileAdapterTests.Exporters
                 return base.getNextImageKey(imgIndex, docIndex);
             }
 
-            public new string[] getRecordComponents(IExportXrefSettings args, int docIndex, int imageIndex)
+            public new string[] getRecordComponents( int docIndex, int imageIndex)
             {
-                return base.getRecordComponents(args, docIndex, imageIndex);
+                return base.getRecordComponents(docIndex, imageIndex);
             }
 
-            public new string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex, bool hasSlipsheet)
-            {
-                return base.getGhostBoxLine(imageKey, pageRecord, boxTrigger, docIndex, hasSlipsheet);
+            public new string getGhostBoxLine(string imageKey, string pageRecord, int docIndex, bool hasSlipsheet)
+            {                
+                return base.getGhostBoxLine(imageKey, pageRecord, docIndex, hasSlipsheet);
             }
 
-            public new List<string> getPageRecords(IExportXrefSettings args, int docIndex, SlipSheets slipsheets)
+            public new List<string> getPageRecords(int docIndex, SlipSheets slipsheets)
             {
-                return base.getPageRecords(args, docIndex, slipsheets);
+                return base.getPageRecords(docIndex, slipsheets);
             }
 
             public void SetBoxNo(int n)
@@ -91,6 +106,16 @@ namespace LoadFileAdapterTests.Exporters
             public void SetDocs(DocumentCollection docs)
             {
                 base.docs = docs;
+            }
+
+            public void SetBoxTrigger(Switch trigger)
+            {
+                base.boxTrigger = trigger;
+            }
+
+            public void SetSlipsheets(SlipSheets ss)
+            {
+                base.slipsheets = ss;
             }
         }
 
@@ -114,28 +139,32 @@ namespace LoadFileAdapterTests.Exporters
             mockReader
                 .Setup(r => r.ReadLine())
                 .Returns(() => datLines[calls])
-                .Callback(() => calls++);
-            Delimiters delimiters = Delimiters.CONCORDANCE;
-            ParseReaderDatSettings readArgs = new ParseReaderDatSettings(mockReader.Object, delimiters);
+                .Callback(() => calls++);            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.dat");
             bool hasHeader = true;
             string keyColName = "DOCID";
             string parentColName = "BEGATT";
             string childColName = String.Empty;
             string childColDelim = ";";
-            DatRepresentativeSettings repSetting = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);
-            List<DatRepresentativeSettings> reps = new List<DatRepresentativeSettings>();
+            RepresentativeBuilder repSetting = new RepresentativeBuilder("NATIVE", Representative.FileType.Native);
+            List<RepresentativeBuilder> reps = new List<RepresentativeBuilder>();
             reps.Add(repSetting);
-            IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
-            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionDatSettings buildArgs = new BuildDocCollectionDatSettings(
-                records, infile.Directory.FullName, hasHeader, keyColName, parentColName, childColName, childColDelim, reps);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            var builder = new DatBuilder();
+            IParser parser = new DatParser(Delimiters.CONCORDANCE);
+            List<string[]> records = parser.Parse(mockReader.Object);
+            builder.HasHeader = hasHeader;
+            builder.KeyColumnName = keyColName;
+            builder.ParentColumnName = parentColName;
+            builder.ChildColumnName = childColName;
+            builder.ChildSeparator = childColDelim;
+            builder.RepresentativeBuilders = reps;
+            builder.ParentColumnName = infile.Directory.FullName;            
+            List<Document> documents = builder.Build(records);
             var docs = new DocumentCollection(documents);
-            IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> optBuilder = new OptBuilder();
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(optLines, String.Empty, null);            
-            List<Document> optDocs = optBuilder.BuildDocuments(args);
+            var optBuilder = new OptBuilder();
+            optBuilder.PathPrefix = String.Empty;
+            optBuilder.TextBuilder = null;            
+            List<Document> optDocs = optBuilder.Build(optLines);
             docs.AddRange(optDocs);
             docs[1].SetParent(docs[0]);
             return docs;
@@ -162,22 +191,19 @@ namespace LoadFileAdapterTests.Exporters
         {
             var docs = GetDocs();
             int docIndex = 1;
-            int imgIndex = 0;
-            var settings = new XrefExport();
+            int imgIndex = 0;            
             Trigger trigger = new Trigger();
-            trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            trigger.Type = Switch.SwitchType.FieldValueChange;
             trigger.FieldName = "DOCTYPE";
-            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.None;            
-            settings.CodeStartTrigger = trigger;
-            var args = settings.GetFileSettings(docs);
+            trigger.FieldChangeOption = Switch.ValueChangeOption.None;                        
             TestExporter exporter = new TestExporter();
             exporter.SetDocs(docs);
             exporter.SetWaitingForFlag(true);            
-            Assert.IsTrue(exporter.getCodeEndFlag(docIndex, imgIndex, args));
-            Assert.IsTrue(exporter.getGroupEndFlag(docIndex, imgIndex, args));
+            Assert.IsTrue(exporter.getCodeEndFlag(docIndex, imgIndex, trigger.ToSwitch()));
+            Assert.IsTrue(exporter.getGroupEndFlag(docIndex, imgIndex, trigger.ToSwitch()));
             exporter.SetWaitingForFlag(false);
-            Assert.IsFalse(exporter.getCodeEndFlag(docIndex, imgIndex, args));
-            Assert.IsFalse(exporter.getGroupEndFlag(docIndex, imgIndex, args));
+            Assert.IsFalse(exporter.getCodeEndFlag(docIndex, imgIndex, trigger.ToSwitch()));
+            Assert.IsFalse(exporter.getGroupEndFlag(docIndex, imgIndex, trigger.ToSwitch()));
         }
 
         [TestMethod]
@@ -186,19 +212,19 @@ namespace LoadFileAdapterTests.Exporters
             Document parent = new Document("DOC122", null, null, new Dictionary<string, string>() { { "TEST", "abc123" } }, null);
             Document doc = new Document("DOC123", parent, null, new Dictionary<string, string>() { { "TEST", "XYZ321" } }, null);            
             Trigger trigger = new Trigger();
-            trigger.Type = XrefTrigger.TriggerType.None;
+            trigger.Type = Switch.SwitchType.None;
             TestExporter exporter = new TestExporter();
-            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
-            trigger.Type = XrefTrigger.TriggerType.Family;
-            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.GetXrefTrigger(), null));
-            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
-            trigger.Type = XrefTrigger.TriggerType.Regex;
+            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.ToSwitch(), parent));
+            trigger.Type = Switch.SwitchType.Family;
+            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.ToSwitch(), null));
+            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.ToSwitch(), parent));
+            trigger.Type = Switch.SwitchType.Regex;
             trigger.FieldName = "TEST";
             trigger.RegexPattern = "[a-zA-Z]+\\d+";
-            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.GetXrefTrigger(), null));
-            Assert.IsTrue(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
+            Assert.IsTrue(exporter.isFlagNeeded(parent, trigger.ToSwitch(), null));
+            Assert.IsTrue(exporter.isFlagNeeded(doc, trigger.ToSwitch(), parent));
             doc.Metadata["TEST"] = "123nope";
-            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.GetXrefTrigger(), parent));
+            Assert.IsFalse(exporter.isFlagNeeded(doc, trigger.ToSwitch(), parent));
         }
 
         [TestMethod]
@@ -217,25 +243,25 @@ namespace LoadFileAdapterTests.Exporters
                     { "FILE", @"X:\ROOT\VOL\DIR2\FILE3.PDF" },
                     { "EXT", "PDF" } }, null);
             Trigger trigger = new Trigger();
-            trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            trigger.Type = Switch.SwitchType.FieldValueChange;
             trigger.FieldName = "EXT";
-            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.None;
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            trigger.FieldChangeOption = Switch.ValueChangeOption.None;
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.ToSwitch()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.ToSwitch()));
             trigger.FieldName = "FILE";
-            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.StripFileName;
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
-            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.UseStartingSegments;
+            trigger.FieldChangeOption = Switch.ValueChangeOption.StripFileName;
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.ToSwitch()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.ToSwitch()));
+            trigger.FieldChangeOption = Switch.ValueChangeOption.UseStartingSegments;
             trigger.SegmentDelimiter = "\\";
             trigger.SegmentCount = 4;
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
-            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.UseEndingSegments;
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(doc, parent, trigger.ToSwitch()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(child, doc, trigger.ToSwitch()));
+            trigger.FieldChangeOption = Switch.ValueChangeOption.UseEndingSegments;
             trigger.SegmentDelimiter = ".";
             trigger.SegmentCount = 1;
-            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.GetXrefTrigger()));
-            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.GetXrefTrigger()));
+            Assert.IsFalse(TestExporter.hasFieldValueChanged(doc, parent, trigger.ToSwitch()));
+            Assert.IsTrue(TestExporter.hasFieldValueChanged(child, doc, trigger.ToSwitch()));
         }
 
         [TestMethod]
@@ -277,9 +303,8 @@ namespace LoadFileAdapterTests.Exporters
             var docs = GetDocs();
             TestExporter exporter = new TestExporter();
             exporter.SetDocs(docs);
-            var settings = new XrefExport();
-            var args = settings.GetFileSettings(docs);
-            string record = String.Join(", ", exporter.getRecordComponents(args, 0, 0));
+            var settings = new XrefExport();            
+            string record = String.Join(", ", exporter.getRecordComponents(0, 0));
             string expected = "X:\\VOL001\\IMAGES\\0001\\DOC000001.jpg, DOC, 000001, , 0, 0, 1, 0, 0, 0, 0, , , ";
             Assert.AreEqual(expected, record);
         }
@@ -291,27 +316,28 @@ namespace LoadFileAdapterTests.Exporters
             TestExporter exporter = new TestExporter();
             exporter.SetDocs(docs);
             exporter.SetBoxNo(0);
-            Trigger trigger = new Trigger();
-            trigger.Type = XrefTrigger.TriggerType.Family;
-            string result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0, false);
+            Trigger trigger = new Trigger() { Type = Switch.SwitchType.Family };
+            exporter.SetBoxTrigger(trigger.ToSwitch());            
+            string result = exporter.getGhostBoxLine("DOC000001", String.Empty, 0, false);
             Assert.AreEqual(@"\Box001\..", result);
-            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, false);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, 1, false);
             Assert.AreEqual(@"\Box001\..", result);
-            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1, false);
+            result = exporter.getGhostBoxLine("DOC000003", String.Empty, 1, false);
             Assert.AreEqual(@"\Box001\..", result);
-            trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            trigger.Type = Switch.SwitchType.FieldValueChange;
             trigger.FieldName = "DOCID";
+            exporter.SetBoxTrigger(trigger.ToSwitch());
             exporter.SetBoxNo(0);
-            result = exporter.getGhostBoxLine("DOC000001", String.Empty, trigger.GetXrefTrigger(), 0, false);
+            result = exporter.getGhostBoxLine("DOC000001", String.Empty, 0, false);
             Assert.AreEqual(@"\Box001\..", result);
-            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, false);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, 1, false);
             Assert.AreEqual(@"\Box002\..", result);
-            result = exporter.getGhostBoxLine("DOC000003", String.Empty, trigger.GetXrefTrigger(), 1, false);
+            result = exporter.getGhostBoxLine("DOC000003", String.Empty, 1, false);
             Assert.AreEqual(@"\Box002\..", result);
             exporter.SetBoxNo(1);
-            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, true);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, 1, true);
             Assert.AreEqual(@"\Box001\..", result);
-            result = exporter.getGhostBoxLine("DOC000002", String.Empty, trigger.GetXrefTrigger(), 1, false);
+            result = exporter.getGhostBoxLine("DOC000002", String.Empty, 1, false);
             Assert.AreEqual(@"\Box002\..", result);
         }
 
@@ -319,29 +345,30 @@ namespace LoadFileAdapterTests.Exporters
         public void Exporters_XrefExporter_getPageRecords()
         {
             var docs = GetDocs();
-            TestExporter exporter = new TestExporter();
-            var settings = new XrefExport();
-            var args = settings.GetFileSettings(docs);
-            exporter.SetDocs(docs);
-            var ssinfo = new SlipsheetsInfo();            
-            ssinfo.FolderName = "SlipSheets";                        
+            TestExporter exporter = new TestExporter();            
+            exporter.SetDocs(docs);            
             var field = new SlipsheetField();
             field.FieldName = "DOCID";
             field.Alias = "begno";
-            ssinfo.Fields = new SlipsheetField[] { field };
+            var fields = new SlipsheetField[] { field };
             Trigger trigger = new Trigger();
-            trigger.Type = XrefTrigger.TriggerType.FieldValueChange;
+            trigger.Type = Switch.SwitchType.FieldValueChange;
             trigger.FieldName = "DOCID";
-            trigger.FieldChangeOption = XrefTrigger.FieldValueChangeOption.None;
-            ssinfo.Trigger = trigger;
-            var ss = new SlipSheets(docs, ssinfo.GetSlipsheetSettings(), null);
-            var actual = exporter.getPageRecords(args, 1, ss);
+            trigger.FieldChangeOption = Switch.ValueChangeOption.None;            
+            var ss = SlipSheets.Builder
+                .Start(trigger.ToSwitch())
+                .SetAliasMap(fields.ToDictionary(f => f.FieldName, f => f.Alias))
+                .SetFolderName("SlipSheets")
+                .Build();
+            ss.GenerateSlipSheets(docs);
+            exporter.SetSlipsheets(ss);
+            var actual = exporter.getPageRecords(1, ss);
             List<string> expected = new List<string>();
             expected.Add("\\SlipSheets\\DOC000001.001.TIF, DOC, 000001, .001, 0, 0, 1, 0, 0, 0, 1, , , ");
             expected.Add("X:\\VOL001\\IMAGES\\0001\\DOC000002.tif, DOC, 000002, , 0, 0, 1, 0, 0, 0, 0, , , ");
             expected.Add("X:\\VOL001\\IMAGES\\0001\\DOC000003.tif, DOC, 000003, , 0, 0, 0, 0, 0, 0, 0, , , ");
 
-            for (int i = 0; i < actual.Count; i++)
+            for (int i = 0; i < expected.Count; i++)
             {
                 Assert.AreEqual(expected[i], actual[i]);
             }

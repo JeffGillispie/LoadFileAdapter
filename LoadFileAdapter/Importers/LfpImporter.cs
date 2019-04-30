@@ -10,51 +10,54 @@ namespace LoadFileAdapter.Importers
     /// <summary>
     /// An importer used to import a LFP file.
     /// </summary>
-    public class LfpImporter
+    public class LfpImporter : IImporter
     {
-        private IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings> parser;
-        private IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder;
-        
+        private LfpParser parser = new LfpParser();
+        private LfpBuilder builder = new LfpBuilder();
+             
         /// <summary>
-        /// Initializes a new instance of <see cref="LfpImporter"/>.
+        /// Gets or sets the <see cref="LfpParser"/>.
         /// </summary>
-        public LfpImporter()
+        public LfpParser Parser
         {
-            this.parser = new LfpParser();
-            this.builder = new LfpBuilder();
+            get
+            {
+                return parser;
+            }
+
+            set
+            {
+                parser = value;
+            }
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="LfpImporter"/>.
+        /// Gets or sets the <see cref="LfpBuilder"/>.
         /// </summary>
-        /// <param name="parser">The parser used to import the LFP file.</param>
-        /// <param name="builder">The builder used to build the document collection.</param>
-        public LfpImporter(
-            IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings> parser, 
-            IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder)
+        public LfpBuilder Builder
         {
-            this.parser = parser;
-            this.builder = builder;
-        }
+            get
+            {
+                return builder;
+            }
 
+            set
+            {
+                builder = value;
+            }
+        }
+         
         /// <summary>
-        /// Imports a LFP file into a document collection.
+        /// Parses data from a file and builds it into a collection of <see cref="Document"/> objects.
         /// </summary>
-        /// <param name="lfpFile">The file to import.</param>
-        /// <param name="encoding">The encoding used to read the import file.</param>
-        /// <param name="textSetting">The text representative setting.</param>
-        /// <param name="buildAbsolutePath">Use load file path in representative paths.</param>
-        /// <returns>Returns a document collection of imported documents.</returns>
-        public DocumentCollection Import(FileInfo lfpFile, Encoding encoding, 
-            TextRepresentativeSettings textSetting, bool buildAbsolutePath)
+        /// <param name="file">The file to import.</param>
+        /// <param name="encoding">The encoding of the file.</param>
+        /// <returns>Returns a <see cref="DocumentCollection"/>.</returns>
+        public DocumentCollection Import(FileInfo file, Encoding encoding)
         {
-            ParseFileSettings parameters = new ParseFileSettings(lfpFile, encoding);
-            List<string[]> records = parser.Parse(parameters);
-            string pathPrefix = (buildAbsolutePath) ? lfpFile.Directory.FullName : null;
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(
-                records, pathPrefix, textSetting);
-            List<Document> documentList = builder.BuildDocuments(args);
-            DocumentCollection documents = new DocumentCollection(documentList);            
+            List<string[]> records = parser.Parse(file, encoding);            
+            List<Document> documentList = builder.Build(records);
+            DocumentCollection documents = new DocumentCollection(documentList);
             return documents;
         }                    
     }

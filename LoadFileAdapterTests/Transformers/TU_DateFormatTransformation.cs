@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using LoadFileAdapter;
 using LoadFileAdapter.Transformers;
@@ -12,24 +11,34 @@ namespace LoadFileAdapterTests.Transformers
     {
         class TestTransformer : DateFormatTransformation
         {
-            public TestTransformer(DateTime start, DateTime end) : 
-                base("", null, "", "", null, "", "", null, null, start, end, FailAction.DoNothing)
+            public TestTransformer(): base(
+                DateFormatTransformation.Builder.Start()
+                    .SetRangeStart(DateTime.MinValue)
+                    .SetRangeEnd(DateTime.MaxValue)
+                    .SetOnFailure(FailAction.DoNothing))
             {
-                // do nothing here
+                                
             }
-
-            public TestTransformer() : 
-                base("", null, "", "", null, "", "", null, null, DateTime.MinValue, DateTime.MaxValue, FailAction.DoNothing)
+            public TestTransformer(DateTime start, DateTime end) : base(
+                DateFormatTransformation.Builder.Start()
+                    .SetRangeStart(start)
+                    .SetRangeEnd(end)
+                    .SetOnFailure(FailAction.DoNothing))
             {
-                // do nothing here
+              
             }
-
-            public TestTransformer(TimeZoneInfo inputTZ, TimeZoneInfo outputTZ) :
-                base("", null, "", "", null, "", "", outputTZ, inputTZ, DateTime.MinValue, DateTime.MaxValue, FailAction.DoNothing)
+                        
+            public TestTransformer (TimeZoneInfo inputTZ, TimeZoneInfo outputTZ) : base(
+                DateFormatTransformation.Builder.Start()
+                    .SetRangeStart(DateTime.MinValue)
+                    .SetRangeEnd(DateTime.MaxValue)
+                    .SetOnFailure(FailAction.DoNothing)
+                    .SetInputTimeZone(inputTZ)
+                    .SetOutputTimeZone(outputTZ))
             {
-                // do nothing here
+                
             }
-
+                        
             public new bool isInRange(DateTime date)
             {
                 return base.isInRange(date);
@@ -81,7 +90,7 @@ namespace LoadFileAdapterTests.Transformers
             expectedDate = new DateTime(2015, 12, 9, 16, 15, 52);
             actualDate = t.adjustTimeZone(originalDate);
             Assert.AreEqual(expectedDate, actualDate);
-            t = new TestTransformer(inTZ, null);
+            t = new TestTransformer(inTZ, null); 
             originalDate = new DateTime(2015, 12, 9, 19, 15, 52);
             expectedDate = new DateTime(2015, 12, 10, 0, 15, 52);
             actualDate = t.adjustTimeZone(originalDate);
@@ -153,17 +162,20 @@ namespace LoadFileAdapterTests.Transformers
 
         public string getTransformedDate (string value, string inFormat, string outFormat, TimeZoneInfo inZone, TimeZoneInfo outZone)
         {
-            string fieldName = "date";
-            Regex findText = new Regex("");
-            string replaceText = "";
-            string filterField = "";
-            Regex filterText = new Regex("");
+            string fieldName = "date";            
             DateTime rangeStart = new DateTime(2000, 1, 1);
             DateTime rangeEnd = DateTime.Today;
             DateFormatTransformation.FailAction onFailure = DateFormatTransformation.FailAction.DoNothing;
-            DateFormatTransformation t = new DateFormatTransformation(
-                fieldName, findText, replaceText, filterField, filterText,
-                outFormat, inFormat, outZone, inZone, rangeStart, rangeEnd, onFailure);
+            DateFormatTransformation t = DateFormatTransformation.Builder.Start()
+                .SetFieldName(fieldName)
+                .SetOutputFormat(outFormat)
+                .SetInputFormat(inFormat)
+                .SetOutputTimeZone(outZone)
+                .SetInputTimeZone(inZone)
+                .SetRangeStart(rangeStart)
+                .SetRangeEnd(rangeEnd)
+                .SetOnFailure(onFailure)
+                .Build();                
             string key = "DOC000001";
             Dictionary<string, string> metadata = new Dictionary<string, string>();
             metadata.Add("date", value);

@@ -12,20 +12,27 @@ namespace LoadFileAdapter.Exporters
     /// <summary>
     /// An exporter that export a <see cref="DocumentCollection"/> to an Excel file.
     /// </summary>
-    public class XlsExporter : IExporter<ExportXlsSettings>
+    public class XlsExporter : IExporter
     {
         private const string ROOT_REGEX = "^[A-Za-z]:\\\\";
+        protected FileInfo file;
+        protected HyperLinkInfo[] links;
+        protected string[] exportFields;
 
         /// <summary>
-        /// Exports an excel file.
+        /// Initializes a new instance of <see cref="XlsExporter"/>.
         /// </summary>
-        /// <param name="args">Excel export settings.</param>
-        public void Export(ExportXlsSettings args)
-        {                        
-            FileInfo file = args.GetFile();
-            DocumentCollection docs = args.GetDocuments();
-            ExportXlsLinkSettings[] links = args.GetLinks();
+        protected XlsExporter()
+        {
+            // do nothing
+        }
 
+        /// <summary>
+        /// Exports documents to an Excel file.
+        /// </summary>
+        /// <param name="docs">The documents to export.</param>
+        public void Export(DocumentCollection docs)
+        {               
             if (!file.Directory.Exists)
                 file.Directory.Create();
 
@@ -34,25 +41,22 @@ namespace LoadFileAdapter.Exporters
 
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
-            DataTable dt = getMetaDataTable(args);
+            DataTable dt = getMetaDataTable(docs);
             worksheet.Cells[1, 1].LoadFromDataTable(dt, true);
-            insertLinks(worksheet, docs, dt, links);
+            insertLinks(worksheet, docs, dt);
             package.Save();
         }
 
         /// <summary>
         /// Gets a <see cref="DataTable"/> build from excel export settings.
         /// </summary>
-        /// <param name="args">Excel export settings.</param>
+        /// <param name="docs">The documents to add.</param>
         /// <returns>Returns the data table to export.</returns>
-        protected DataTable getMetaDataTable(ExportXlsSettings args)
-        {
-            DocumentCollection docs = args.GetDocuments();
-            string[] fields = args.GetExportFields();
-            ExportXlsLinkSettings[] links = args.GetLinks();
+        protected DataTable getMetaDataTable(DocumentCollection docs)
+        {            
             DataTable dt = new DataTable();
-            fields.ToList().ForEach(f => dt.Columns.Add(f));
-            docs.ToList().ForEach(d => dt.Rows.Add(getRowValues(d, fields)));
+            exportFields.ToList().ForEach(f => dt.Columns.Add(f));
+            docs.ToList().ForEach(d => dt.Rows.Add(getRowValues(d, exportFields)));
             insertLinkColumns(dt, links);
             return dt;
         }
@@ -87,11 +91,11 @@ namespace LoadFileAdapter.Exporters
         /// </summary>
         /// <param name="dt"><see cref="DataTable"/> containing output data.</param>
         /// <param name="links">Hyperlink settings.</param>
-        protected void insertLinkColumns(DataTable dt, ExportXlsLinkSettings[] links)
+        protected void insertLinkColumns(DataTable dt, HyperLinkInfo[] links)
         {
             if (links != null)
             {
-                foreach (ExportXlsLinkSettings link in links)
+                foreach (HyperLinkInfo link in links)
                 {
                     if (!String.IsNullOrWhiteSpace(link.GetDisplayText()))
                     {
@@ -108,14 +112,12 @@ namespace LoadFileAdapter.Exporters
         /// <param name="ws">The target excel worksheet.</param>
         /// <param name="docs">Source documents.</param>
         /// <param name="dt"><see cref="DataTable"/> containing output data.</param>
-        /// <param name="links">Hyperlink settings.</param>
-        protected void insertLinks(ExcelWorksheet ws, DocumentCollection docs, 
-            DataTable dt, ExportXlsLinkSettings[] links)
+        protected void insertLinks(ExcelWorksheet ws, DocumentCollection docs, DataTable dt)
         {
             for (int row = 0; row < docs.Count; row++)
             {
                 Document doc = docs[row];
-                insertRowLinks(ws, dt, doc, links, row);
+                insertRowLinks(ws, dt, doc, row);
             }
         }
 
@@ -125,12 +127,10 @@ namespace LoadFileAdapter.Exporters
         /// <param name="ws">The target excel worksheet.</param>
         /// <param name="dt"><see cref="DataTable"/> containing output data.</param>
         /// <param name="doc">The target document.</param>
-        /// <param name="links">Hyperlink settings.</param>
         /// <param name="row">The target row.</param>
-        protected void insertRowLinks(ExcelWorksheet ws, DataTable dt, Document doc, 
-            ExportXlsLinkSettings[] links, int row)
+        protected void insertRowLinks(ExcelWorksheet ws, DataTable dt, Document doc, int row)
         {
-            foreach (ExportXlsLinkSettings link in links)
+            foreach (HyperLinkInfo link in links)
             {
                 Representative rep = doc.Representatives
                     .FirstOrDefault(r => r.Type.Equals(link.GetFileType()));
@@ -160,6 +160,56 @@ namespace LoadFileAdapter.Exporters
                     ws.Cells[row + 2, col + 1].Formula = cellValue;
                     ws.Cells[row + 2, col + 1].Style.Font.Color.SetColor(Color.Blue);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Builder for an <see cref="XlsExporter"/>.
+        /// </summary>
+        public class Builder
+        {
+            private XlsExporter instance;
+
+            private Builder()
+            {
+                this.instance = new XlsExporter();
+            }
+
+            /// <summary>
+            /// Starts the build process to make a <see cref="XlsExporter"/>.
+            /// </summary>
+            /// <param name="file">The destination of the export file.</param>
+            /// <param name="exportFields">The fields to export.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public static Builder Start(FileInfo file, string[] exportFields)
+            {
+                Builder builder = new Builder();
+                builder.instance.file = file;                
+                builder.instance.exportFields = exportFields;
+                builder.instance.CreateDestination(file);
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the collection of <see cref="HyperLinkInfo"/> used to make hyperlinks.
+            /// </summary>
+            /// <param name="value">The collection of <see cref="HyperLinkInfo"/> objects.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetLinks(HyperLinkInfo[] value)
+            {
+                instance.links = value;
+                return this;
+            }
+            
+            /// <summary>
+            /// Builds a <see cref="XlsExporter"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="XlsExporter"/>.</returns>
+            public XlsExporter Build()
+            {
+                XlsExporter instance = this.instance;
+                this.instance = null;
+                return instance;
             }
         }
     }

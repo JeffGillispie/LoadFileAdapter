@@ -3,26 +3,22 @@
 namespace LoadFileAdapter.Builders
 {
     /// <summary>
-    /// The interface for a builder that builds a document collection from a load file.
+    /// Builds load file data into documents.
     /// </summary>
-    /// <typeparam name="T">Document collection build settings.</typeparam>
-    /// <typeparam name="S">Document build settings.</typeparam>
-    public interface IBuilder<T, S>
-        where T: BuildDocCollectionSettings
-        where S: BuildDocSettings
+    public interface IBuilder
     {
         /// <summary>
         /// Builds a list of documents.
         /// </summary>
-        /// <param name="args">Document collection build settings.</param>
-        /// <returns></returns>
-        List<Document> BuildDocuments(T args);
+        /// <param name="records">The records to build into documents.</param>
+        /// <returns>Returns a list of <see cref="Document"/>.</returns>
+        List<Document> Build(IEnumerable<string[]> records);
 
         /// <summary>
         /// Builds a single document.
         /// </summary>
-        /// <param name="args">Document build settings.</param>
-        /// <returns></returns>
-        Document BuildDocument(S args);
+        /// <param name="docRecords">Document Records</param>
+        /// <returns>Returns a <see cref="Document"/>.</returns>
+        Document BuildDocument(IEnumerable<string[]> docRecords);
     }
 }

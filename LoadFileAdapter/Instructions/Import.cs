@@ -24,16 +24,16 @@ namespace LoadFileAdapter.Instructions
         /// </summary>
         [XmlIgnore] 
         public Encoding Encoding;
-
+                
         /// <summary>
         /// Initializes a new instance of <see cref="Import"/>.
         /// </summary>
         /// <param name="file">The file to import.</param>
-        /// <param name="encoding">The encoding used to read the file.</param>
+        /// <param name="encoding">The encoding used to read the file.</param>        
         public Import(FileInfo file, Encoding encoding)
         {
             this.File = file;
-            this.Encoding = encoding;
+            this.Encoding = encoding;            
         }
         
         /// <summary>
@@ -69,6 +69,8 @@ namespace LoadFileAdapter.Instructions
             {
                 this.Encoding = Encoding.GetEncoding(value);
             }
-        }     
+        }
+
+        public abstract Importers.IImporter BuildImporter();        
     }
 }

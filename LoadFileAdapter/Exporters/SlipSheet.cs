@@ -5,65 +5,72 @@ using System.Runtime.InteropServices;
 namespace LoadFileAdapter.Exporters
 {
     /// <summary>
-    /// Creates a slipsheet for a <see cref="Document"/> used in an <see cref="XrefExporter"/>.
+    /// Creates a slipsheet for a <see cref="Document"/>.
     /// </summary>
     public class SlipSheet
     {
-        private string text;
-        private string docid;
+        private string key;
+        private string text;        
+        private int resolution = 300;
+        private Font font = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Bold);
+        private HorizontalPlacementOption horizontalTextPlacement = HorizontalPlacementOption.Left;
+        private VerticalPlacementOption verticalTextPlacement = VerticalPlacementOption.Top;
+                
+        private SlipSheet()
+        {
+            // do nothing here
+        }
 
         /// <summary>
         /// The docid value of the slipsheet.
         /// </summary>
-        public string Docid { get { return docid; } }
+        public string Key { get { return key; } }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="SlipSheet"/>.
+        /// The horizontal placement option for slipsheet text.
         /// </summary>
-        /// <param name="docid">The docid value for the slipsheet.</param>
-        /// <param name="text">The text to write on the slipsheet.</param>
-        public SlipSheet(string docid, string text)
+        public enum HorizontalPlacementOption
         {
-            this.docid = docid;
-            this.text = text;
+            Center, Left
+        }
+
+        /// <summary>
+        /// The vertical placement option for slipsheet text.
+        /// </summary>
+        public enum VerticalPlacementOption
+        {
+            Center, Top
         }
 
         /// <summary>
         /// Gets the slip sheet bitmap.
-        /// </summary>
-        /// <param name="settings">The XREF slip sheet settings used to create the slipsheet.</param>
+        /// </summary>        
         /// <returns>Returns a bitmap image of a slip sheet.</returns>
-        public Bitmap GetImage(XrefSlipSheetSettings settings)
+        public Bitmap GetImage()
         {
-            int sizeFactor = settings.Resolution / 100;
+            int sizeFactor = resolution / 100;
             int width = 850 * sizeFactor;
             int height = 1100 * sizeFactor;
             Bitmap image = new Bitmap(width, height);
             Graphics slipsheet = Graphics.FromImage(image);
             slipsheet.FillRectangle(Brushes.White, 0, 0, image.Width, image.Height);
             StringFormat drawFormat = new StringFormat();
-            drawFormat.Alignment = getStringAlignment(settings.HorizontalPlacement);
-            drawFormat.LineAlignment = getStringAlignment(settings.VerticalPlacement);
-
-            slipsheet.DrawString(
-                this.text, 
-                settings.SlipsheetFont, 
-                SystemBrushes.WindowText, 
-                new Rectangle(10, 10, width, height),
-                drawFormat);
+            drawFormat.Alignment = getStringAlignment(horizontalTextPlacement);
+            drawFormat.LineAlignment = getStringAlignment(verticalTextPlacement);
+            slipsheet.DrawString(text, font, SystemBrushes.WindowText, 
+                new Rectangle(10, 10, width, height), drawFormat);
 
             return image;
         }
 
         /// <summary>
         /// Saves the slip sheet as the image/tiff mime type to the target destination.
-        /// </summary>
-        /// <param name="settings">The XREF slip sheet settings used to create the slip sheet.</param>
+        /// </summary>        
         /// <param name="destination">The location where the slip sheet should be saved.</param>
-        public void SaveImage(XrefSlipSheetSettings settings, string destination)
+        public void SaveImage(string destination)
         {
-            Bitmap bmp = GetImage(settings);
-            bmp.SetResolution(settings.Resolution, settings.Resolution);
+            Bitmap bmp = GetImage();
+            bmp.SetResolution(resolution, resolution);
             Bitmap bitonalBmp = convertToBitonal(bmp);
             ImageCodecInfo codec = getEncoderInfo("image/tiff");
             Encoder encoder = Encoder.Compression;
@@ -85,13 +92,11 @@ namespace LoadFileAdapter.Exporters
 
             if (alignment != null)
             {
-                if ((alignment.GetType().Equals(typeof(XrefSlipSheetSettings.HorizontalPlacementOption)) &&
-                    (XrefSlipSheetSettings.HorizontalPlacementOption)(object)alignment == XrefSlipSheetSettings
-                        .HorizontalPlacementOption.Center)
+                if ((alignment.GetType().Equals(typeof(HorizontalPlacementOption)) &&
+                    (HorizontalPlacementOption)(object)alignment == HorizontalPlacementOption.Center)
                     || 
-                    (alignment.GetType().Equals(typeof(XrefSlipSheetSettings.VerticalPlacementOption)) &&
-                    (XrefSlipSheetSettings.VerticalPlacementOption)(object)alignment == XrefSlipSheetSettings
-                        .VerticalPlacementOption.Center))
+                    (alignment.GetType().Equals(typeof(VerticalPlacementOption)) &&
+                    (VerticalPlacementOption)(object)alignment == VerticalPlacementOption.Center))
                 {
                     stringAlignment = StringAlignment.Center;
                 }                
@@ -130,7 +135,8 @@ namespace LoadFileAdapter.Exporters
         /// <param name="sourceData">The bitmap data of the original image.</param>
         /// <param name="destinationData">The bitmap data of the bitonal image.</param>
         /// <returns>Returns a buffer of bitonal data to create a bitonal image.</returns>
-        protected byte[] getBitonalBuffer(Bitmap sourceBitmap, byte[] sourceBuffer, BitmapData sourceData, BitmapData destinationData)
+        protected byte[] getBitonalBuffer(
+            Bitmap sourceBitmap, byte[] sourceBuffer, BitmapData sourceData, BitmapData destinationData)
         {
             int sourceIndex = 0;
             int destinationIndex = 0;
@@ -248,6 +254,88 @@ namespace LoadFileAdapter.Exporters
             }
 
             return codec;
+        }
+
+        /// <summary>
+        /// Builds a <see cref="SlipSheet"/> instance.
+        /// </summary>
+        public class Builder
+        {
+            private SlipSheet instance;
+
+            private Builder()
+            {
+                instance = new SlipSheet();
+            }
+
+            /// <summary>
+            /// Starts the process for building a <see cref="SlipSheet"/> instance.
+            /// </summary>
+            /// <param name="key">The slipsheet key.</param>
+            /// <param name="text">The slipsheet text.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public static Builder Start(string key, string text)
+            {
+                Builder builder = new Builder();
+                builder.instance.key = key;
+                builder.instance.text = text;
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the resolution.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetResolution(int value)
+            {
+                instance.resolution = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the slipsheet font.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetFont(Font value)
+            {
+                instance.font = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the horizontal text placement.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetHorizontalTextPlacement(HorizontalPlacementOption value)
+            {
+                instance.horizontalTextPlacement = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the vertical text placement.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetVerticalTextPlacement(VerticalPlacementOption value)
+            {
+                instance.verticalTextPlacement = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Builds a <see cref="SlipSheet"/> instance.
+            /// </summary>
+            /// <returns>Returns a <see cref="SlipSheet"/> instanc.</returns>
+            public SlipSheet Build()
+            {
+                SlipSheet instance = this.instance;
+                this.instance = null;
+                return instance;
+            }
         }
     }
 }

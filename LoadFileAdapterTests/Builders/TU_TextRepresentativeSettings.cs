@@ -11,34 +11,34 @@ namespace LoadFileAdapterTests.Builders
         [TestMethod]
         public void Builders_TextRepresentativeSettings_GetTextPath()
         {
-            TextRepresentativeSettings settingsA = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.SameAsImages,
+            TextBuilder settingsA = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.SameAsImages,
                 new Regex("\\\\IMAGES", RegexOptions.IgnoreCase), 
                 "\\TEXT");
-            TextRepresentativeSettings settingsB = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.AlternateLocation,
+            TextBuilder settingsB = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.AlternateLocation,
                 new Regex("\\\\IMAGES", RegexOptions.IgnoreCase),
                 "\\TEXT");
-            TextRepresentativeSettings settingsC = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.None,
+            TextBuilder settingsC = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.None,
                 new Regex("\\\\IMAGES", RegexOptions.IgnoreCase),
                 "\\TEXT");
-            TextRepresentativeSettings settingsD = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Doc,
-                TextRepresentativeSettings.TextLocation.SameAsImages,
+            TextBuilder settingsD = new TextBuilder(
+                TextBuilder.TextLevel.Doc,
+                TextBuilder.TextLocation.SameAsImages,
                 new Regex("\\\\IMAGES", RegexOptions.IgnoreCase),
                 "\\TEXT");
-            TextRepresentativeSettings settingsE = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Doc,
-                TextRepresentativeSettings.TextLocation.AlternateLocation,
+            TextBuilder settingsE = new TextBuilder(
+                TextBuilder.TextLevel.Doc,
+                TextBuilder.TextLocation.AlternateLocation,
                 new Regex("\\\\IMAGES", RegexOptions.IgnoreCase),
                 "\\TEXT");
-            TextRepresentativeSettings settingsF = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Doc,
-                TextRepresentativeSettings.TextLocation.None,
+            TextBuilder settingsF = new TextBuilder(
+                TextBuilder.TextLevel.Doc,
+                TextBuilder.TextLocation.None,
                 new Regex("\\\\IMAGES", RegexOptions.IgnoreCase),
                 "\\TEXT");
             string image = "X:\\VOL001\\images\\001\\DOC000001.TIF";

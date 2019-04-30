@@ -105,13 +105,16 @@ namespace LoadFileAdapter.Instructions
         /// Get the <see cref="MetaDataTransformation"/> value of the edit.
         /// </summary>
         /// <returns>Returns a <see cref="MetaDataTransformation"/>.</returns>
-        public override Transformation GetTransformation()
+        public override Transformation ToTransformation()
         {
-            return new MetaDataTransformation(
-                this.FieldName, base.FindText, base.ReplaceText,
-                this.AlternateDestinationField, this.PrependField, 
-                this.AppendField, this.JoinDelimiter,
-                base.FilterField, base.FilterText, this.PrependDirectory);
+            return MetaDataTransformation.Builder
+                .Start(FieldName, FindText, ReplaceText, FilterField, FilterText)
+                .SetAltDestinationField(AlternateDestinationField)
+                .SetAppendField(AppendField)
+                .SetPrependField(PrependField)
+                .SetJoinDelimiter(JoinDelimiter)
+                .SetPrependDir(PrependDirectory)
+                .Build();            
         }
     }
 }

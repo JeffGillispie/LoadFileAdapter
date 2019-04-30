@@ -55,11 +55,19 @@ namespace LoadFileAdapter.Instructions
         /// <param name="file">The destination file.</param>
         /// <param name="exportFields">The fields to export.</param>
         /// <param name="links">Hyperlink settings of the export.</param>
-        public XlsExport(FileInfo file, string[] exportFields, ExportXlsLinkSettings[] links) : 
+        public XlsExport(FileInfo file, string[] exportFields, HyperLinkInfo[] links) : 
             base(file, Encoding.Default)
         {
             this.ExportFields = exportFields;
             this.Hyperlinks = links.Select(l => new Hyperlink(l)).ToArray();
+        }
+
+        public override IExporter BuildExporter()
+        {
+            return XlsExporter.Builder
+                .Start(File, ExportFields)
+                .SetLinks(Hyperlinks.Select(l => l.GetLinkSettings()).ToArray())
+                .Build();
         }
     }
 }

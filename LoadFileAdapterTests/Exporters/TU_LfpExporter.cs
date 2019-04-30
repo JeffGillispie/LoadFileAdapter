@@ -66,9 +66,7 @@ namespace LoadFileAdapterTests
             List<string> output = new List<string>();
             mockWriter
                 .Setup(r => r.WriteLine(It.IsAny<string>()))
-                .Callback((string s) => output.Add(s));
-            Delimiters delimiters = Delimiters.CONCORDANCE;
-            ParseReaderDatSettings readArgs = new ParseReaderDatSettings(mockReader.Object, delimiters);
+                .Callback((string s) => output.Add(s));            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.dat");            
             bool hasHeader = true;
             string keyColName = "DOCID";
@@ -76,21 +74,27 @@ namespace LoadFileAdapterTests
             string childColName = String.Empty;
             string childColDelim = ";";
             string vol = "TEST001";
-            DatRepresentativeSettings repSetting = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);
-            List<DatRepresentativeSettings> reps = new List<DatRepresentativeSettings>();
+            RepresentativeBuilder repSetting = new RepresentativeBuilder("NATIVE", Representative.FileType.Native);
+            List<RepresentativeBuilder> reps = new List<RepresentativeBuilder>();
             reps.Add(repSetting);
-            IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
-            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
+            var builder = new DatBuilder();
+            IParser parser = new DatParser(Delimiters.CONCORDANCE);
+            builder.HasHeader = hasHeader;
+            builder.KeyColumnName = keyColName;
+            builder.ParentColumnName = parentColName;
+            builder.ChildColumnName = childColName;
+            builder.ChildSeparator = childColDelim;
+            builder.RepresentativeBuilders = reps;
+            builder.PathPrefix = infile.Directory.FullName;
             
             // act
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionDatSettings buildArgs = new BuildDocCollectionDatSettings(
-                records, infile.Directory.FullName, hasHeader, keyColName, parentColName, childColName, childColDelim, reps);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            List<string[]> records = parser.Parse(mockReader.Object);            
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder.Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("OF,DOC000001,@TEST001;X:\\VOL001\\NATIVE\\0001;DOC000001.XLSX,1", output[0]);
@@ -110,25 +114,27 @@ namespace LoadFileAdapterTests
             List<string> output = new List<string>();
             mockWriter
                 .Setup(r => r.WriteLine(It.IsAny<string>()))
-                .Callback((string s) => output.Add(s));
-            ParseReaderSettings readArgs = new ParseReaderSettings(mockReader.Object);            
+                .Callback((string s) => output.Add(s));            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.lfp");                                    
             string vol = "TEST001";
-            TextRepresentativeSettings rep = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.None,
-                TextRepresentativeSettings.TextLocation.None, 
+            TextBuilder rep = new TextBuilder(
+                TextBuilder.TextLevel.None,
+                TextBuilder.TextLocation.None, 
                 null, null);            
-            IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder = new LfpBuilder();
-            IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings> parser = new LfpParser();
+            var builder = new LfpBuilder();
+            IParser parser = new LfpParser();
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = rep;            
             
             // act
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionImageSettings buildArgs = new BuildDocCollectionImageSettings(records, String.Empty, rep);            
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            List<string[]> records = parser.Parse(mockReader.Object);            
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder
+                .Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("IM,000000001,D,0,@TEST001;IMG_0001;000000001.jpg;4,0", output[0]);
@@ -150,25 +156,27 @@ namespace LoadFileAdapterTests
             List<string> output = new List<string>();
             mockWriter
                 .Setup(r => r.WriteLine(It.IsAny<string>()))
-                .Callback((string s) => output.Add(s));
-            ParseReaderSettings readArgs = new ParseReaderSettings(mockReader.Object);
+                .Callback((string s) => output.Add(s));            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.lfp");
             string vol = "TEST001";
-            TextRepresentativeSettings rep = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.None,
-                TextRepresentativeSettings.TextLocation.None,
+            TextBuilder rep = new TextBuilder(
+                TextBuilder.TextLevel.None,
+                TextBuilder.TextLocation.None,
                 null, null);
-            IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder = new LfpBuilder();
-            IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings> parser = new LfpParser();
+            var builder = new LfpBuilder();
+            IParser parser = new LfpParser();
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = rep;
 
             // act
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionImageSettings buildArgs = new BuildDocCollectionImageSettings(records, String.Empty, rep);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            List<string[]> records = parser.Parse(mockReader.Object);            
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder
+                .Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("IM,000000001,D,1,@TEST001;IMG_0001;000000001.pdf;7,0", output[0]);
@@ -190,25 +198,27 @@ namespace LoadFileAdapterTests
             List<string> output = new List<string>();
             mockWriter
                 .Setup(r => r.WriteLine(It.IsAny<string>()))
-                .Callback((string s) => output.Add(s));
-            ParseReaderDatSettings readArgs = new ParseReaderDatSettings(mockReader.Object, Delimiters.COMMA_DELIMITED);
+                .Callback((string s) => output.Add(s));            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.opt");
             string vol = "TEST001";
-            TextRepresentativeSettings rep = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.None,
-                TextRepresentativeSettings.TextLocation.None,
+            TextBuilder rep = new TextBuilder(
+                TextBuilder.TextLevel.None,
+                TextBuilder.TextLocation.None,
                 null, null);
-            IBuilder<BuildDocCollectionImageSettings, BuildDocImageSettings> builder = new OptBuilder();            
-            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
+            var builder = new OptBuilder();            
+            IParser parser = new DatParser(Delimiters.COMMA_DELIMITED);
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = rep;
 
             // act
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionImageSettings buildArgs = new BuildDocCollectionImageSettings(records, String.Empty, rep);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            List<string[]> records = parser.Parse(mockReader.Object);            
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-            IExporter<IExportImageSettings> exporter = new LfpExporter();
-            ExportImageWriterSettings exportArgs = new ExportImageWriterSettings(mockWriter.Object, docs, vol);
-            exporter.Export(exportArgs);
+            var exporter = LfpExporter.Builder
+                .Start(mockWriter.Object)
+                .SetVolumeName(vol)
+                .Build();                
+            exporter.Export(docs);
 
             // assert
             Assert.AreEqual("IM,000000001,D,0,@TEST001;X:\\VOL001\\IMAGES\\0001;000000001.jpg;4,0", output[0]);

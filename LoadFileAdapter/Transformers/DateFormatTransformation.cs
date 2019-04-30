@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Text.RegularExpressions;
 
 namespace LoadFileAdapter.Transformers
 {
@@ -39,6 +38,24 @@ namespace LoadFileAdapter.Transformers
             { "SDT", "-10" }
         };
 
+        private DateFormatTransformation() : base (null, null, null, null)
+        {
+            onFailure = FailAction.ReplaceWithNull;
+        }
+
+        protected DateFormatTransformation(Builder builder) : this()
+        {
+            DateFormatTransformation instance = builder.Build();
+            fieldName = instance.fieldName;
+            outputFormat = instance.outputFormat;
+            inputFormat = instance.inputFormat;
+            outputTimeZone = instance.outputTimeZone;
+            inputTimeZone = instance.inputTimeZone;
+            rangeStart = instance.rangeStart;
+            rangeEnd = instance.rangeEnd;
+            onFailure = instance.onFailure;
+        }
+
         /// <summary>
         /// Types of fail actions.
         /// </summary>
@@ -46,7 +63,7 @@ namespace LoadFileAdapter.Transformers
         {
             ReplaceWithNull,
             DoNothing,
-            Fail
+            ThrowError
         }
 
         /// <summary>
@@ -141,39 +158,7 @@ namespace LoadFileAdapter.Transformers
                 return onFailure;
             }
         }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="DateFormatTransformation"/>.
-        /// </summary>
-        /// <param name="fieldName">The metadata field to transform.</param>
-        /// <param name="findText">The regex for a find / replace operation.</param>
-        /// <param name="replaceText">The replacement text used with the find text regex.</param>
-        /// <param name="filterField">The filter field used to determine if a document should be edited.</param>
-        /// <param name="filterText">The filter regex used to determine if a filter field is is match and should be edited.</param>
-        /// <param name="outputFormat">The output date format.</param>
-        /// <param name="inputFormat">The input date format.</param>
-        /// <param name="outputTimeZone">The time zone used for the date output.</param>
-        /// <param name="inputTimeZone">The time zone used to parse the input.</param>
-        /// <param name="rangeStart">The start date in the valid date range.</param>
-        /// <param name="rangeEnd">The end date in the valid date range.</param>
-        /// <param name="onFailure">The action to take on failure.</param>
-        public DateFormatTransformation(string fieldName,
-            Regex findText, string replaceText, string filterField, Regex filterText,
-            string outputFormat, string inputFormat, TimeZoneInfo outputTimeZone, 
-            TimeZoneInfo inputTimeZone, DateTime rangeStart, DateTime rangeEnd, 
-            FailAction onFailure) : 
-            base(findText, replaceText, filterField, filterText)
-        {
-            this.fieldName = fieldName;
-            this.outputFormat = outputFormat;
-            this.inputFormat = inputFormat;
-            this.outputTimeZone = outputTimeZone;
-            this.inputTimeZone = inputTimeZone;
-            this.rangeStart = rangeStart;
-            this.rangeEnd = rangeEnd;
-            this.onFailure = onFailure;
-        }
-
+                
         /// <summary>
         /// Modifies the supplied <see cref="Document"/>. If the doc does not 
         /// contains the target field name that field is added to the doc's
@@ -213,9 +198,11 @@ namespace LoadFileAdapter.Transformers
                         {
                             value = String.Empty;
                         }
-                        else if (onFailure == FailAction.Fail)
+                        else if (onFailure == FailAction.ThrowError)
                         {
-                            string msg = (!isValidDateTime) ? "Invalid date value." : "Date value not in date range.";
+                            string msg = (!isValidDateTime) 
+                                ? "Invalid date value." 
+                                : "Date value not in date range.";
                             throw new Exception(msg);                            
                         }
                     }
@@ -321,6 +308,76 @@ namespace LoadFileAdapter.Transformers
             }
 
             return pass;
+        }
+        
+        public class Builder
+        {
+            private DateFormatTransformation instance;
+
+            private Builder()
+            {
+                instance = new DateFormatTransformation();
+            }
+
+            public static Builder Start()
+            {
+                return new Builder();
+            }
+
+            public Builder SetFieldName(string value)
+            {
+                instance.fieldName = value;
+                return this;
+            }
+
+            public Builder SetOutputFormat(string value)
+            {
+                instance.outputFormat = value;
+                return this;
+            }
+
+            public Builder SetInputFormat(string value)
+            {
+                instance.inputFormat = value;
+                return this;
+            }
+
+            public Builder SetOutputTimeZone(TimeZoneInfo value)
+            {
+                instance.outputTimeZone = value;
+                return this;
+            }
+
+            public Builder SetInputTimeZone(TimeZoneInfo value)
+            {
+                instance.inputTimeZone = value;
+                return this;
+            }
+
+            public Builder SetRangeStart(DateTime value)
+            {
+                instance.rangeStart = value;
+                return this;
+            }
+
+            public Builder SetRangeEnd(DateTime value)
+            {
+                instance.rangeEnd = value;
+                return this;
+            }
+
+            public Builder SetOnFailure(FailAction value)
+            {
+                instance.onFailure = value;
+                return this;
+            }
+
+            public DateFormatTransformation Build()
+            {
+                DateFormatTransformation instance = this.instance;
+                this.instance = null;
+                return instance;
+            }
         }                
     }
 }

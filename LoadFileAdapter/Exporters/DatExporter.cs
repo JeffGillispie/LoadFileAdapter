@@ -8,78 +8,43 @@ namespace LoadFileAdapter.Exporters
     /// <summary>
     /// An exporter that exports a document collection to a DAT file.
     /// </summary>
-    public class DatExporter : IExporter<IExportDatSettings>
+    public class DatExporter : IExporter
     {
-        /// <summary>
-        /// Exports a document collection to a DAT.
-        /// </summary>
-        /// <param name="args">DAT export settings.</param>
-        public void Export(IExportDatSettings args)
+        private FileInfo file;
+        private Encoding encoding;
+        private TextWriter writer;
+        private string[] exportFields;
+        private Delimiters delimiters = Delimiters.CONCORDANCE;
+        
+        private DatExporter()
         {
-            if (args.GetType().Equals(typeof(ExportDatFileSettings)))
-            {
-                Export((ExportDatFileSettings)args);
-            }
-            else if (args.GetType().Equals(typeof(ExportDatWriterSettings)))
-            {
-                Export((ExportDatWriterSettings)args);
-            }
-            else
-            {
-                throw new Exception("DatExporter Export Exception: The export settings were not a valid type.");
-            }
+            // do nothing here
         }
 
-        /// <summary>
-        /// Exports a document collection to a DAT file using a supplied destination.
-        /// </summary>
-        /// <param name="args">Export file settings.</param>
-        public void Export(ExportDatFileSettings args)
+        ~DatExporter()
         {
-            args.CreateDestination();
-            bool append = false;
-            string file = args.GetFile().FullName;
-            Encoding encoding = args.GetEncoding();
-            DocumentCollection docs = args.GetDocuments();
-            Delimiters delims = args.GetDelimiters();
-            string[] fields = args.GetExportFields();
-
-            using (TextWriter writer = new StreamWriter(file, append, encoding))
+            if (writer != null)
             {
-                ExportDatWriterSettings writerArgs = new ExportDatWriterSettings(
-                    writer, docs, delims, fields);
-                Export(writerArgs);
+                writer.Close();
             }
         }
-
+        
         /// <summary>
-        /// Exports a document collection to a DAT file using a supplied writer.
+        /// Exports documents to a DAT file.
         /// </summary>
-        /// <param name="args">Export writer settings.</param>
-        public void Export(ExportDatWriterSettings args)
-        {
-            DocumentCollection docs = args.GetDocuments();
-            TextWriter writer = args.GetWriter();
-            Delimiters delims = args.GetDelimiters();
-            string[] fields = args.GetExportFields();
-            string header = getHeader(fields, delims);
+        /// <param name="docs">The documents to export.</param>
+        public void Export(DocumentCollection docs)
+        {                                       
+            string header = getHeader(exportFields, delimiters);
             writer.WriteLine(header);
 
             foreach (Document document in docs)
             {
-                string record = getRecord(document, delims, fields);
+                string record = getRecord(document, delimiters, exportFields);
                 writer.WriteLine(record);
             }
         }
-
-        public void CreateDestination(DirectoryInfo destination)
-        {
-            if (destination.Exists == false)
-            {
-                destination.Create();
-            }
-        }
-
+                
         /// <summary>
         /// Gets the header as a string.
         /// </summary>
@@ -174,6 +139,74 @@ namespace LoadFileAdapter.Exporters
             }
             
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Builds an instance of <see cref="DatExporter"/>.
+        /// </summary>
+        public class Builder
+        {
+            private DatExporter instance;
+
+            private Builder()
+            {
+                this.instance = new DatExporter();
+            }
+
+            /// <summary>
+            /// Starts the process of making a <see cref="DatExporter"/> instance.
+            /// </summary>
+            /// <param name="file">The destination file.</param>
+            /// <param name="encoding">The encoding of the export.</param>
+            /// <param name="exportFields">The fields to export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public static Builder Start(FileInfo file, Encoding encoding, string[] exportFields)
+            {
+                Builder builder = new Builder();
+                bool append = false;
+                builder.instance.file = file;
+                builder.instance.encoding = encoding;
+                builder.instance.exportFields = exportFields;                
+                builder.instance.writer = new StreamWriter(file.FullName, append, encoding);
+                builder.instance.CreateDestination(file);
+                return builder;
+            }
+
+            /// <summary>
+            /// Starts the process of making a <see cref="DatExporter"/> instance.
+            /// </summary>
+            /// <param name="writer">The <see cref="TextWriter"/> used to write the export.</param>
+            /// <param name="exportFields">The fields to export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public static Builder Start(TextWriter writer, string[] exportFields)
+            {
+                Builder builder = new Builder();
+                builder.instance.writer = writer;
+                builder.instance.exportFields = exportFields;
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the export <see cref="Delimiters"/>.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetDelimiters(Delimiters value)
+            {
+                instance.delimiters = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Builds an instance of <see cref="DatExporter"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="DatExporter"/>.</returns>
+            public DatExporter Build()
+            {
+                DatExporter instance = this.instance;
+                this.instance = null;
+                return instance;
+            }
         }
     }
 }

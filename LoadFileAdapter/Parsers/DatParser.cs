@@ -8,48 +8,60 @@ namespace LoadFileAdapter.Parsers
     /// <summary>
     /// A parser used to parse text delimited data from a DAT file.
     /// </summary>
-    public class DatParser : IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings>
+    public class DatParser : IParser
     {
+        private Delimiters delimiters;
+
         /// <summary>
-        /// Parses data from a delimited text file into a list of string
-        /// arrays based on the supplied <see cref="Delimiters"/>.
+        /// Initializes a new instance of <see cref="DatParser"/>.
         /// </summary>
-        /// <param name="args">Contains the path to the file to parse
-        /// and the encoding and delimiters used to read it.</param>
-        /// <returns>Returns a list of fields parsed</returns>
-        public virtual List<string[]> Parse(ParseFileDatSettings args)
+        /// <param name="delimiters">The delimiters used for parsing.</param>
+        public DatParser(Delimiters delimiters)
+        {
+            this.delimiters = delimiters;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="DatParser"/>.
+        /// </summary>
+        public DatParser()
+        {
+            this.delimiters = Delimiters.CONCORDANCE;
+        }
+
+        /// <summary>
+        /// Parses a delimited text file.
+        /// </summary>
+        /// <param name="file">The file to parse.</param>
+        /// <param name="encoding">The encoding of the file.</param>
+        /// <returns>Returns a list of parsed fields.</returns>
+        public virtual List<string[]> Parse(FileInfo file, Encoding encoding)
         {
             bool detectEncoding = true;
             List<string[]> records = null;
 
-            using (StreamReader reader = new StreamReader(args.File.FullName, args.Encoding, detectEncoding))
-            {
-                ParseReaderDatSettings readerArgs = new ParseReaderDatSettings(reader, args.Delimiters);
-                records = Parse(readerArgs);
+            using (TextReader reader = new StreamReader(file.FullName, encoding, detectEncoding))
+            {                
+                records = Parse(reader);
             }
 
             return records;
         }
 
         /// <summary>
-        /// Parses data read from a <see cref="TextReader"/> into a list of 
-        /// string arrays based on the supplied <see cref="Delimiters"/>.
+        /// Parses data from a <see cref="TextReader"/>.
         /// </summary>
-        /// <param name="args">Contains the <see cref="TextReader"/> used to 
-        /// read the input data and the <see cref="Delimiters"/> used to parse
-        /// it.</param>
-        /// <returns>Returns a list of fields parsed.</returns>
-        public virtual List<string[]> Parse(ParseReaderDatSettings args)
+        /// <param name="reader">The reader used to read the delimited text.</param>
+        /// <returns>Returns a list of parsed fields.</returns>
+        public virtual List<string[]> Parse(TextReader reader)
         {
             List<string[]> records = new List<string[]>();
 
             string line = String.Empty;
 
-            while ((line = args.Reader.ReadLine()) != null)
-            {
-                ParseLineDatSettings lineParameters = new ParseLineDatSettings(
-                    line, args.Delimiters);
-                string[] record = ParseLine(lineParameters);
+            while ((line = reader.ReadLine()) != null)
+            {                            
+                string[] record = ParseLine(line);
                 records.Add(record);
             }
 
@@ -57,21 +69,24 @@ namespace LoadFileAdapter.Parsers
         }
 
         /// <summary>
-        /// Parse a string into an array of fields.
+        /// Parses a single delimited line of text.
         /// </summary>
-        /// <param name="args">Contains both the line to be parsed and the 
-        /// <see cref="Delimiters"/> used to parse the line.</param>
-        /// <returns>Returns an array of parsed fields.</returns>
-        public string[] ParseLine(ParseLineDatSettings args)
+        /// <param name="line">The line to parse.</param>
+        /// <returns>Returns the parsed fields.</returns>
+        public string[] ParseLine(string line)
         {
             List<string> fieldValues = new List<string>();
             int startIndex = 0;
 
-            while (startIndex < args.Line.Length)
+            while (startIndex < line.Length)
             {
-                string fieldValue = parseField(
-                    args.Line, ref startIndex, args.Delimiters);
+                string fieldValue = parseField(line, ref startIndex, delimiters);
                 fieldValues.Add(fieldValue);
+            }
+
+            if (line[line.Length - 1] == delimiters.FieldSeparator)
+            {
+                fieldValues.Add(String.Empty);
             }
 
             return fieldValues.ToArray();
@@ -86,14 +101,13 @@ namespace LoadFileAdapter.Parsers
         /// <param name="delimiters">The delimiters used to parse the line.
         /// </param>
         /// <returns>Returns the next field in the line.</returns>
-        protected string parseField(
-            string line, ref int startIndex, Delimiters delimiters)
+        protected string parseField(string line, ref int startIndex, Delimiters delimiters)
         {
             StringBuilder fieldValue = new StringBuilder();
             int currentIndex = startIndex;
             char currentChar = line[currentIndex];
             // if this is an empty field return an empty value
-            if (currentChar == delimiters.FieldSeparator)
+            if (currentChar == delimiters.FieldSeparator && delimiters.TextQualifier != Delimiters.Null)
             {
                 currentIndex++;
             }

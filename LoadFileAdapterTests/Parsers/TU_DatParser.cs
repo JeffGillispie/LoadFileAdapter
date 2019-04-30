@@ -10,9 +10,10 @@ namespace LoadFileAdapterTests
     [TestClass]
     public class TU_DatParser
     {
-        private IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
+        private IParser parser;
         private List<string> concordanceInput;
         private List<string> csvInput;
+        private List<string> qualifiedInput;
 
         public TU_DatParser()
         {
@@ -28,12 +29,11 @@ namespace LoadFileAdapterTests
             mockReader
                 .Setup(r => r.ReadLine())
                 .Returns(() => concordanceInput[calls])
-                .Callback(() => calls++);
-            Delimiters delimiters = Delimiters.CONCORDANCE;
-            ParseReaderDatSettings args = new ParseReaderDatSettings(mockReader.Object, delimiters);
+                .Callback(() => calls++);            
+            this.parser = new DatParser(Delimiters.CONCORDANCE);            
 
             // act
-            List<string[]> docs = parser.Parse(args);
+            List<string[]> docs = parser.Parse(mockReader.Object);
 
             // assert
             Assert.IsTrue(docs[0].SequenceEqual(new string[] { "DOCID", "BEGATT", "VOLUME" }));
@@ -42,7 +42,7 @@ namespace LoadFileAdapterTests
         }
 
         [TestMethod]
-        public void Parsers_TabularParser_CSV()
+        public void Parsers_DatParser_CSV()
         {
             // arange
             var mockReader = new Mock<TextReader>();
@@ -51,16 +51,36 @@ namespace LoadFileAdapterTests
                 .Setup(r => r.ReadLine())
                 .Returns(() => csvInput[calls])
                 .Callback(() => calls++);
-            Delimiters delimiters = Delimiters.COMMA_DELIMITED;
-            ParseReaderDatSettings args = new ParseReaderDatSettings(mockReader.Object, delimiters);
-
+            this.parser = new DatParser(Delimiters.COMMA_DELIMITED);
+            
             // act
-            List<string[]> docs = parser.Parse(args);
+            List<string[]> docs = parser.Parse(mockReader.Object);
 
             // assert
-            Assert.IsTrue(docs[0].SequenceEqual(new string[] { "DOCID", "BEGATT", "VOLUME" }));
-            Assert.IsTrue(docs[1].SequenceEqual(new string[] { "DOC000001", "DOC000001", "VOL001" }));
-            Assert.IsTrue(docs[2].SequenceEqual(new string[] { "DOC000002", "DOC000001", "VOL001" }));
+            Assert.IsTrue(docs[0].SequenceEqual(new string[] { "DOCID", "BEGATT", "VOLUME", "EMPTY1", "EMPTY2", "EMPTY3" }));
+            Assert.IsTrue(docs[1].SequenceEqual(new string[] { "DOC000001", "DOC000001", "VOL001", "", "", "" }));
+            Assert.IsTrue(docs[2].SequenceEqual(new string[] { "DOC000002", "DOC000001", "VOL001", "", "SURPRISE", "" }));
+        }
+
+        [TestMethod]
+        public void Parsers_DatParser_Qualified()
+        {
+            // arange
+            var mockReader = new Mock<TextReader>();
+            int calls = 0;
+            mockReader
+                .Setup(r => r.ReadLine())
+                .Returns(() => qualifiedInput[calls])
+                .Callback(() => calls++);
+            this.parser = new DatParser(Delimiters.COMMA_QUOTE);
+
+            // act
+            List<string[]> docs = parser.Parse(mockReader.Object);
+
+            // assert
+            Assert.IsTrue(docs[0].SequenceEqual(new string[] { "DOCID", "BEGATT", "VOLUME", "EMPTY1", "EMPTY2", "EMPTY3" }));
+            Assert.IsTrue(docs[1].SequenceEqual(new string[] { "DOC000001", "DOC000001", "VOL001", "", "", "" }));
+            Assert.IsTrue(docs[2].SequenceEqual(new string[] { "DOC000002", "DOC000001", "VOL001,EXTRA", "", "SURPRISE", "" }));
         }
 
         private void setup()
@@ -74,9 +94,16 @@ namespace LoadFileAdapterTests
 
             csvInput = new List<string>(new string[]
             {
-                "DOCID,BEGATT,VOLUME",
-                "DOC000001,DOC000001,VOL001",
-                "DOC000002,DOC000001,VOL001",
+                "DOCID,BEGATT,VOLUME,EMPTY1,EMPTY2,EMPTY3",
+                "DOC000001,DOC000001,VOL001,,,",
+                "DOC000002,DOC000001,VOL001,,SURPRISE,",
+                null, null
+            });
+
+            qualifiedInput = new List<string>(new string[] {
+                "\"DOCID\",\"BEGATT\",\"VOLUME\",\"EMPTY1\",\"EMPTY2\",\"EMPTY3\"",
+                "\"DOC000001\",\"DOC000001\",\"VOL001\",\"\",\"\",\"\"",
+                "\"DOC000002\",\"DOC000001\",\"VOL001,EXTRA\",\"\",\"SURPRISE\",\"\"",
                 null, null
             });
         }

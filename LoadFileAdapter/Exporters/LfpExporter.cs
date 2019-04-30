@@ -9,8 +9,13 @@ namespace LoadFileAdapter.Exporters
     /// <summary>
     /// An exporter that export data from a document collection to a LFP file.
     /// </summary>
-    public class LfpExporter : IExporter<IExportImageSettings>
+    public class LfpExporter : IExporter
     {
+        private FileInfo file;
+        private Encoding encoding;
+        private TextWriter writer;
+        private string volumeName;
+
         /// <summary>
         /// Map of image file extensions to the LFP numeric type indicator.
         /// </summary>
@@ -20,59 +25,29 @@ namespace LoadFileAdapter.Exporters
             { ".PDF", 7 }
         };
 
-        /// <summary>
-        /// Exports a LFP load file.
-        /// </summary>
-        /// <param name="args">The export settings used to export data.</param>
-        public void Export(IExportImageSettings args)
+        private LfpExporter()
         {
-            if (args.GetType().Equals(typeof(ExportImageFileSettings)))
-            {
-                Export((ExportImageFileSettings)args);
-            }
-            else if (args.GetType().Equals(typeof(ExportImageWriterSettings)))
-            {
-                Export((ExportImageWriterSettings)args);
-            }
-            else
-            {
-                throw new Exception("LfpExporter Export Exception: The export settings were not a valid type.");
-            }
+            // do nothing here
         }
 
-        /// <summary>
-        /// Exports a LFP load file to a supplied <see cref="FileInfo"/> destination.
-        /// </summary>
-        /// <param name="args">The export settings used to export data to a file.</param>
-        public void Export(ExportImageFileSettings args)
+        ~LfpExporter()
         {
-            args.CreateDestination();
-            DocumentCollection docs = args.GetDocuments();
-            string file = args.GetFile().FullName;
-            Encoding encoding = args.GetEncoding();
-            string vol = args.GetVolumeName();
-            bool append = false;
-
-            using (TextWriter writer = new StreamWriter(file, append, encoding))
+            if (writer != null)
             {
-                ExportImageWriterSettings writerArgs = new ExportImageWriterSettings(writer, docs, vol);
-                Export(writerArgs);
+                writer.Close();
             }
         }
-
+               
+        
         /// <summary>
         /// Uses a <see cref="TextWriter"/> to export data to a LFP file.
         /// </summary>
-        /// <param name="args">The export settings used to write a LFP file.</param>
-        public void Export(ExportImageWriterSettings args)
+        /// <param name="docs">The docs to export.</param>
+        public void Export(DocumentCollection docs)
         {
-            DocumentCollection docs = args.GetDocuments();
-            TextWriter writer = args.GetWriter();
-            string vol = args.GetVolumeName();
-
             foreach (Document document in docs)
             {
-                List<string> pages = getPageRecords(document, vol);
+                List<string> pages = getPageRecords(document, volumeName);
                 // write pages
                 foreach (string page in pages)
                 {
@@ -219,6 +194,71 @@ namespace LoadFileAdapter.Exporters
             else
             {
                 return Builders.LfpBuilder.BoundaryFlag.D.ToString();
+            }
+        }
+
+        /// <summary>
+        /// Builds an instance of <see cref="LfpExporter"/>.
+        /// </summary>
+        public class Builder
+        {
+            private LfpExporter instance;
+
+            private Builder()
+            {
+                this.instance = new LfpExporter();
+            }
+
+            /// <summary>
+            /// Starts the process of building a <see cref="LfpExporter"/>.
+            /// </summary>
+            /// <param name="file">The file to export.</param>
+            /// <param name="encoding">The encoding of the export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public static Builder Start(FileInfo file, Encoding encoding)
+            {
+                Builder builder = new Builder();
+                bool append = false;
+                builder.instance.file = file;
+                builder.instance.encoding = encoding;
+                builder.instance.volumeName = Path.GetFileNameWithoutExtension(file.Name);                
+                builder.instance.writer = new StreamWriter(file.FullName, append, encoding);
+                builder.instance.CreateDestination(file);
+                return builder;
+            }
+
+            /// <summary>
+            /// Starts the process of building a <see cref="LfpExporter"/>.
+            /// </summary>
+            /// <param name="writer">The <see cref="TextWriter"/> used to write the export.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public static Builder Start(TextWriter writer)
+            {
+                Builder builder = new Builder();
+                builder.instance.writer = writer;
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the volume name.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetVolumeName(string value)
+            {
+                instance.volumeName = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Builds an instance of <see cref="LfpExporter"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="LfpExporter"/>.</returns>
+            public LfpExporter Build()
+            {
+                LfpExporter instance = this.instance;
+                this.instance = null;
+                return instance;
             }
         }
     }

@@ -13,7 +13,7 @@ namespace LoadFileAdapterTests
     {
         private static List<string[]> SinglePageLfpRecords;
         private static List<string[]> MultiPageLfpRecords;
-        private IBuilder<BuildDocCollectionImageSettings, BuildDocLfpSettings> builder = new LfpBuilder();
+        private LfpBuilder builder = new LfpBuilder();
 
         public TU_LfpBuilder()
         {
@@ -77,17 +77,11 @@ namespace LoadFileAdapterTests
 
         [TestMethod]
         public void Builders_LfpBuilder_SinglePageNoText()
-        {            
-            // Arrange               
-            string pathPrefix = "X:\\VOL001";
-            TextRepresentativeSettings repSetting = null;            
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(SinglePageLfpRecords, pathPrefix, repSetting);
-            
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
+        {               
+            builder.PathPrefix = "X:\\VOL001";
+            builder.TextBuilder = null;
+            List<Document> documents = builder.Build(SinglePageLfpRecords);
             DocumentCollection docs = new DocumentCollection(documents);            
-            
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(0, docs.TextCount);
@@ -103,23 +97,16 @@ namespace LoadFileAdapterTests
 
         [TestMethod]
         public void Builders_LfpBuilder_SinglePageWithPageText()
-        {
-            // Arrange               
-            string pathPrefix = String.Empty;
-            Regex find = null;
-            string replace = null;
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Page,
-                TextRepresentativeSettings.TextLocation.SameAsImages, 
-                find, 
-                replace);
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(SinglePageLfpRecords, pathPrefix, repSetting);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
-            DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
+        {            
+            TextBuilder textBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Page,
+                TextBuilder.TextLocation.SameAsImages, 
+                null,   // find
+                null);  // replace
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = textBuilder;
+            List<Document> documents = builder.Build(SinglePageLfpRecords);
+            DocumentCollection docs = new DocumentCollection(documents);            
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(25, docs.TextCount);
@@ -137,22 +124,15 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_LfpBuilder_SinglePageWithDocText()
         {
-            // Arrange               
-            string pathPrefix = String.Empty;
-            Regex find = null;
-            string replace = null;
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Doc,
-                TextRepresentativeSettings.TextLocation.SameAsImages,
-                find,
-                replace);
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(SinglePageLfpRecords, pathPrefix, repSetting);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
-            DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
+            TextBuilder textBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Doc,
+                TextBuilder.TextLocation.SameAsImages,
+                null,   // find
+                null);  // replace
+            builder.PathPrefix = String.Empty;
+            builder.TextBuilder = textBuilder;            
+            List<Document> documents = builder.Build(SinglePageLfpRecords);
+            DocumentCollection docs = new DocumentCollection(documents);            
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(25, docs.ImageCount);
             Assert.AreEqual(10, docs.TextCount);
@@ -171,15 +151,10 @@ namespace LoadFileAdapterTests
         public void Builders_LfpBuilder_MultiPageNoText()
         {
             // Arrange               
-            string pathPrefix = "X:\\VOL001";
-            TextRepresentativeSettings repSetting = null;
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(MultiPageLfpRecords, pathPrefix, repSetting);
-
-            // Act            
-            List<Document> documents = builder.BuildDocuments(args);
-            DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
+            builder.PathPrefix = "X:\\VOL001";
+            builder.TextBuilder = null;            
+            List<Document> documents = builder.Build(MultiPageLfpRecords);
+            DocumentCollection docs = new DocumentCollection(documents);            
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(10, docs.ImageCount);
             Assert.AreEqual(0, docs.TextCount);
@@ -195,19 +170,13 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_LfpBuilder_MultiPageWithDocText()
         {
-            // Arrange               
-            string pathPrefix = null;
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Doc,
-                TextRepresentativeSettings.TextLocation.SameAsImages,
-                null, null);
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(MultiPageLfpRecords, pathPrefix, repSetting);
-
-            // Act            
-            List<Document> documents = builder.BuildDocuments(args);
+            builder.PathPrefix = null;                     
+            builder.TextBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Doc,
+                TextBuilder.TextLocation.SameAsImages,
+                null, null);            
+            List<Document> documents = builder.Build(MultiPageLfpRecords);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(10, docs.ImageCount);
             Assert.AreEqual(10, docs.TextCount);
@@ -223,20 +192,14 @@ namespace LoadFileAdapterTests
 
         [TestMethod]
         public void Builders_LfpBuilder_MultiPageWithPageText()
-        {
-            // Arrange               
-            string pathPrefix = "";
-            TextRepresentativeSettings repSetting = new TextRepresentativeSettings(
-                TextRepresentativeSettings.TextLevel.Doc,
-                TextRepresentativeSettings.TextLocation.AlternateLocation,
-                new Regex("IMAGES\\\\"), "TEXT\\");
-            BuildDocCollectionImageSettings args = new BuildDocCollectionImageSettings(MultiPageLfpRecords, pathPrefix, repSetting);
-
-            // Act            
-            List<Document> documents = builder.BuildDocuments(args);
+        {           
+            builder.PathPrefix = "";
+            builder.TextBuilder = new TextBuilder(
+                TextBuilder.TextLevel.Doc,
+                TextBuilder.TextLocation.AlternateLocation,
+                new Regex("IMAGES\\\\"), "TEXT\\");            
+            List<Document> documents = builder.Build(MultiPageLfpRecords);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(10, docs.ImageCount);
             Assert.AreEqual(10, docs.TextCount);

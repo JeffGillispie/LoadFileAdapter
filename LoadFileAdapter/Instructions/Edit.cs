@@ -218,6 +218,6 @@ namespace LoadFileAdapter.Instructions
         /// Gets the <see cref="Transformation"/> version of the edit instructions.
         /// </summary>
         /// <returns>Returns a <see cref="Transformation"/>.</returns>
-        public abstract Transformation GetTransformation();        
+        public abstract Transformation ToTransformation();        
     }
 }

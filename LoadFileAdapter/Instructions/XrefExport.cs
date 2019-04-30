@@ -7,28 +7,28 @@ namespace LoadFileAdapter.Instructions
         public string CustomerDataField;
         public string NamedFolderField;
         public string NamedFileField;
-        public Trigger BoxBreakTrigger;
+        public Trigger BoxTrigger;
         public Trigger GroupStartTrigger;
         public Trigger CodeStartTrigger;
-        public SlipsheetsInfo SlipsheetSettings;
+        public SlipsheetsInfo Slipsheets;
 
         public XrefExport() : base(null, null)
         {
             // do nothing here
         }
-
-        public ExportXrefFileSettings GetFileSettings(DocumentCollection docs)
+        
+        public override IExporter BuildExporter()
         {
-            return new ExportXrefFileSettings(docs, 
-                (base.File != null) ? base.File : null, 
-                (base.Encoding != null) ? base.Encoding : null, 
-                (this.BoxBreakTrigger != null) ? this.BoxBreakTrigger.GetXrefTrigger() : null,
-                (this.GroupStartTrigger != null) ? this.GroupStartTrigger.GetXrefTrigger() : null,
-                (this.CodeStartTrigger != null) ? this.CodeStartTrigger.GetXrefTrigger() : null,
-                this.CustomerDataField,
-                this.NamedFolderField,
-                this.NamedFileField,
-                (this.SlipsheetSettings != null) ? this.SlipsheetSettings.GetSlipsheetSettings() : null);
+            return XrefExporter.Builder
+                .Start(File, Encoding)
+                .SetBoxTrigger(BoxTrigger.ToSwitch())
+                .SetCodeStartTrigger(CodeStartTrigger.ToSwitch())
+                .SetGroupStartTrigger(GroupStartTrigger.ToSwitch())
+                .SetCustomerDataField(CustomerDataField)
+                .SetNamedFolderField(NamedFolderField)
+                .SetNamedFileField(NamedFileField)
+                .SetSlipsheets(Slipsheets.ToSlipSheets())
+                .Build();
         }
     }
 }

@@ -11,7 +11,7 @@ namespace LoadFileAdapterTests
     [TestClass]
     public class TU_LfpParser
     {
-        private IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings> parser = new LfpParser();
+        private IParser parser = new LfpParser();
         List<string> input;
 
         public TU_LfpParser()
@@ -29,10 +29,9 @@ namespace LoadFileAdapterTests
                 .Setup(r => r.ReadLine())
                 .Returns(() => input[calls])
                 .Callback(() => calls++);            
-            ParseReaderSettings args = new ParseReaderSettings(mockReader.Object);
-            
+                        
             // act
-            List<string[]> docs = parser.Parse(args);
+            List<string[]> docs = parser.Parse(mockReader.Object);
 
             // assert
             Assert.IsTrue(docs[0].SequenceEqual(new string[] { "IM", "000000001", "D", "1", "@001", "IMG_0001", "000000001.pdf", "7", "0" }));            

@@ -1,49 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace LoadFileAdapter.Parsers
 {
     /// <summary>
     /// A parser used to parse data from an LFP.
     /// </summary>
-    public class LfpParser : IParser<ParseFileSettings, ParseReaderSettings, ParseLineSettings>
+    public class LfpParser : IParser
     {
         /// <summary>
-        /// Parses a LFP read from a file into a list of parsed records.
+        /// Parses a LFP file.
         /// </summary>
-        /// <param name="args">Contains the file to be parsed and the encoding
-        /// used to read it.</param>
-        /// <returns>Returns a list of parsed records.</returns>
-        public virtual List<string[]> Parse(ParseFileSettings args)
+        /// <param name="file">The file to parse.</param>
+        /// <param name="encoding">The encoding of the file.</param>
+        /// <returns>Returns a list of parsed fields.</returns>
+        public virtual List<string[]> Parse(FileInfo file, Encoding encoding)
         {
             bool detectEncoding = true;
             List<string[]> records = null;
 
-            using (TextReader reader = new StreamReader(args.File.FullName, args.Encoding, detectEncoding))
-            {
-                ParseReaderSettings readerArgs = new ParseReaderSettings(reader);
-                records = Parse(readerArgs);
+            using (TextReader reader = new StreamReader(file.FullName, encoding, detectEncoding))
+            {                
+                records = Parse(reader);
             }
 
             return records;
         }
 
         /// <summary>
-        /// Parses a LFP read from a <see cref="TextReader"/> into a list of
-        /// parsed records.
+        /// Parses data from a <see cref="TextReader"/>.
         /// </summary>
-        /// <param name="args">Contains the <see cref="TextReader"/>.</param>
-        /// <returns>Returns a list of parsed records.</returns>
-        public virtual List<string[]> Parse(ParseReaderSettings args)
+        /// <param name="reader">The reader used to read the text to be parsed.</param>
+        /// <returns>Returns a list of parsed fields.</returns>
+        public virtual List<string[]> Parse(TextReader reader)
         {            
             List<string[]> records = new List<string[]>();                
             string line = String.Empty;
 
-            while ((line = args.Reader.ReadLine()) != null)
+            while ((line = reader.ReadLine()) != null)
             {
-                ParseLineSettings lineParameters = new ParseLineSettings(line);
-                string[] record = ParseLine(lineParameters);
+                string[] record = ParseLine(line);
                 records.Add(record);
             }            
 
@@ -53,11 +51,11 @@ namespace LoadFileAdapter.Parsers
         /// <summary>
         /// Parses data from a LFP record.
         /// </summary>
-        /// <param name="args">Contains the line to be parsed.</param>
+        /// <param name="line">The line to be parsed.</param>
         /// <returns>Returns an array of parsed fields.</returns>
-        public string[] ParseLine(ParseLineSettings args)
+        public string[] ParseLine(string line)
         {
-            return args.Line.Split(new char[] { ';', ',' });
+            return line.Split(new char[] { ';', ',' });
         }                
     }
 }

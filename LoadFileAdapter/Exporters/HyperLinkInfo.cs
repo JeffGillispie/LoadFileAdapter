@@ -5,20 +5,19 @@ namespace LoadFileAdapter.Exporters
     /// Contains the settings to create a hyperlink in an excel export
     /// that links to a <see cref="Representative"/>.
     /// </summary>
-    public class ExportXlsLinkSettings
+    public class HyperLinkInfo
     {
         private Representative.FileType fileType;
         private string displayText;
         private int columnIndex;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="ExportXlsLinkSettings"/>.
+        /// Initializes a new instance of <see cref="HyperLinkInfo"/>.
         /// </summary>
         /// <param name="fileType">The type of the file to link.</param>
         /// <param name="displayText">The display text to insert.</param>
         /// <param name="columnIndex">The column index of the destination link.</param>
-        public ExportXlsLinkSettings(Representative.FileType fileType, 
-            string displayText, int columnIndex)
+        public HyperLinkInfo(Representative.FileType fileType, string displayText, int columnIndex)
         {
             this.fileType = fileType;
             this.displayText = displayText;

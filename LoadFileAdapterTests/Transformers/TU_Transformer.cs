@@ -35,19 +35,18 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Transformers_Transformer_Test()
         {
-            // Arrange
-            bool hasHeader = true;
-            string keyColName = "DOCID";
-            string parentColName = "BEGATT";
-            string childColName = String.Empty;
-            string childColDelim = ";";
-            DatRepresentativeSettings rep = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);
-            List<DatRepresentativeSettings> repColInfo = new List<DatRepresentativeSettings>() { rep };
-            string pathPrefix = String.Empty;
-            BuildDocCollectionDatSettings args = new BuildDocCollectionDatSettings(
-                records, pathPrefix, hasHeader, keyColName, parentColName, childColName, childColDelim, repColInfo);            
+            // Arrange                        
             List<Transformation> edits = new List<Transformation>();
-            IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
+            var builder = new DatBuilder();
+            builder.HasHeader = true;
+            builder.KeyColumnName = "DOCID";
+            builder.ParentColumnName = "BEGATT";
+            builder.ChildColumnName = "";
+            builder.ChildSeparator = ";";
+            builder.RepresentativeBuilders = new RepresentativeBuilder[] {
+                new RepresentativeBuilder("NATIVE", Representative.FileType.Native)
+            };
+            builder.PathPrefix = String.Empty;
 
             // edit 1
             string fieldName = "VOLUME";
@@ -60,14 +59,28 @@ namespace LoadFileAdapterTests
             Regex filterText = null;
             string filterField = null;
             DirectoryInfo dir = null;
-            edits.Add(new MetaDataTransformation(fieldName, find, replace, altDest, prepend, append, join, filterField, filterText, dir));
-
+            edits.Add(MetaDataTransformation.Builder
+                .Start(fieldName, find, replace, filterField, filterText)
+                .SetAltDestinationField(altDest)
+                .SetPrependField(prepend)
+                .SetAppendField(append)
+                .SetJoinDelimiter(join)
+                .SetPrependDir(dir)
+                .Build());
+                
             // edit 2
             fieldName = "TEST3";
             find = null;
             replace = String.Empty;
             prepend = "VOLUME";
-            edits.Add(new MetaDataTransformation(fieldName, find, replace, altDest, prepend, append, join, filterField, filterText, dir));
+            edits.Add(MetaDataTransformation.Builder
+                .Start(fieldName, find, replace, filterField, filterText)
+                .SetAltDestinationField(altDest)
+                .SetPrependField(prepend)
+                .SetAppendField(append)
+                .SetJoinDelimiter(join)
+                .SetPrependDir(dir)
+                .Build());
 
             // edit 3            
             fieldName = "TEST1";            
@@ -76,30 +89,49 @@ namespace LoadFileAdapterTests
             filterText = new Regex("a");
             filterField = "TEST1";            
             join = "-";
-            edits.Add(new MetaDataTransformation(fieldName, find, replace, altDest, prepend, append, join, filterField, filterText, dir));
+            edits.Add(MetaDataTransformation.Builder
+                .Start(fieldName, find, replace, filterField, filterText)
+                .SetAltDestinationField(altDest)
+                .SetPrependField(prepend)
+                .SetAppendField(append)
+                .SetJoinDelimiter(join)
+                .SetPrependDir(dir)
+                .Build());
 
             // edit 4
             fieldName = "TEST2";
             append = String.Empty;
             altDest = "VOLUME";
             filterText = new Regex("j");
-            edits.Add(new MetaDataTransformation(fieldName, find, replace, altDest, prepend, append, join, filterField, filterText, dir));
+            edits.Add(MetaDataTransformation.Builder
+                .Start(fieldName, find, replace, filterField, filterText)
+                .SetAltDestinationField(altDest)
+                .SetPrependField(prepend)
+                .SetAppendField(append)
+                .SetJoinDelimiter(join)
+                .SetPrependDir(dir)
+                .Build());
 
             // edit 5
             altDest = String.Empty;
             filterText = null;
             find = new Regex("E+$");
             replace = "x";
-            edits.Add(new MetaDataTransformation(fieldName, find, replace, altDest, prepend, append, join, filterField, filterText, dir));
+            edits.Add(MetaDataTransformation.Builder
+                .Start(fieldName, find, replace, filterField, filterText)
+                .SetAltDestinationField(altDest)
+                .SetPrependField(prepend)
+                .SetAppendField(append)
+                .SetJoinDelimiter(join)
+                .SetPrependDir(dir)
+                .Build());
 
             // edit 6
-            edits.Add(new RepresentativeTransformation(
-                Representative.FileType.Native, 
-                null, 
-                new Regex("X:\\\\VOL001\\\\"), String.Empty, String.Empty, null));
-
+            edits.Add(RepresentativeTransformation.Builder
+                .Start(Representative.FileType.Native, new Regex("X:\\\\VOL001\\\\"), String.Empty)                
+                .Build());                
             // act
-            List<Document> documents = builder.BuildDocuments(args);
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
             Transformer transformer = new Transformer();
             transformer.Transform(docs, edits.ToArray());

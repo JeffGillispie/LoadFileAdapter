@@ -16,6 +16,12 @@ namespace LoadFileAdapter.Transformers
         private string appendField = String.Empty;
         private string joinDelimiter = String.Empty;        
         private DirectoryInfo prependDirectory = null;
+
+        private MetaDataTransformation(Regex findText, string replaceText, string filterField, Regex filterText) 
+            : base(findText, replaceText, filterField, filterText)
+        {
+            // do nothing here
+        }
         
         /// <summary>
         /// The target field name.
@@ -51,36 +57,7 @@ namespace LoadFileAdapter.Transformers
         /// convert it to an absolute path.
         /// </summary>
         public DirectoryInfo PrependDirectory { get { return prependDirectory; } }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="MetaDataTransformation"/>.
-        /// </summary>
-        /// <param name="fieldName">The target field.</param>
-        /// <param name="findText">The regex for a find / replace operation.</param>
-        /// <param name="replaceText">The replacement text used with the find text regex.</param>
-        /// <param name="alternateDestinationField">An optional alt destination for the modified value.</param>
-        /// <param name="prependField">The field containing a value to be prepended to the value of the target field.</param>
-        /// <param name="appendField">The field contains a value to be appended to hte value of the target field.</param>
-        /// <param name="joinDelimiter">The delimiter used to join the preprend or append data.</param>
-        /// <param name="filterField">The filter field used to determine if a document should be edited.</param>
-        /// <param name="filterText">The filter regex used to determine if a filter field is is match and should be edited.</param>
-        /// <param name="prependDirectory">Used to prepend an existing relational path in order to convert it to an absolute path.</param>
-        public MetaDataTransformation( string fieldName,
-            Regex findText, string replaceText,
-            string alternateDestinationField, string prependField, 
-            string appendField, string joinDelimiter,
-            string filterField, Regex filterText, 
-            DirectoryInfo prependDirectory) :
-            base(findText, replaceText, filterField, filterText)
-        {
-            this.fieldName = fieldName;            
-            this.alternateDestinationField = alternateDestinationField;
-            this.prependField = prependField;
-            this.appendField = appendField;
-            this.joinDelimiter = joinDelimiter;            
-            this.prependDirectory = prependDirectory;
-        }
-         
+                         
         /// <summary>
         /// Modifies the supplied <see cref="Document"/>. If the doc does not 
         /// contains the target field name that field is added to the doc's
@@ -137,6 +114,102 @@ namespace LoadFileAdapter.Transformers
                 {
                     doc.Metadata[fieldName] = value;
                 }
+            }
+        }
+        
+        public class Builder
+        {
+            private MetaDataTransformation instance;
+
+            private Builder(Regex findText, string replaceText, string filterField, Regex filterText)
+            {
+                instance = new MetaDataTransformation(findText, replaceText, filterField, filterText);
+            }
+
+            public static Builder Start(string fieldName, Regex findText, string replaceText, 
+                string filterField, Regex filterText)
+            {
+                Builder builder =  new Builder(findText, replaceText, filterField, filterText);
+                builder.instance.fieldName = fieldName;
+                return builder;
+            }
+
+            public static Builder Start(string fieldName, Regex findText, string replaceText)
+            {
+                Builder builder = new Builder(findText, replaceText, null, null);
+                builder.instance.fieldName = fieldName;
+                return builder;
+            }
+
+            public Builder SetFilterField(string value)
+            {
+                var instance = new MetaDataTransformation(
+                    this.instance.FindText,
+                    this.instance.ReplaceText,
+                    value,
+                    this.instance.FilterText);
+                instance.alternateDestinationField = this.instance.alternateDestinationField;
+                instance.appendField = this.instance.appendField;
+                instance.fieldName = this.instance.fieldName;
+                instance.joinDelimiter = this.instance.joinDelimiter;
+                instance.prependDirectory = this.instance.prependDirectory;
+                instance.prependField = this.instance.prependField;
+                this.instance = instance;
+                return this;
+            }
+
+            public Builder SetFilterText(Regex value)
+            {
+                var instance = new MetaDataTransformation(
+                    this.instance.FindText,
+                    this.instance.ReplaceText,
+                    this.instance.FilterField,
+                    value);
+                instance.alternateDestinationField = this.instance.alternateDestinationField;
+                instance.appendField = this.instance.appendField;
+                instance.fieldName = this.instance.fieldName;
+                instance.joinDelimiter = this.instance.joinDelimiter;
+                instance.prependDirectory = this.instance.prependDirectory;
+                instance.prependField = this.instance.prependField;
+                this.instance = instance;
+                return this;
+            }
+                        
+            public Builder SetAltDestinationField(string value)
+            {
+                instance.alternateDestinationField = value;
+                return this;
+            }
+
+            public Builder SetPrependField(string value)
+            {
+                instance.prependField = value;
+                return this;
+            }
+
+            public Builder SetAppendField(string value)
+            {
+                instance.appendField = value;
+                return this;
+            }
+
+            public Builder SetJoinDelimiter(string value)
+            {
+                instance.joinDelimiter = value;
+                return this;
+            }
+
+            public Builder SetPrependDir(DirectoryInfo value)
+            {
+                instance.prependDirectory = value;
+                return this;
+            }
+
+            public MetaDataTransformation Build()
+            {
+                MetaDataTransformation instance = this.instance;
+                this.instance = null;
+                return instance;
             }
         }        
     }

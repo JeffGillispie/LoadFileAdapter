@@ -22,11 +22,23 @@ namespace LoadFileAdapterTests.Exporters
         private List<string> datLines;
         private DocumentCollection docs;
                 
-        class TestXlsExporter : XlsExporter
+        class TestExporter : XlsExporter
         {
-            public new DataTable getMetaDataTable(ExportXlsSettings args)
+            public TestExporter()
             {
-                return base.getMetaDataTable(args);
+
+            }
+
+            public TestExporter(FileInfo file, string[] fields, HyperLinkInfo[] links)
+            {
+                base.file = file;
+                base.exportFields = fields;
+                base.links = links;
+            }
+
+            public new DataTable getMetaDataTable(DocumentCollection docs)
+            {
+                return base.getMetaDataTable(docs);
             }
 
             public new string[] getRowValues(Document doc, string[] fields)
@@ -34,19 +46,19 @@ namespace LoadFileAdapterTests.Exporters
                 return base.getRowValues(doc, fields);
             }
 
-            public new void insertLinkColumns(DataTable dt, ExportXlsLinkSettings[] links)
+            public new void insertLinkColumns(DataTable dt, HyperLinkInfo[] links)
             {
                 base.insertLinkColumns(dt, links);
             }
 
-            public new void insertLinks(ExcelWorksheet ws, DocumentCollection docs, DataTable dt, ExportXlsLinkSettings[] links)
+            public new void insertLinks(ExcelWorksheet ws, DocumentCollection docs, DataTable dt)
             {
-                base.insertLinks(ws, docs, dt, links);
+                base.insertLinks(ws, docs, dt);
             }
 
-            public new void insertRowLinks(ExcelWorksheet ws, DataTable dt, Document doc, ExportXlsLinkSettings[] links, int row)
+            public new void insertRowLinks(ExcelWorksheet ws, DataTable dt, Document doc, int row)
             {
-                base.insertRowLinks(ws, dt, doc, links, row);
+                base.insertRowLinks(ws, dt, doc, row);
             }
         }
 
@@ -64,24 +76,27 @@ namespace LoadFileAdapterTests.Exporters
             mockReader
                 .Setup(r => r.ReadLine())
                 .Returns(() => datLines[calls])
-                .Callback(() => calls++);
-            Delimiters delimiters = Delimiters.CONCORDANCE;
-            ParseReaderDatSettings readArgs = new ParseReaderDatSettings(mockReader.Object, delimiters);
+                .Callback(() => calls++);            
             FileInfo infile = new FileInfo(@"X:\VOL001\infile.dat");
             bool hasHeader = true;
             string keyColName = "DOCID";
             string parentColName = "BEGATT";
             string childColName = String.Empty;
             string childColDelim = ";";
-            DatRepresentativeSettings repSetting = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);
-            List<DatRepresentativeSettings> reps = new List<DatRepresentativeSettings>();
+            RepresentativeBuilder repSetting = new RepresentativeBuilder("NATIVE", Representative.FileType.Native);
+            List<RepresentativeBuilder> reps = new List<RepresentativeBuilder>();
             reps.Add(repSetting);
-            IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
-            IParser<ParseFileDatSettings, ParseReaderDatSettings, ParseLineDatSettings> parser = new DatParser();
-            List<string[]> records = parser.Parse(readArgs);
-            BuildDocCollectionDatSettings buildArgs = new BuildDocCollectionDatSettings(
-                records, infile.Directory.FullName, hasHeader, keyColName, parentColName, childColName, childColDelim, reps);
-            List<Document> documents = builder.BuildDocuments(buildArgs);
+            var builder = new DatBuilder();
+            IParser parser = new DatParser(Delimiters.CONCORDANCE);
+            List<string[]> records = parser.Parse(mockReader.Object);
+            builder.HasHeader = hasHeader;
+            builder.KeyColumnName = keyColName;
+            builder.ParentColumnName = parentColName;
+            builder.ChildColumnName = childColName;
+            builder.ChildSeparator = childColDelim;
+            builder.RepresentativeBuilders = reps;
+            builder.ParentColumnName = infile.Directory.FullName;            
+            List<Document> documents = builder.Build(records);
             docs = new DocumentCollection(documents);
         }
         
@@ -90,11 +105,9 @@ namespace LoadFileAdapterTests.Exporters
         {
             FileInfo outfile = new FileInfo(@"X:\noWhere.xlsx");
             string[] exportFields = new string[] { "DOCID", "BEGATT", "VOLUME", "NATIVE" };
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            HyperLinkInfo[] links = new HyperLinkInfo[] { };            
+            TestExporter tester = new TestExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             
             for (int i = 0; i < dt.Columns.Count; i++)
             {
@@ -121,7 +134,7 @@ namespace LoadFileAdapterTests.Exporters
             string[] fields = new string[] { "DOCID", "VOLUME" };
             string[] expected = new string[] { "DOC000001", "VOL001" };
 
-            TestXlsExporter tester = new TestXlsExporter();
+            TestExporter tester = new TestExporter();
             string[] values = tester.getRowValues(doc, fields);
             
             for (int i = 0; i < values.Length; i++)
@@ -136,14 +149,14 @@ namespace LoadFileAdapterTests.Exporters
             DataTable dt = new DataTable();
             dt.Columns.Add("one");
             dt.Columns.Add("two");
-            List<ExportXlsLinkSettings> links = new List<ExportXlsLinkSettings>();
+            List<HyperLinkInfo> links = new List<HyperLinkInfo>();
             Representative.FileType type = Representative.FileType.Native;
             string display = "display text";
             int index = 1;
-            ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
+            HyperLinkInfo link = new HyperLinkInfo(type, display, index);
             links.Add(link);
 
-            TestXlsExporter tester = new TestXlsExporter();
+            TestExporter tester = new TestExporter();
             tester.insertLinkColumns(dt, links.ToArray());
             Assert.AreEqual(dt.Columns[index].ColumnName, display);
         }
@@ -155,14 +168,14 @@ namespace LoadFileAdapterTests.Exporters
             DataTable dt = new DataTable();
             dt.Columns.Add("one");
             dt.Columns.Add("two");
-            List<ExportXlsLinkSettings> links = new List<ExportXlsLinkSettings>();
+            List<HyperLinkInfo> links = new List<HyperLinkInfo>();
             Representative.FileType type = Representative.FileType.Native;
             string display = "display text";
             int index = 5;
-            ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
+            HyperLinkInfo link = new HyperLinkInfo(type, display, index);
             links.Add(link);
 
-            TestXlsExporter tester = new TestXlsExporter();
+            TestExporter tester = new TestExporter();
             tester.insertLinkColumns(dt, links.ToArray());
         }
 
@@ -172,14 +185,14 @@ namespace LoadFileAdapterTests.Exporters
             DataTable dt = new DataTable();
             dt.Columns.Add("one");
             dt.Columns.Add("two");
-            List<ExportXlsLinkSettings> links = new List<ExportXlsLinkSettings>();
+            List<HyperLinkInfo> links = new List<HyperLinkInfo>();
             Representative.FileType type = Representative.FileType.Native;
             string display = null;
             int index = 1;
-            ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
+            HyperLinkInfo link = new HyperLinkInfo(type, display, index);
             links.Add(link);
 
-            TestXlsExporter tester = new TestXlsExporter();
+            TestExporter tester = new TestExporter();
             tester.insertLinkColumns(dt, links.ToArray());
             Assert.AreEqual(dt.Columns[index].ColumnName, "two");
         }
@@ -191,7 +204,7 @@ namespace LoadFileAdapterTests.Exporters
             dt.Columns.Add("one");
             dt.Columns.Add("two");
             
-            TestXlsExporter tester = new TestXlsExporter();
+            TestExporter tester = new TestExporter();
             tester.insertLinkColumns(dt, null);
             Assert.AreEqual("one", dt.Columns[0].ColumnName);
             Assert.AreEqual("two", dt.Columns[1].ColumnName);
@@ -206,11 +219,10 @@ namespace LoadFileAdapterTests.Exporters
             Representative.FileType type = Representative.FileType.Native;
             string display = "display text";
             int index = 1;
-            ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            HyperLinkInfo link = new HyperLinkInfo(type, display, index);
+            HyperLinkInfo[] links = new HyperLinkInfo[] { link };            
+            TestExporter tester = new TestExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -219,8 +231,7 @@ namespace LoadFileAdapterTests.Exporters
             int row = 0;
             int col = 1;
             string linkValue = @"X:\VOL001\NATIVE\0001\DOC000001.XLSX";
-
-            tester.insertRowLinks(ws, dt, doc, links, row);
+            tester.insertRowLinks(ws, dt, doc, row);
             string expected = String.Format("HYPERLINK(\"{0}\", \"{1}\")", linkValue, display);
             string actual = ws.Cells[row + 2, col + 1].Formula;
             Assert.AreEqual(expected, actual);
@@ -234,11 +245,10 @@ namespace LoadFileAdapterTests.Exporters
             Representative.FileType type = Representative.FileType.Native;
             string display = null;
             int index = 3;            
-            ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            HyperLinkInfo link = new HyperLinkInfo(type, display, index);
+            HyperLinkInfo[] links = new HyperLinkInfo[] { link };            
+            TestExporter tester = new TestExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -247,8 +257,7 @@ namespace LoadFileAdapterTests.Exporters
             int row = 0;
             int col = 3;
             string linkValue = @"X:\VOL001\NATIVE\0001\DOC000001.XLSX";
-
-            tester.insertRowLinks(ws, dt, doc, links, row);
+            tester.insertRowLinks(ws, dt, doc, row);
             string expected = String.Format("HYPERLINK(\"{0}\", \"{1}\")", linkValue, linkValue);
             string actual = ws.Cells[row + 2, col + 1].Formula;
             Assert.AreEqual(expected, actual);
@@ -264,11 +273,10 @@ namespace LoadFileAdapterTests.Exporters
             int index = 3;            
             docs.First().Metadata["NATIVE"] = @"\NATIVE\0001\DOC000001.XLSX";
             docs.First().Representatives.First().Files["DOC000001"] = @"\NATIVE\0001\DOC000001.XLSX";            
-            ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);            
+            HyperLinkInfo link = new HyperLinkInfo(type, display, index);
+            HyperLinkInfo[] links = new HyperLinkInfo[] { link };            
+            TestExporter tester = new TestExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);            
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -277,8 +285,7 @@ namespace LoadFileAdapterTests.Exporters
             int row = 0;
             int col = 3;
             string linkValue = @".\NATIVE\0001\DOC000001.XLSX";
-
-            tester.insertRowLinks(ws, dt, doc, links, row);
+            tester.insertRowLinks(ws, dt, doc, row);
             string expected = String.Format(
                 "HYPERLINK(\"{0}\", \"{1}\")", linkValue, "\\NATIVE\\0001\\DOC000001.XLSX");
             string actual = ws.Cells[row + 2, col + 1].Formula;
@@ -293,20 +300,18 @@ namespace LoadFileAdapterTests.Exporters
             Representative.FileType type = Representative.FileType.Native;
             string display = null;
             int index = 3;
-            ExportXlsLinkSettings link = new ExportXlsLinkSettings(type, display, index);
-            ExportXlsLinkSettings[] links = new ExportXlsLinkSettings[] { link };
-            ExportXlsSettings settings = new ExportXlsSettings(this.docs, outfile, exportFields, links);
-            TestXlsExporter tester = new TestXlsExporter();
-            DataTable dt = tester.getMetaDataTable(settings);
+            HyperLinkInfo link = new HyperLinkInfo(type, display, index);
+            HyperLinkInfo[] links = new HyperLinkInfo[] { link };            
+            TestExporter tester = new TestExporter(outfile, exportFields, links);
+            DataTable dt = tester.getMetaDataTable(this.docs);
             FileInfo file = new FileInfo("test.xlsx");
             ExcelPackage package = new ExcelPackage(file);
             ExcelWorksheet ws = package.Workbook.Worksheets.Add("Sheet1");
             ws.Cells[1, 1].LoadFromDataTable(dt, true);
             Document doc = docs[1];
             int row = 0;
-            int col = 3;
-            
-            tester.insertRowLinks(ws, dt, doc, links, row);
+            int col = 3;            
+            tester.insertRowLinks(ws, dt, doc, row);
             string expected = String.Empty;
             string actual = ws.Cells[row + 2, col + 1].Formula;
             Assert.AreEqual(expected, actual);

@@ -17,9 +17,9 @@ namespace LoadFileAdapter.Instructions
         /// <summary>
         /// Initializes a new instance of <see cref="ImgExport"/>.
         /// </summary>
-        public ImgExport() : base()
+        protected ImgExport() : base()
         {
-
+            // do nothing here
         }
 
         /// <summary>
@@ -28,9 +28,11 @@ namespace LoadFileAdapter.Instructions
         /// <param name="file">The file to export.</param>
         /// <param name="encoding">The encoding used to write the export."/></param>
         /// <param name="volName">The volume name of the export.</param>
-        public ImgExport(FileInfo file, Encoding encoding, string volName) : base(file, encoding)
+        protected ImgExport(FileInfo file, Encoding encoding, string volName) : base(file, encoding)
         {
             this.VolumeName = volName;
-        }                
+        }
+
+        public override Exporters.IExporter BuildExporter() { return null; }
     }
 }

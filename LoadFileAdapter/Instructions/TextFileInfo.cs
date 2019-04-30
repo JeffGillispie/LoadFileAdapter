@@ -7,26 +7,26 @@ namespace LoadFileAdapter.Instructions
 {
     /// <summary>
     /// Contains the instructions to create a text <see cref="Representative"/>
-    /// from a <see cref="ImgImport"/>. This wraps the <see cref="TextRepresentativeSettings"/> class.
+    /// from a <see cref="ImgImport"/>. This wraps the <see cref="TextBuilder"/> class.
     /// It is used to serialize instructions and deserialize instructions from XML.
     /// </summary>
-    public class TextFileSettingsBuilder
+    public class TextFileInfo
     {
         /// <summary>
         /// Defines the level or scope of the text <see cref="Representative"/>.
         /// </summary>
-        public TextRepresentativeSettings.TextLevel FileLevel = TextRepresentativeSettings.TextLevel.None;
+        public TextBuilder.TextLevel FileLevel = TextBuilder.TextLevel.None;
 
         /// <summary>
         /// Defines the location the text <see cref="Representative"/> will be found in
         /// relation to the image path.
         /// </summary>
-        public TextRepresentativeSettings.TextLocation FileLocation = TextRepresentativeSettings.TextLocation.None;
+        public TextBuilder.TextLocation FileLocation = TextBuilder.TextLocation.None;
 
         /// <summary>
         /// Used in conjunction with the PathReplace field to change the image path from 
         /// a <see cref="ImgImport"/> into a text path when the 
-        /// <see cref="TextRepresentativeSettings.TextLocation"/> is set to an alternate
+        /// <see cref="TextBuilder.TextLocation"/> is set to an alternate
         /// destination from the image path.
         /// </summary>
         [XmlIgnore]
@@ -40,18 +40,18 @@ namespace LoadFileAdapter.Instructions
         public string PathReplace = String.Empty;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="TextFileSettingsBuilder"/>.
+        /// Initializes a new instance of <see cref="TextFileInfo"/>.
         /// </summary>
-        public TextFileSettingsBuilder()
+        public TextFileInfo()
         {
             // do nothing here
         }
 
         /// <summary>
-        /// Initializes a new instance of <see cref="TextFileSettingsBuilder"/>.
+        /// Initializes a new instance of <see cref="TextFileInfo"/>.
         /// </summary>
-        /// <param name="textSettings">The <see cref="TextRepresentativeSettings"/> used to build this object.</param>
-        public TextFileSettingsBuilder(TextRepresentativeSettings textSettings)
+        /// <param name="textSettings">The <see cref="TextBuilder"/> used to build this object.</param>
+        public TextFileInfo(TextBuilder textSettings)
         {
             this.FileLevel = textSettings.FileLevel;
             this.FileLocation = textSettings.FileLocation;
@@ -126,12 +126,12 @@ namespace LoadFileAdapter.Instructions
         }
 
         /// <summary>
-        /// Gets the underlying <see cref="TextRepresentativeSettings"/> value.
+        /// Gets the underlying <see cref="TextBuilder"/> value.
         /// </summary>
-        /// <returns>Returns a <see cref="TextRepresentativeSettings"/>.</returns>
-        public TextRepresentativeSettings GetSettings()
+        /// <returns>Returns a <see cref="TextBuilder"/>.</returns>
+        public TextBuilder GetBuilder()
         {
-            return new TextRepresentativeSettings(this.FileLevel, this.FileLocation, this.PathFind, this.PathReplace);
+            return new TextBuilder(this.FileLevel, this.FileLocation, this.PathFind, this.PathReplace);
         }
 
         /// <summary>

@@ -11,7 +11,7 @@ namespace LoadFileAdapterTests
     public class TU_DatBuilder
     {
         private static List<string[]> records;
-        private IBuilder<BuildDocCollectionDatSettings, BuildDocDatSettings> builder = new DatBuilder();
+        private TestBuilder builder = new TestBuilder();
 
         public TU_DatBuilder()
         {
@@ -29,23 +29,32 @@ namespace LoadFileAdapterTests
                 new string[] { "DOC000025", "DOC000018", "", "VOL001", "1", "", "j", "DOOR", "t" },
             };
         }
-
+        
         class TestBuilder : DatBuilder
         {
-            public new void settleFamilyDrama(
-                string parentColName, string childColName, string childSeparator, Document doc, Dictionary<string, Document> docs, Dictionary<string, Document> paternity)
+            public new void SetHeader(string[] header)
             {
-                base.settleFamilyDrama(parentColName, childColName, childSeparator, doc, docs, paternity);
+                base.SetHeader(header);
+            }
+
+            public new List<Document> Build(IEnumerable<string[]> records)
+            {
+                return base.Build(records);
+            }
+
+            public new void settleFamilyDrama(
+                Document doc, Dictionary<string, Document> docs, Dictionary<string, Document> paternity)
+            {
+                base.settleFamilyDrama(doc, docs, paternity);
             }
             public new void setFamilyFromParent(
-                Document doc, Dictionary<string, Document> docs, Dictionary<string, Document> paternity, string parentColName, string childColName, string childSeparator)
+                Document doc, Dictionary<string, Document> docs, Dictionary<string, Document> paternity)
             {
-                base.setFamilyFromParent(doc, docs, paternity, parentColName, childColName, childSeparator);
+                base.setFamilyFromParent(doc, docs, paternity);
             }
-            public new void setFamilyFromChildren(
-                Document doc, string childColName, string childSeparator, Dictionary<string, Document> paternity)
+            public new void setFamilyFromChildren(Document doc, Dictionary<string, Document> paternity)
             {
-                base.setFamilyFromChildren(doc, childColName, childSeparator, paternity);
+                base.setFamilyFromChildren(doc, paternity);
             }
         }
 
@@ -53,11 +62,11 @@ namespace LoadFileAdapterTests
         public void Builders_DatBuilder_BuildDocument_Reps()
         {
             // test with an empty path prefix
-            DatRepresentativeSettings rep = new DatRepresentativeSettings(
-                "NATIVE", Representative.FileType.Native);
-            BuildDocDatSettings settings = new BuildDocDatSettings(
-                records[1], records[0], "DOCID", new List<DatRepresentativeSettings>() { rep }, String.Empty);
-            Document doc = builder.BuildDocument(settings);            
+            RepresentativeBuilder rep = new RepresentativeBuilder(
+                "NATIVE", Representative.FileType.Native);            
+            builder.RepresentativeBuilders = new List<RepresentativeBuilder>() { rep };
+            builder.SetHeader(records[0]);
+            Document doc = builder.BuildDocument(records[1]);            
             Assert.AreEqual(Representative.FileType.Native, doc.Representatives.First().Type);
             Assert.AreEqual(records[1][0], doc.Representatives.First().Files.First().Key);
             string expected = "X:\\VOL001\\NATIVE\\0001\\DOC000001.XLSX";
@@ -66,10 +75,11 @@ namespace LoadFileAdapterTests
             // test with a populated path prefix
             string[] newRecord = new string[records[1].Length];
             records[1].CopyTo(newRecord, 0);
-            newRecord[5] = "\\VOL001\\NATIVE\\0001\\DOC000001.XLSX";
-            settings = new BuildDocDatSettings(
-                newRecord, records[0], "DOCID", new List<DatRepresentativeSettings>() { rep }, "Z:\\");
-            doc = builder.BuildDocument(settings);
+            newRecord[5] = "\\VOL001\\NATIVE\\0001\\DOC000001.XLSX";            
+            builder.RepresentativeBuilders = new RepresentativeBuilder[] { rep };
+            builder.KeyColumnName = "DOCID";
+            builder.PathPrefix = "Z:\\";
+            doc = builder.BuildDocument(newRecord);
             Assert.AreEqual(Representative.FileType.Native, doc.Representatives.First().Type);
             Assert.AreEqual(records[1][0], doc.Representatives.First().Files.First().Key);
             expected = "Z:\\VOL001\\NATIVE\\0001\\DOC000001.XLSX";
@@ -79,10 +89,10 @@ namespace LoadFileAdapterTests
         [TestMethod]
         public void Builders_DatBuilder_BuildDocument_Metadata()
         {
-            // test that the document metadata is populated correctly
-            BuildDocDatSettings settings = new BuildDocDatSettings(
-                records[2], records[0], "DOCID", null, String.Empty);
-            Document doc = builder.BuildDocument(settings);
+            // test that the document metadata is populated correctly            
+            builder.SetHeader(records[0]);
+            builder.KeyColumnName = "DOCID";
+            Document doc = builder.BuildDocument(records[2]);
 
             for (int i = 0; i < records[0].Length; i++)
             {
@@ -98,11 +108,12 @@ namespace LoadFileAdapterTests
         public void Builders_DatBuilder_BuildDocument_KeyValue()
         {
             // test that the document key is set as expected
-            // if the key column name has a value or is empty
-            BuildDocDatSettings settingsA = new BuildDocDatSettings(records[1], records[0], "DOCID", null, String.Empty);
-            BuildDocDatSettings settingsB = new BuildDocDatSettings(records[1], records[0], String.Empty, null, String.Empty);
-            Document docA = builder.BuildDocument(settingsA);
-            Document docB = builder.BuildDocument(settingsB);
+            // if the key column name has a value or is empty            
+            builder.SetHeader(records[0]);
+            builder.KeyColumnName = "DOCID";
+            Document docA = builder.BuildDocument(records[1]);
+            builder.KeyColumnName = String.Empty;
+            Document docB = builder.BuildDocument(records[1]);
             Assert.AreEqual(records[1][0], docA.Key);
             Assert.AreEqual(records[1][0], docB.Key);
         }
@@ -114,10 +125,10 @@ namespace LoadFileAdapterTests
             // this test is going to make the record one field larger than the header
             string[] record = new string[records[1].Length + 1];
             records[1].CopyTo(record, 0);
-            string[] header = records[0];
-            BuildDocDatSettings settings = new BuildDocDatSettings(
-                record, header, "DOCID", null, String.Empty);
-            Document doc = builder.BuildDocument(settings);
+            string[] header = records[0];            
+            builder.KeyColumnName = "DOCID";
+            builder.SetHeader(header);
+            Document doc = builder.BuildDocument(record);
         }
 
         [TestMethod]
@@ -131,17 +142,13 @@ namespace LoadFileAdapterTests
                 r.CopyTo(record, 0);
                 newRecords.Add(record);
             });
-
-            newRecords[3] = new string[] { "DOC000004", "", "", "VOL001", "3", "", "c", "BUCKLE", "m" };
-
-            bool hasHeader = true;
-            string keyColName = "DOCID";
-            string parentColName = "BEGATT";
-            string childColName = "ATTCHIDS";
-            string childColDelim = ";";
-            BuildDocCollectionDatSettings args = new BuildDocCollectionDatSettings(
-                newRecords, String.Empty, hasHeader, keyColName, parentColName, childColName, childColDelim, null);
-            List<Document> documents = builder.BuildDocuments(args);
+            newRecords[3] = new string[] { "DOC000004", "", "", "VOL001", "3", "", "c", "BUCKLE", "m" };                        
+            builder.HasHeader = true;
+            builder.KeyColumnName = "DOCID";
+            builder.ParentColumnName = "BEGATT";
+            builder.ChildColumnName = "ATTCHIDS";
+            builder.ChildSeparator = ";";
+            List<Document> documents = builder.Build(newRecords);
             DocumentCollection docs = new DocumentCollection(documents);
         }
 
@@ -149,25 +156,18 @@ namespace LoadFileAdapterTests
         public void Builders_DatBuilder_BuildDocuments_ParentName()
         {
             // Here we are testing that the document collection is formed correctly
-            // when family relationships are formed around the parent id value
-
-            // Arrange
-            bool hasHeader = true;
-            string keyColName = "DOCID";
-            string parentColName = "BEGATT"; // <--- critical variable
-            string childColName = String.Empty;
-            string childColDelim = ";";
-            DatRepresentativeSettings rep = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);            
-            List<DatRepresentativeSettings> repColInfo = new List<DatRepresentativeSettings>() { rep };
-            string pathPrefix = String.Empty;
-            BuildDocCollectionDatSettings args = new BuildDocCollectionDatSettings(
-                records, pathPrefix, hasHeader, keyColName, parentColName, childColName, childColDelim, repColInfo);
-
-            // Act
-            List<Document> documents = builder.BuildDocuments(args);
+            // when family relationships are formed around the parent id value            
+            builder.HasHeader = true;
+            builder.KeyColumnName = "DOCID";
+            builder.ParentColumnName = "BEGATT";
+            builder.ChildColumnName = String.Empty;
+            builder.ChildSeparator = ";";
+            builder.RepresentativeBuilders = new RepresentativeBuilder[] {
+                new RepresentativeBuilder("NATIVE", Representative.FileType.Native)
+            };
+            builder.PathPrefix = String.Empty;
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
-
-            // Assert
             Assert.AreEqual(10, docs.Count);
             Assert.AreEqual(0, docs.ImageCount);
             Assert.AreEqual(0, docs.TextCount);
@@ -183,20 +183,20 @@ namespace LoadFileAdapterTests
             // Here we are testing is the document collection is formed correctly
             // when family relationships are formed around the child id values
 
-            // Arrange
-            bool hasHeader = true;
-            string keyColName = "DOCID";
-            string parentColName = null;
-            string childColName = "ATTCHIDS"; // <--- critical variable
-            string childColDelim = ";";
-            DatRepresentativeSettings rep = new DatRepresentativeSettings("NATIVE", Representative.FileType.Native);
-            List<DatRepresentativeSettings> repColInfo = new List<DatRepresentativeSettings>() { rep };
+            // Arrange            
             string pathPrefix = String.Empty;
-            BuildDocCollectionDatSettings args = new BuildDocCollectionDatSettings(
-                records, pathPrefix, hasHeader, keyColName, parentColName, childColName, childColDelim, repColInfo);
-
+            builder.HasHeader = true;
+            builder.KeyColumnName = "DOCID";
+            builder.ParentColumnName = null;
+            builder.ChildColumnName = "ATTCHIDS"; // <-- critical
+            builder.ChildSeparator = ";";
+            builder.PathPrefix = String.Empty;
+            builder.RepresentativeBuilders = new RepresentativeBuilder[] {
+                new RepresentativeBuilder("NATIVE", Representative.FileType.Native)
+                };
+            
             // Act
-            List<Document> documents = builder.BuildDocuments(args);
+            List<Document> documents = builder.Build(records);
             DocumentCollection docs = new DocumentCollection(documents);
 
             // Assert
@@ -228,48 +228,90 @@ namespace LoadFileAdapterTests
             string parentColName = String.Empty;
             string childColName =  String.Empty;
             TestBuilder testBuilder = new TestBuilder();
-            testBuilder.settleFamilyDrama(parentColName, childColName, ";", null, null, null);
+            testBuilder.settleFamilyDrama(null, null, null);
         }
 
         [TestMethod]
         public void Builders_DatBuilder_setFamilyFromParent()
         {
             // test that the parent key is not in the metadata
-            // so nothing happens
-            BuildDocDatSettings settings = new BuildDocDatSettings(records[1], records[0], "DOCID", null, "");
-            Document doc = builder.BuildDocument(settings);
+            // so nothing happens            
+            builder.SetHeader(records[0]);
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            builder.SetHeader(records[0]);
+            Document doc = builder.BuildDocument(records[1]);
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
             Dictionary<string, Document> paternity = new Dictionary<string, Document>();
             string childColName = "";
             TestBuilder testBuilder = new TestBuilder();
-            testBuilder.setFamilyFromParent(doc, docs, paternity, "test", childColName, ";");
+            testBuilder.ParentColumnName = "test";
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
             Assert.IsTrue(paternity.Count.Equals(0));
             Assert.IsTrue(doc.Parent == null);
 
-            // test that the parent key  refers to itself
-            settings = new BuildDocDatSettings(records[2], records[0], "DOCID", null, "");
-            doc = builder.BuildDocument(settings);            
-            testBuilder.setFamilyFromParent(doc, docs, paternity, "BEGATT", childColName, ";");
+            // test that the parent key is empty
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            doc = builder.BuildDocument(records[2]);
+            testBuilder.ParentColumnName = String.Empty;
+            testBuilder.ChildColumnName = String.Empty;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
+            Assert.IsTrue(paternity.Count.Equals(0));
+            Assert.IsTrue(doc.Parent == null);
+
+            // test that the parent key is null            
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            doc = builder.BuildDocument(records[2]);
+            testBuilder.ParentColumnName = null;
+            testBuilder.ChildColumnName = String.Empty;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
+            Assert.IsTrue(paternity.Count.Equals(0));
+            Assert.IsTrue(doc.Parent == null);
+
+            // test that the parent key  refers to itself            
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            doc = builder.BuildDocument(records[2]);
+            testBuilder.ParentColumnName = "BEGATT";
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = ";";                   
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
             Assert.IsTrue(paternity.Count.Equals(0));
             Assert.IsTrue(doc.Parent == null);
             
-            // test that the parent was found in docs, but child col name is empty
-            settings = new BuildDocDatSettings(records[3], records[0], "DOCID", null, "");
+            // test that the parent was found in docs, but child col name is empty            
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
             Document parent = doc;
-            doc = builder.BuildDocument(settings);
+            doc = builder.BuildDocument(records[3]);
             docs.Add(parent.Key, parent);
-            testBuilder.setFamilyFromParent(doc, docs, paternity, "BEGATT", childColName, ";");
+            testBuilder.ParentColumnName = "BEGATT";
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
             Assert.IsTrue(paternity.Count.Equals(0));
             Assert.IsTrue(doc.Parent == parent);
 
             // test the parent is set, removed from paternity, and doc is added for the disowned check
             childColName = "ATTCHIDS";
-            doc = builder.BuildDocument(settings);            
+            testBuilder.ChildColumnName = childColName;
+            doc = builder.BuildDocument(records[3]);            
             paternity.Add(doc.Key, parent);
             doc.Metadata[childColName] = "TEST001";
             Assert.IsTrue(docs.ContainsKey(parent.Key));
             Assert.AreEqual(parent, paternity[doc.Key]);
-            testBuilder.setFamilyFromParent(doc, docs, paternity, "BEGATT", childColName, ";");
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
             Assert.IsFalse(paternity.ContainsKey(doc.Key));
             Assert.AreEqual(doc, paternity["TEST001"]);
             Assert.IsTrue(paternity.Count == 1);
@@ -279,11 +321,13 @@ namespace LoadFileAdapterTests
         [TestMethod]
         [ExpectedException(typeof(Exception), "Broken families, the parent (0) disowns a child document (0).")]
         public void Builders_DatBuilder_setFamilyFromParent_ExBrokenFamily()
-        {
-            BuildDocDatSettings settings = new BuildDocDatSettings(records[2], records[0], "DOCID", null, "");
-            Document parent = builder.BuildDocument(settings);
-            settings = new BuildDocDatSettings(records[3], records[0], "DOCID", null, "");
-            Document doc = builder.BuildDocument(settings);
+        {            
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            builder.SetHeader(records[0]);
+            Document parent = builder.BuildDocument(records[2]);                        
+            Document doc = builder.BuildDocument(records[3]);
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
             Dictionary<string, Document> paternity = new Dictionary<string, Document>();
             string childColName = "ATTCHIDS";
@@ -291,7 +335,10 @@ namespace LoadFileAdapterTests
             paternity.Add(doc.Key, parent);
             parent.Metadata[childColName] = String.Empty;
             TestBuilder testBuilder = new TestBuilder();
-            testBuilder.setFamilyFromParent(doc, docs, paternity, "BEGATT", childColName, ";");
+            testBuilder.ParentColumnName = "BEGATT";
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
         }
 
         [TestMethod]
@@ -299,53 +346,71 @@ namespace LoadFileAdapterTests
         public void Builders_DatBuilder_setFamilyFromParent_ExParentMissing()
         {
             // test exception when parent doesn't exist in docs
-            BuildDocDatSettings settings = new BuildDocDatSettings(records[3], records[0], "DOCID", null, "");
-            Document doc = builder.BuildDocument(settings);
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            builder.SetHeader(records[0]);
+            Document doc = builder.BuildDocument(records[3]);
             Dictionary<string, Document> docs = new Dictionary<string, Document>();
             Dictionary<string, Document> paternity = new Dictionary<string, Document>();
             string childColName = "";
             TestBuilder testBuilder = new TestBuilder();
-            testBuilder.setFamilyFromParent(doc, docs, paternity, "BEGATT", childColName, ";");
+            testBuilder.ParentColumnName = "BEGATT";
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = ";";
+            testBuilder.setFamilyFromParent(doc, docs, paternity);
         }
         
         [TestMethod]        
         public void Builders_DatBuilder_setFamilyFromChildren()
         {
-            // test if childColName is empty
-            BuildDocDatSettings settings = new BuildDocDatSettings(records[2], records[0], "DOCID", null, "");
-            Document doc = builder.BuildDocument(settings);
+            // test if childColName is empty            
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            builder.KeyColumnName = "DOCID";
+            builder.SetHeader(records[0]);
+            Document doc = builder.BuildDocument(records[2]);
             string childColName = String.Empty;
             string childSeparator = ";";
             Dictionary<string, Document> paternity = new Dictionary<string, Document>();
             TestBuilder testBuilder = new TestBuilder();
-            testBuilder.setFamilyFromChildren(doc, childColName, childSeparator, paternity);
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = childSeparator;            
+            testBuilder.setFamilyFromChildren(doc, paternity);
             Assert.IsTrue(doc.Parent == null);
             Assert.IsTrue(paternity.Count.Equals(0));
 
-            // test that paternity is not populated when attchids value is empty
-            settings = new BuildDocDatSettings(records[1], records[0], "DOCID", null, "");
-            doc = builder.BuildDocument(settings);
-            childColName = "ATTCHIDS";            
-            testBuilder.setFamilyFromChildren(doc, childColName, childSeparator, paternity);
+            // test that paternity is not populated when attchids value is empty            
+            builder.SetHeader(records[0]);
+            builder.KeyColumnName = "DOCID";
+            builder.RepresentativeBuilders = null;
+            builder.PathPrefix = "";
+            doc = builder.BuildDocument(records[1]);
+            childColName = "ATTCHIDS";
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = childSeparator;         
+            testBuilder.setFamilyFromChildren(doc, paternity);
             Assert.IsTrue(doc.Parent == null);
             Assert.IsTrue(paternity.Count.Equals(0));
 
-            // test that paternity is populated when the doc has metadata attchids values
-            settings = new BuildDocDatSettings(records[2], records[0], "DOCID", null, "");
-            doc = builder.BuildDocument(settings);
-            testBuilder.setFamilyFromChildren(doc, childColName, childSeparator, paternity);
+            // test that paternity is populated when the doc has metadata attchids values            
+            doc = builder.BuildDocument(records[2]);
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = childSeparator;            
+            testBuilder.setFamilyFromChildren(doc, paternity);
             Assert.AreEqual(doc, paternity["DOC000004"]);
             Assert.AreEqual(doc, paternity["DOC000007"]);
             Assert.IsTrue(doc.Parent == null);
             Assert.IsTrue(paternity.Count.Equals(2));
 
             // test that the parent is set and paternity is updated
-            // when the child is processed
-            settings = new BuildDocDatSettings(records[3], records[0], "DOCID", null, "");
-            Document child = builder.BuildDocument(settings);
+            // when the child is processed            
+            Document child = builder.BuildDocument(records[3]);
             Assert.IsTrue(child.Parent == null);
             Assert.IsTrue(paternity.ContainsKey(child.Key));
-            testBuilder.setFamilyFromChildren(child, childColName, childSeparator, paternity);
+            testBuilder.ChildColumnName = childColName;
+            testBuilder.ChildSeparator = childSeparator;
+            testBuilder.setFamilyFromChildren(child, paternity);
             Assert.AreEqual(doc, child.Parent);
             Assert.IsFalse(paternity.ContainsKey(child.Key));
             Assert.IsTrue(paternity.Count.Equals(1));

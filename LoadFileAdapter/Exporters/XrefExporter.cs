@@ -10,81 +10,61 @@ namespace LoadFileAdapter.Exporters
     /// <summary>
     /// Exports a document collection to an XREF.
     /// </summary>
-    public class XrefExporter : IExporter<IExportXrefSettings>
+    public class XrefExporter : IExporter
     {
         /// <summary>
         /// The header line of an XREF file.
         /// </summary>
         public const string HEADER = "CDPath, Prefix, Number, Suffix, GS, GE, Staple, Loose, CS, CE, "
             + "LabelBypass, CustomerData, NamedFolder, NamedFiles";
+        protected Switch boxTrigger;
+        protected SlipSheets slipsheets;
+        protected bool waitingForGroupEnd = false;
+        protected bool waitingForCodeEnd = false;
+        protected int boxNumber = 0;
+        protected DocumentCollection docs;
         private const int GROUP_START_INDEX = 4;
         private const int STAPLE_INDEX = 6;
         private const int CODE_START_INDEX = 8;
         private const int CUSTOMER_DATA_INDEX = 11;
         private const int NAMED_FOLDER_INDEX = 12;
-        private const int NAMED_FILES_INDEX = 13;        
-        protected bool waitingForGroupEnd = false;
-        protected bool waitingForCodeEnd = false;
-        protected int boxNumber = 0;
-        private DirectoryInfo volumeDirectory = null;
-        protected DocumentCollection docs = null;
-
-        /// <summary>
-        /// Exports a document collection to an XREF.
-        /// </summary>
-        /// <param name="args">The XREF export settings to use.</param>
-        public void Export(IExportXrefSettings args)
-        {            
-            Dictionary<Type, Action> map = new Dictionary<Type, Action>();
-            map.Add(typeof(ExportXrefFileSettings),   () => Export((ExportXrefFileSettings)args));
-            map.Add(typeof(ExportXrefWriterSettings), () => Export((ExportXrefWriterSettings)args));
-            map[args.GetType()].Invoke();
+        private const int NAMED_FILES_INDEX = 13;
+        private DirectoryInfo volumeDirectory;
+        private FileInfo file;
+        private Encoding encoding;
+        private TextWriter writer;        
+        private string customerDataField;
+        private string namedFolderField;
+        private string namedFileField;
+        private Switch groupStartTrigger;
+        private Switch codeStartTrigger;
+        
+        protected XrefExporter()
+        {
+            // do nothing here
         }
 
-        /// <summary>
-        /// Exports a document collection to an XREF.
-        /// </summary>
-        /// <param name="args">The XREF export file settings to use.</param>
-        public void Export(ExportXrefFileSettings args)
+        ~XrefExporter()
         {
-            args.CreateDestination();
-            bool append = false;
-            string file = args.GetFile().FullName;
-            Encoding encoding = args.GetEncoding();
-            DocumentCollection docs = args.GetDocuments();
-            XrefTrigger boxBreak = args.GetBoxBreakTrigger();
-            XrefTrigger groupStart = args.GetGroupStartTrigger();
-            XrefTrigger codeStart = args.GetCodeStartTrigger();
-            string customerData = args.GetCustomerData();
-            string namedFolder = args.GetNamedFolder();
-            string namedFile = args.GetNamedFile();
-            XrefSlipSheetSettings slipsheets = args.GetSlipsheets();
-            this.volumeDirectory = args.GetFile().Directory;
-
-            using (TextWriter writer = new StreamWriter(file, append, encoding))
-            {                
-                ExportXrefWriterSettings writerArgs = new ExportXrefWriterSettings(
-                    docs, writer, boxBreak, groupStart, codeStart, customerData,
-                    namedFolder, namedFile, slipsheets);
-                Export(writerArgs);
+            if (writer != null)
+            {
+                writer.Close();
             }
         }
-
+                       
         /// <summary>
-        /// Exports a document collection to an XREF.
+        /// Exports documents to a XREF file.
         /// </summary>
-        /// <param name="args">The XREF export writer settings to use.</param>
-        public void Export(ExportXrefWriterSettings args)
+        /// <param name="docs">The documents to export.</param>
+        public void Export(DocumentCollection docs)
         {
-            this.docs = args.GetDocuments();
-            TextWriter writer = args.GetWriter();          
-            XrefSlipSheetSettings ssSettings = args.GetSlipsheets();
-            SlipSheets slipsheets = new SlipSheets(docs, ssSettings, this.volumeDirectory);                        
+            this.docs = docs;
+            slipsheets.GenerateSlipSheets(docs);                                        
             writer.WriteLine(HEADER);
             // write docs
             for (int i = 0; i < this.docs.Count; i++)
             {                
-                List<string> pages = getPageRecords(args, i, slipsheets);
+                List<string> pages = getPageRecords(i, slipsheets);
                 // write pages
                 foreach (string page in pages)
                 {                  
@@ -96,14 +76,12 @@ namespace LoadFileAdapter.Exporters
         /// <summary>
         /// Gets all page records for the specified document.
         /// </summary>
-        /// <param name="args">The XREF export settings.</param>
         /// <param name="docIndex">The index of the current document in the collection.</param>
         /// <param name="slipsheets">The slipsheets for the document collection .</param>
         /// <returns>Returns all records including slipsheets for the specified document.</returns>
-        protected List<string> getPageRecords(IExportXrefSettings args, int docIndex, SlipSheets slipsheets)
+        protected List<string> getPageRecords(int docIndex, SlipSheets slipsheets)
         {
-            Document document = this.docs[docIndex];
-            XrefTrigger boxBreak = args.GetBoxBreakTrigger();
+            Document document = this.docs[docIndex];            
             List<string> pageRecords = new List<string>();
             Representative imageRep = document.Representatives
                 .Where(r => r.Type.Equals(Representative.FileType.Image)).FirstOrDefault();
@@ -116,7 +94,8 @@ namespace LoadFileAdapter.Exporters
                 // add page records                                
                 for (int i = 0; i < imageFiles.Count; i++)
                 {
-                    string[] recordComponents = getRecordComponents(args, docIndex, i);
+                    string imageKey = imageFiles[i].Key;
+                    string[] recordComponents = getRecordComponents(docIndex, i);
                     string pageRecord = String.Join(", ", recordComponents);
                     bool hasSlipsheet = false;
                                         
@@ -133,12 +112,12 @@ namespace LoadFileAdapter.Exporters
                         
                         if (hasSlipsheet)
                         {
-                            ssLine = getGhostBoxLine(imageFiles[i].Key, ssLine, boxBreak, docIndex, false);
+                            ssLine = getGhostBoxLine(imageKey, ssLine, docIndex, false);
                             pageRecords.Add(ssLine);
                             recordComponents[GROUP_START_INDEX] = "0";
                             recordComponents[CODE_START_INDEX] = "0";
 
-                            if (slipsheets.Settings.IsBindSlipsheets)
+                            if (slipsheets.IsBindSlipsheets)
                             {
                                 recordComponents[STAPLE_INDEX] = "0";
                             }
@@ -147,8 +126,7 @@ namespace LoadFileAdapter.Exporters
                         }                        
                     }
 
-                    pageRecord = getGhostBoxLine(
-                        imageFiles[i].Key, pageRecord, boxBreak, docIndex, hasSlipsheet);
+                    pageRecord = getGhostBoxLine(imageKey, pageRecord, docIndex, hasSlipsheet);
                     pageRecords.Add(pageRecord);
                 }
             }
@@ -161,19 +139,20 @@ namespace LoadFileAdapter.Exporters
         /// The box number is incremented each time the box trigger occurs.
         /// </summary>
         /// <param name="imageKey">The imagekey of the current record.</param>
-        /// <param name="pageRecord">The XREF record to ghost box.</param>
-        /// <param name="boxTrigger">The box trigger settings.</param>
+        /// <param name="pageRecord">The XREF record to ghost box.</param>        
         /// <param name="docIndex">The index of the current document in the collection being exported.</param>
+        /// <param name="hasSlipsheet">Indicates if the document has a slipsheet and prevents the box number
+        /// from being incremented.</param>
         /// <returns>Returns the unaltered page record if the trigger type is none. Otherwise the CDPath value
         /// is prepended with a ghost box.</returns>
-        protected string getGhostBoxLine(string imageKey, string pageRecord, XrefTrigger boxTrigger, int docIndex, bool hasSlipsheet)
+        protected string getGhostBoxLine(string imageKey, string pageRecord, int docIndex, bool hasSlipsheet)
         {
-            if (boxTrigger != null && boxTrigger.Type != XrefTrigger.TriggerType.None)
+            if (boxTrigger != null && boxTrigger.Type != Switch.SwitchType.None)
             {
                 Document doc = this.docs[docIndex];
                 Document previousDoc = getPreviousDoc(docIndex);
 
-                if (doc.Key.Equals(imageKey) && isFlagNeeded(doc, boxTrigger, previousDoc) && !hasSlipsheet)
+                if (doc.Key.Equals(imageKey) && !hasSlipsheet && boxTrigger.IsTriggered(doc, previousDoc))                    
                 {
                     this.boxNumber++;
                 }
@@ -188,37 +167,33 @@ namespace LoadFileAdapter.Exporters
 
         /// <summary>
         /// Gets all the components to make a single XREF record for the specified document.
-        /// </summary>
-        /// <param name="args">The XREF export settings.</param>
+        /// </summary>        
         /// <param name="docIndex">The index of the current document in the collection to export.</param>
         /// <param name="imageIndex">The index of the current image of the current document.</param>
         /// <returns>Returns an array of XREF field values for the specified document.</returns>
-        protected string[] getRecordComponents(IExportXrefSettings args, int docIndex, int imageIndex)
+        protected string[] getRecordComponents(int docIndex, int imageIndex)
         {
             Document document = this.docs[docIndex];
             Document previousDoc = getPreviousDoc(docIndex);
             Representative imageRep = document.Representatives
                 .Where(r => r.Type.Equals(Representative.FileType.Image))
                 .FirstOrDefault();
-            List<KeyValuePair<string, string>> imageFiles = imageRep.Files.ToList();
-            string customerDataField = args.GetCustomerData();
-            string namedFolderField = args.GetNamedFolder();
-            string namedFileField = args.GetNamedFile();
+            List<KeyValuePair<string, string>> imageFiles = imageRep.Files.ToList();            
             var image = imageFiles[imageIndex];
             BatesNumber bates = new BatesNumber(image.Key);            
             string CDPath = image.Value;
             string Prefix = bates.Prefix;
             string Number = bates.NumberAsString;
             string Suffix = (bates.HasSuffix) ? bates.SuffixAsString : String.Empty;
-            bool GS = getGroupStartFlag(image.Key, docIndex, args);
+            bool GS = getGroupStartFlag(image.Key, docIndex, groupStartTrigger);
             if (GS) this.waitingForGroupEnd = true;
-            bool GE = getGroupEndFlag(docIndex, imageIndex, args);
+            bool GE = getGroupEndFlag(docIndex, imageIndex, groupStartTrigger);
             if (GE) this.waitingForGroupEnd = false;
             bool Staple = image.Key.Equals(document.Key);
             string Loose = "0";
-            bool CS = getCodeStartFlag(document, previousDoc, args);
+            bool CS = getCodeStartFlag(document, previousDoc, codeStartTrigger);
             if (CS) this.waitingForCodeEnd = true;
-            bool CE = getCodeEndFlag(docIndex, imageIndex, args);
+            bool CE = getCodeEndFlag(docIndex, imageIndex, codeStartTrigger);
             if (CE) this.waitingForCodeEnd = false;
             string LabelBypass = "0";
             string CustomerData = getCustomValue(image.Key, document, customerDataField);
@@ -300,129 +275,7 @@ namespace LoadFileAdapter.Exporters
 
             return nextDoc;
         }
-
-        /// <summary>
-        /// Tests if the target document has a field value change event.
-        /// </summary>
-        /// <param name="doc">The document to test.</param>
-        /// <param name="previousDoc">The previous document in the collection being exported.</param>
-        /// <param name="trigger">The trigger settings.</param>
-        /// <returns>Returns true if there is no change option and the target metadata of the current
-        /// document is different from the previous document. Returns true if the change option is 
-        /// strip file name and directory name of the current field value is different from
-        /// the previous field value. Returns true if the change option is use ending segments
-        /// and the specified ending segments of the current doc are different from the ending
-        /// segments of the previous doc. Returns true if the change option is starting segments
-        /// and the specified starting segments fo the current doc are different from the starting 
-        /// segments of the previous doc. Otherwise returns false.</returns>
-        protected static bool hasFieldValueChange(Document doc, Document previousDoc, XrefTrigger trigger)
-        {
-            bool result = false;
-            string changeFieldValue = doc.Metadata[trigger.FieldName].ToString();
-            string previousFieldValue = (previousDoc != null)
-                ? previousDoc.Metadata[trigger.FieldName].ToString()
-                : String.Empty;
-
-            switch (trigger.ChangeOption)
-            {
-                case XrefTrigger.FieldValueChangeOption.None:
-                    result = !changeFieldValue.Equals(previousFieldValue);
-                    break;
-                case XrefTrigger.FieldValueChangeOption.StripFileName:
-                    string currentDir = Path.GetDirectoryName(changeFieldValue);
-                    string previousDir = Path.GetDirectoryName(previousFieldValue);
-                    result = !currentDir.Equals(previousDir);
-                    break;
-                case XrefTrigger.FieldValueChangeOption.UseEndingSegments:
-                    var currentValueEnd = String.Join(
-                        trigger.SegmentDelimiter,
-                        changeFieldValue
-                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                            .Reverse().Take(trigger.SegmentCount).Reverse());
-                    var previousValueEnd = String.Join(
-                        trigger.SegmentDelimiter,
-                        previousFieldValue
-                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                            .Reverse().Take(trigger.SegmentCount).Reverse());
-                    result = !currentValueEnd.Equals(previousValueEnd);
-                    break;
-                case XrefTrigger.FieldValueChangeOption.UseStartingSegments:
-                    var currentValueStart = String.Join(
-                        trigger.SegmentDelimiter, 
-                        changeFieldValue
-                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                            .Take(trigger.SegmentCount));
-                    var previousValueStart = String.Join(
-                        trigger.SegmentDelimiter, 
-                        previousFieldValue
-                            .Split(new string[] { trigger.SegmentDelimiter }, StringSplitOptions.None)
-                            .Take(trigger.SegmentCount));
-                    result = !currentValueStart.Equals(previousValueStart);
-                    break;
-                default:
-                    // do nothing here
-                    break;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Tests if a flag is needed for the supplied document and trigger.
-        /// </summary>
-        /// <param name="doc">The document to test.</param>
-        /// <param name="trigger">The trigger that signals a flag is needed.</param>
-        /// <param name="previousDoc">Used to test if a flag is needed if the trigger is a field value change trigger.</param>
-        /// <returns>Returns true if the trigger is a family trigger and the doc key matches the parent doc key.
-        /// Returns true if the trigger is a regex trigger and target metadata field matches the trigger pattern.
-        /// Returns true if the trigger is a field value change trigger and the target metadata field is different 
-        /// from the metadata in the previous document. Otherwise it returns false.</returns>
-        protected bool isFlagNeeded(Document doc, XrefTrigger trigger, Document previousDoc)
-        {
-            return IsFlagNeeded(doc, trigger, previousDoc);
-        }
                 
-        /// <summary>
-        /// Tests if a flag is needed for the supplied document and trigger.
-        /// </summary>
-        /// <param name="doc">The document to test.</param>
-        /// <param name="trigger">The trigger that signals a flag is needed.</param>
-        /// <param name="previousDoc">Used to test if a flag is needed if the trigger is a field value change trigger.</param>
-        /// <returns>Returns true if the trigger is a family trigger and the doc key matches the parent doc key.
-        /// Returns true if the trigger is a regex trigger and target metadata field matches the trigger pattern.
-        /// Returns true if the trigger is a field value change trigger and the target metadata field is different 
-        /// from the metadata in the previous document. Otherwise it returns false.</returns>
-        internal static bool IsFlagNeeded(Document doc, XrefTrigger trigger, Document previousDoc)
-        {
-            bool result = false;
-            string docid = doc.Key;
-            string parentid = (doc.Parent != null) ? doc.Parent.Key : String.Empty;
-
-            if (trigger != null)
-            {
-                switch (trigger.Type)
-                {
-                    case XrefTrigger.TriggerType.Family:
-                        result = (docid.Equals(parentid) || String.IsNullOrEmpty(parentid));
-                        break;
-                    case XrefTrigger.TriggerType.FieldValueChange:
-                        result = hasFieldValueChange(doc, previousDoc, trigger);
-                        break;
-                    case XrefTrigger.TriggerType.None:
-                        // do nothing here
-                        break;
-                    case XrefTrigger.TriggerType.Regex:
-                        result = Regex.IsMatch(doc.Metadata[trigger.FieldName], trigger.RegexPattern);
-                        break;
-                    default:
-                        // do nothing here
-                        break;
-                }
-            }
-
-            return result;
-        }
-
         /// <summary>
         /// Gets the value of the group start flag for the target document and image.
         /// </summary>
@@ -431,15 +284,15 @@ namespace LoadFileAdapter.Exporters
         /// <param name="settings">The XREF export settings.</param>
         /// <returns>Returns true if the image key matches the doc key and a flag is needed based on the 
         /// group start trigger.</returns>
-        protected bool getGroupStartFlag(string imageKey, int docIndex, IExportXrefSettings settings)
+        protected bool getGroupStartFlag(string imageKey, int docIndex, Switch trigger)
         {
             bool result = false;
             Document doc = this.docs[docIndex];
             Document previousDoc = getPreviousDoc(docIndex);
 
-            if (imageKey.Equals(doc.Key))
+            if (imageKey.Equals(doc.Key) && trigger != null)
             {
-                result = isFlagNeeded(doc, settings.GetGroupStartTrigger(), previousDoc);
+                result = trigger.IsTriggered(doc, previousDoc);
             }
 
             return result;
@@ -452,9 +305,16 @@ namespace LoadFileAdapter.Exporters
         /// <param name="previousDoc">The previous document in the collection being exported.</param>
         /// <param name="settings">The XREF export settings.</param>
         /// <returns>Returns true if a flag is needed based on the code start trigger settings.</returns>
-        protected bool getCodeStartFlag(Document doc, Document previousDoc, IExportXrefSettings settings)
+        protected bool getCodeStartFlag(Document doc, Document previousDoc, Switch trigger)
         {
-            return isFlagNeeded(doc, settings.GetCodeStartTrigger(), previousDoc);
+            bool result = false;
+
+            if (trigger != null)
+            {
+                result = trigger.IsTriggered(doc, previousDoc);
+            }
+
+            return result; 
         }
 
         /// <summary>
@@ -465,7 +325,7 @@ namespace LoadFileAdapter.Exporters
         /// <param name="settings">The XREF export settings.</param>
         /// <returns>Returns true if this is the last document and we are waiting for a group end flag.
         /// Returns true if the next document has a group start flag. Otherwise false is returned.</returns>
-        protected bool getGroupEndFlag(int docIndex, int imageIndex, IExportXrefSettings settings)
+        protected bool getGroupEndFlag(int docIndex, int imageIndex, Switch trigger)
         {
             bool result = false;
             string nextImageKey = getNextImageKey(imageIndex, docIndex);
@@ -488,7 +348,7 @@ namespace LoadFileAdapter.Exporters
             }
             else
             {
-                result = getGroupStartFlag(nextImageKey, nextImageDocIndex, settings);
+                result = getGroupStartFlag(nextImageKey, nextImageDocIndex, trigger);
             }
 
             return result;
@@ -502,7 +362,7 @@ namespace LoadFileAdapter.Exporters
         /// <param name="settings">The XREF export settings.</param>
         /// <returns>Returns true if this is the last document and we are waiting for a code end flag.
         /// Returns true if the next document will have a code start flag. Otherwise false is returned.</returns>
-        protected bool getCodeEndFlag(int docIndex, int imageIndex, IExportXrefSettings settings)
+        protected bool getCodeEndFlag(int docIndex, int imageIndex, Switch trigger)
         {
             bool result = false;
             Document doc = this.docs[docIndex];
@@ -527,7 +387,7 @@ namespace LoadFileAdapter.Exporters
             }
             else
             {
-                result = getCodeStartFlag(nextImageDoc, nextImagePreviousDoc, settings);
+                result = getCodeStartFlag(nextImageDoc, nextImagePreviousDoc, trigger);
             }
 
             return result;
@@ -553,6 +413,139 @@ namespace LoadFileAdapter.Exporters
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Builds a <see cref="XrefExporter"/> instance.
+        /// </summary>
+        public class Builder
+        {            
+            private XrefExporter instance;
+
+            private Builder()
+            {
+                instance = new XrefExporter();
+            }
+
+            /// <summary>
+            /// Starts the process of building a <see cref="XrefExporter"/>.
+            /// </summary>
+            /// <param name="file">The destination XREF file.</param>
+            /// <param name="encoding">The encoding of the export file.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public static Builder Start(FileInfo file, Encoding encoding)
+            {
+                Builder builder = new Builder();
+                bool append = false;
+                builder.instance.file = file;
+                builder.instance.encoding = encoding;
+                builder.instance.writer = new StreamWriter(file.FullName, append, encoding);
+                builder.instance.volumeDirectory = file.Directory;
+                builder.instance.CreateDestination(file);
+                return builder;
+            }
+
+            /// <summary>
+            /// Starts the process of building a <see cref="XrefExporter"/>.
+            /// </summary>
+            /// <param name="writer">The <see cref="TextWriter"/> used to write the export.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public static Builder Start(TextWriter writer)
+            {
+                Builder builder = new Builder();
+                builder.instance.writer = writer;
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the customer data field.
+            /// </summary>
+            /// <param name="value">Metadata field name of the field containing customer data values.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetCustomerDataField(string value)
+            {
+                instance.customerDataField = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the named folder field.
+            /// </summary>
+            /// <param name="value">Metadata field name of the field containing named folder values.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetNamedFolderField(string value)
+            {
+                instance.namedFolderField = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the named file field.
+            /// </summary>
+            /// <param name="value">Metadata field name of the field containing named file values.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetNamedFileField(string value)
+            {
+                instance.namedFileField = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the group start trigger.
+            /// </summary>
+            /// <param name="value">The trigger that activates a group start.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetGroupStartTrigger(Switch value)
+            {
+                instance.groupStartTrigger = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the code start trigger.
+            /// </summary>
+            /// <param name="value">The trigger that activates a code start.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetCodeStartTrigger(Switch value)
+            {
+                instance.codeStartTrigger = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the box trigger.
+            /// </summary>
+            /// <param name="value">The trigger that causes the use of ghost boxing 
+            /// and increments the box number.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetBoxTrigger(Switch value)
+            {
+                instance.boxTrigger = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the <see cref="SlipSheets"/> object that controls the creation of 
+            /// slipsheets in the export.
+            /// </summary>
+            /// <param name="value">The slipsheets value.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetSlipsheets(SlipSheets value)
+            {
+                instance.slipsheets = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Builds a <see cref="XrefExporter"/>.
+            /// </summary>
+            /// <returns>Returns a <see cref="XrefExporter"/>.</returns>
+            public XrefExporter Build()
+            {
+                XrefExporter instance = this.instance;
+                this.instance = null;
+                return instance;
+            }
         }
     }
 }

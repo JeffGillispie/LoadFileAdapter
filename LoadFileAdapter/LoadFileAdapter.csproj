@@ -15,7 +15,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>true</Optimize>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -50,50 +50,33 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatesNumber.cs" />
-    <Compile Include="Builders\BuildDocSettings.cs" />
-    <Compile Include="Builders\BuildDocCollectionSettings.cs" />
     <Compile Include="Builders\IBuilder.cs" />
-    <Compile Include="Builders\BuildDocImageSettings.cs" />
-    <Compile Include="Builders\BuildDocCollectionImageSettings.cs" />
-    <Compile Include="Builders\BuildDocLfpSettings.cs" />
-    <Compile Include="Builders\DatRepresentativeSettings.cs" />
-    <Compile Include="Builders\BuildDocDatSettings.cs" />
-    <Compile Include="Builders\BuildDocCollectionDatSettings.cs" />
+    <Compile Include="Builders\RepresentativeBuilder.cs" />
     <Compile Include="DocumentCollection.cs" />
-    <Compile Include="Exporters\ExportFileSettingsExtension.cs" />
-    <Compile Include="Exporters\ExportXlsLinkSettings.cs" />
-    <Compile Include="Exporters\ExportXrefFileSettings.cs" />
-    <Compile Include="Exporters\ExportXrefWriterSettings.cs" />
-    <Compile Include="Exporters\IExportDatSettings.cs" />
-    <Compile Include="Exporters\IExportImageSettings.cs" />
-    <Compile Include="Exporters\IExportSettings.cs" />
-    <Compile Include="Exporters\ExportXlsSettings.cs" />
+    <Compile Include="Exporters\ExporterExtensions.cs" />
+    <Compile Include="Exporters\HyperLinkInfo.cs" />
     <Compile Include="Exporters\IExporter.cs" />
-    <Compile Include="Exporters\IExportFileSettings.cs" />
-    <Compile Include="Exporters\IExportWriterSettings.cs" />
-    <Compile Include="Exporters\ExportImageFileSettings.cs" />
-    <Compile Include="Exporters\ExportImageWriterSettings.cs" />
-    <Compile Include="Exporters\IExportXrefSettings.cs" />
     <Compile Include="Exporters\LfpExporter.cs" />
     <Compile Include="Exporters\OptExporter.cs" />
     <Compile Include="Exporters\DatExporter.cs" />
-    <Compile Include="Exporters\ExportDatFileSettings.cs" />
-    <Compile Include="Exporters\ExportDatWriterSettings.cs" />
     <Compile Include="Exporters\SlipSheet.cs" />
     <Compile Include="Exporters\SlipSheets.cs" />
     <Compile Include="Exporters\XlsExporter.cs" />
     <Compile Include="Exporters\XrefExporter.cs" />
-    <Compile Include="Exporters\XrefSlipSheetSettings.cs" />
-    <Compile Include="Exporters\XrefTrigger.cs" />
+    <Compile Include="Exporters\Switch.cs" />
+    <Compile Include="Importers\IImporter.cs" />
     <Compile Include="Importers\LfpImporter.cs" />
     <Compile Include="Importers\OptImporter.cs" />
     <Compile Include="Importers\DatImporter.cs" />
     <Compile Include="Instructions\DateFormatEdit.cs" />
     <Compile Include="Instructions\DatExport.cs" />
     <Compile Include="Instructions\DatImport.cs" />
-    <Compile Include="Instructions\DelimitersBuilder.cs" />
+    <Compile Include="Instructions\LfpExport.cs" />
+    <Compile Include="Instructions\LfpImport.cs" />
+    <Compile Include="Instructions\OptExport.cs" />
+    <Compile Include="Instructions\OptImport.cs" />
+    <Compile Include="Instructions\Separators.cs" />
     <Compile Include="Instructions\Edit.cs" />
-    <Compile Include="Instructions\Executor.cs" />
     <Compile Include="Instructions\Export.cs" />
     <Compile Include="Instructions\Hyperlink.cs" />
     <Compile Include="Instructions\ImgExport.cs" />
@@ -101,11 +84,11 @@
     <Compile Include="Instructions\Import.cs" />
     <Compile Include="Instructions\Job.cs" />
     <Compile Include="Instructions\RepresentativeEdit.cs" />
-    <Compile Include="Instructions\RepresentativeSettings.cs" />
+    <Compile Include="Instructions\RepresentativeInfo.cs" />
     <Compile Include="Instructions\MetaDataEdit.cs" />
     <Compile Include="Instructions\SlipsheetField.cs" />
     <Compile Include="Instructions\SlipsheetsInfo.cs" />
-    <Compile Include="Instructions\TextFileSettingsBuilder.cs" />
+    <Compile Include="Instructions\TextFileInfo.cs" />
     <Compile Include="Instructions\Trigger.cs" />
     <Compile Include="Instructions\XlsExport.cs" />
     <Compile Include="Instructions\XrefExport.cs" />
@@ -114,17 +97,11 @@
     <Compile Include="Builders\LfpBuilder.cs" />
     <Compile Include="Builders\OptBuilder.cs" />
     <Compile Include="Parsers\LfpParser.cs" />
-    <Compile Include="Parsers\ParseLineSettings.cs" />
-    <Compile Include="Parsers\ParseReaderSettings.cs" />
-    <Compile Include="Parsers\ParseLineDatSettings.cs" />
-    <Compile Include="Parsers\ParseFileDatSettings.cs" />
     <Compile Include="Parsers\IParser.cs" />
-    <Compile Include="Parsers\ParseFileSettings.cs" />
     <Compile Include="Parsers\DatParser.cs" />
-    <Compile Include="Parsers\ParseReaderDatSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Representative.cs" />
-    <Compile Include="Builders\TextRepresentativeSettings.cs" />
+    <Compile Include="Builders\TextBuilder.cs" />
     <Compile Include="Builders\DatBuilder.cs" />
     <Compile Include="Transformers\DateFormatTransformation.cs" />
     <Compile Include="Transformers\Overlayer.cs" />

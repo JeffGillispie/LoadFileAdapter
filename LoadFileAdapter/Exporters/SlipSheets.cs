@@ -12,10 +12,22 @@ namespace LoadFileAdapter.Exporters
     /// </summary>
     public class SlipSheets
     {
-        private Dictionary<string, SlipSheet> slipsheetLookup;
-        private DocumentCollection documents;
-        private XrefSlipSheetSettings slipsheetSettings;
-        private DirectoryInfo volumeDirectory;
+        private Dictionary<string, SlipSheet> slipsheetLookup = new Dictionary<string, SlipSheet>();                       
+        private DirectoryInfo destinationDir;
+        private bool useFieldLabels = true;
+        private bool bindSlipsheets = false;        
+        private SlipSheet.HorizontalPlacementOption horizontalPlacement = SlipSheet.HorizontalPlacementOption.Left;
+        private SlipSheet.VerticalPlacementOption verticalPlacement = SlipSheet.VerticalPlacementOption.Top;
+        private string slipsheetFolderName;
+        private Font slipsheetFont = new Font(FontFamily.GenericSansSerif, 12, FontStyle.Bold);
+        private int resolution = 300;
+        private Dictionary<string, string> aliasMap;
+        private Switch trigger;
+
+        private SlipSheets()
+        {
+            // do nothing here
+        }
 
         /// <summary>
         /// The count of created slipsheets.
@@ -23,9 +35,9 @@ namespace LoadFileAdapter.Exporters
         public int Count { get { return slipsheetLookup.Count; } }
 
         /// <summary>
-        /// The XREF slipsheet settings used to create slipsheets.
+        /// Determines if slipsheets should become the first page of the document.
         /// </summary>
-        public XrefSlipSheetSettings Settings { get { return slipsheetSettings; } }
+        public bool IsBindSlipsheets { get { return bindSlipsheets; } }
 
         /// <summary>
         /// Indexor for the collection of slipsheets.
@@ -40,22 +52,7 @@ namespace LoadFileAdapter.Exporters
                 return slipsheetLookup[key];
             }
         }
-
-        /// <summary>
-        /// Initializes a new instance of <see cref="SlipSheets"/>.
-        /// </summary>
-        /// <param name="docs">The document collection to create slipsheets for.</param>
-        /// <param name="settings">The XREF slipsheet settings.</param>
-        /// <param name="vol">The volume directory used when saving slipsheets.</param>
-        public SlipSheets(DocumentCollection docs, XrefSlipSheetSettings settings, DirectoryInfo vol)
-        {
-            this.documents = docs;
-            this.slipsheetSettings = settings;
-            this.slipsheetLookup = new Dictionary<string, SlipSheet>();
-            this.volumeDirectory = vol;
-            generateSlipSheets();
-        }
-
+        
         /// <summary>
         /// Gets the slipsheet text for a specific document.
         /// </summary>
@@ -65,9 +62,9 @@ namespace LoadFileAdapter.Exporters
         {
             StringBuilder text = new StringBuilder();
 
-            foreach (var kvp in this.slipsheetSettings.FieldList)
+            foreach (var kvp in aliasMap)
             {
-                if (this.slipsheetSettings.IsUseFieldLabels)
+                if (useFieldLabels)
                 {
                     text.Append(kvp.Value + ": ");
                 }
@@ -81,16 +78,23 @@ namespace LoadFileAdapter.Exporters
         /// <summary>
         /// Generates slipsheet for a document collection.
         /// </summary>
-        protected void generateSlipSheets()
+        public void GenerateSlipSheets(DocumentCollection docs)
         {
             Document previousDoc = null;
             
-            foreach (Document doc in this.documents)
+            foreach (Document doc in docs)
             {                
-                if (XrefExporter.IsFlagNeeded(doc, this.slipsheetSettings.Trigger, previousDoc))
+                if (trigger != null && trigger.IsTriggered(doc, previousDoc))
                 {
                     string text = getSlipSheetText(doc);
-                    slipsheetLookup.Add(doc.Key, new SlipSheet(doc.Key, text));
+                    SlipSheet ss = SlipSheet.Builder
+                        .Start(doc.Key, text)
+                        .SetFont(slipsheetFont)
+                        .SetResolution(resolution)
+                        .SetHorizontalTextPlacement(horizontalPlacement)
+                        .SetVerticalTextPlacement(verticalPlacement)
+                        .Build();
+                    slipsheetLookup.Add(doc.Key, ss);
                 }
 
                 previousDoc = doc;
@@ -107,10 +111,10 @@ namespace LoadFileAdapter.Exporters
         {
             Image img = null;
 
-            if (this.slipsheetLookup.ContainsKey(docid))
+            if (slipsheetLookup.ContainsKey(docid))
             {
-                SlipSheet ss = this.slipsheetLookup[docid];
-                img = ss.GetImage(this.slipsheetSettings);
+                SlipSheet ss = slipsheetLookup[docid];
+                img = ss.GetImage();
             }
 
             return img;
@@ -123,7 +127,7 @@ namespace LoadFileAdapter.Exporters
         /// <returns>Returns true if the document has a slipsheet, otherwise false.</returns>
         public bool HasSlipSheet(string docid)
         {
-            return this.slipsheetLookup.ContainsKey(docid);
+            return slipsheetLookup.ContainsKey(docid);
         }
 
         /// <summary>
@@ -149,8 +153,8 @@ namespace LoadFileAdapter.Exporters
                     .Where(r => r.Type == Representative.FileType.Image).First()
                     .Files.First().Value;
                 FileInfo imageFile = new FileInfo(imagePath);
-                String path = (this.slipsheetSettings.IsPlaceInFolder) 
-                    ? String.Format("\\{0}\\{1}.TIF", this.slipsheetSettings.SlipsheetFolder, ssImageKey) 
+                String path = (!String.IsNullOrWhiteSpace(slipsheetFolderName)) 
+                    ? String.Format("\\{0}\\{1}.TIF", slipsheetFolderName, ssImageKey) 
                     : Path.Combine(imageFile.Directory.FullName, String.Format("{0}.TIF", ssImageKey));
 
                 line = String.Format(
@@ -186,8 +190,8 @@ namespace LoadFileAdapter.Exporters
         protected void writeSlipsheet(string path, SlipSheet slipsheet)
         {
             path = path.TrimStart('\\');
-            string ssPath = (this.volumeDirectory != null) 
-                ? Path.Combine(this.volumeDirectory.FullName, path) 
+            string ssPath = (destinationDir != null) 
+                ? Path.Combine(destinationDir.FullName, path) 
                 : path;
             FileInfo ssFile = new FileInfo(ssPath);
 
@@ -196,7 +200,142 @@ namespace LoadFileAdapter.Exporters
                 Directory.CreateDirectory(ssFile.Directory.FullName);
             }
 
-            slipsheet.SaveImage(this.slipsheetSettings, ssPath);
+            slipsheet.SaveImage(ssPath);
+        }
+
+        /// <summary>
+        /// Builds an instance of <see cref="SlipSheets"/>.
+        /// </summary>
+        public class Builder
+        {
+            private SlipSheets instance;
+
+            private Builder()
+            {
+                instance = new SlipSheets();
+            }
+
+            /// <summary>
+            /// Starts the process of building a <see cref="SlipSheets"/> instance.
+            /// </summary>
+            /// <param name="trigger">The <see cref="SlipSheet"/> trigger.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public static Builder Start(Switch trigger)
+            {
+                Builder builder = new Builder();                
+                builder.instance.trigger = trigger;
+                return builder;
+            }
+
+            /// <summary>
+            /// Sets the slipsheet destination folder.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetDestinationFolder(DirectoryInfo value)
+            {
+                instance.destinationDir = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the indicator for use of field labels.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetUseFieldLabels(bool value)
+            {
+                instance.useFieldLabels = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the indicator for binding slipsheets to documents.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetBindSlipsheets(bool value)
+            {
+                instance.bindSlipsheets = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the horizontal text placement option.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/>.</returns>
+            public Builder SetHorizontalTextPlacement(SlipSheet.HorizontalPlacementOption value)
+            {
+                instance.horizontalPlacement = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the vertical text placement option.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetVerticalTextPlacement(SlipSheet.VerticalPlacementOption value)
+            {
+                instance.verticalPlacement = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the name of the slipsheet folder.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetFolderName(string value)
+            {
+                instance.slipsheetFolderName = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the slipsheet font.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetFont(Font value)
+            {
+                instance.slipsheetFont = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the slipsheet resolution.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetResolution(int value)
+            {
+                instance.resolution = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Sets the alias map that maps metadata field names to an alias.
+            /// </summary>
+            /// <param name="value">The value to set.</param>
+            /// <returns>Returns a <see cref="Builder"/></returns>
+            public Builder SetAliasMap(Dictionary<string, string> value)
+            {
+                instance.aliasMap = value;
+                return this;
+            }
+
+            /// <summary>
+            /// Builds a <see cref="SlipSheets"/> instance.
+            /// </summary>
+            /// <returns>Returns a <see cref="SlipSheets"/> instance.</returns>
+            public SlipSheets Build()
+            {
+                SlipSheets instance = this.instance;
+                this.instance = null;
+                return instance;
+            }
         }
     }
 }

@@ -12,15 +12,26 @@ namespace LoadFileAdapterTests
     public class Sandbox
     {
         [TestMethod]
+        public void Test()
+        {
+            String one = "blah blah blah";
+            String two = one;
+            one = "tuti fruti";
+            //Assert.AreEqual(one, two);
+            Int32 j = 1;
+            Int32 k = j;
+            j++;
+            //Assert.AreEqual(j, k);
+        }
+
+        [TestMethod]
         public void SandboxTest()
         {
             string xml = System.IO.File.ReadAllText("X:\\dev\\TestData\\DAT_Edit.xml");
             Job job = Job.Deserialize(xml);
             job.Imports.First().File = new System.IO.FileInfo(@"X:\dev\TestData\SAMPLE.DAT");
             job.Exports.First().File = new System.IO.FileInfo(@"X:\dev\TestData\OUTPUT.DAT");
-            Executor e = new Executor();
-            e.Execute(job);
-
+            job.Execute();            
             xml = System.IO.File.ReadAllText(@"X:\dev\TestData\XREF_TEST.xml");
             job = Job.Deserialize(xml);
 
