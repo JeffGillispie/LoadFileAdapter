@@ -66,7 +66,7 @@ namespace LoadFileAdapter.Instructions
             set
             {
                 RegexOptions options = getRegexOptions(FindTextIgnoreCase, FindTextIsRightToLeft);
-                this.FindText = new Regex(value, options);
+                this.FindText = (value == null) ? null : new Regex(value, options);
             }
         }
 
@@ -140,7 +140,7 @@ namespace LoadFileAdapter.Instructions
             set
             {
                 RegexOptions options = getRegexOptions(FilterTextIgnoreCase, FilterTextRightToLeft);
-                this.FilterText = new Regex(value, options);
+                this.FilterText = (value == null) ? null : new Regex(value, options);
             }
         }
 

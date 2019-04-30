@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using NLog;
 
 namespace LoadFileAdapter.Exporters
 {
@@ -12,6 +13,8 @@ namespace LoadFileAdapter.Exporters
     /// </summary>
     public class XrefExporter : IExporter
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// The header line of an XREF file.
         /// </summary>
@@ -48,6 +51,7 @@ namespace LoadFileAdapter.Exporters
         {
             if (writer != null)
             {
+                logger.Debug("Closing writer.");
                 writer.Close();
             }
         }
@@ -59,7 +63,7 @@ namespace LoadFileAdapter.Exporters
         public void Export(DocumentCollection docs)
         {
             this.docs = docs;
-            slipsheets.GenerateSlipSheets(docs);                                        
+            slipsheets.GenerateSlipSheets(docs);            
             writer.WriteLine(HEADER);
             // write docs
             for (int i = 0; i < this.docs.Count; i++)
@@ -69,8 +73,13 @@ namespace LoadFileAdapter.Exporters
                 foreach (string page in pages)
                 {                  
                     writer.WriteLine(page);
+                    writer.Flush();
+                    logger.Debug(page);
                 }            
             }
+
+            writer.Flush();
+            writer.Close();
         }
 
         /// <summary>
@@ -437,11 +446,11 @@ namespace LoadFileAdapter.Exporters
             {
                 Builder builder = new Builder();
                 bool append = false;
+                builder.instance.CreateDestination(file);
                 builder.instance.file = file;
                 builder.instance.encoding = encoding;
                 builder.instance.writer = new StreamWriter(file.FullName, append, encoding);
-                builder.instance.volumeDirectory = file.Directory;
-                builder.instance.CreateDestination(file);
+                builder.instance.volumeDirectory = file.Directory;                
                 return builder;
             }
 

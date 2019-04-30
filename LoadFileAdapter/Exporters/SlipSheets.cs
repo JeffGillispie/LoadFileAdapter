@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NLog;
 
 namespace LoadFileAdapter.Exporters
 {
@@ -12,6 +13,7 @@ namespace LoadFileAdapter.Exporters
     /// </summary>
     public class SlipSheets
     {
+        private static Logger logger = LogManager.GetCurrentClassLogger();
         private Dictionary<string, SlipSheet> slipsheetLookup = new Dictionary<string, SlipSheet>();                       
         private DirectoryInfo destinationDir;
         private bool useFieldLabels = true;
@@ -175,8 +177,10 @@ namespace LoadFileAdapter.Exporters
                     namedFile);
 
                 writeSlipsheet(path, this.slipsheetLookup[doc.Key]);
+                logger.Debug("Slipsheet {0} written to {1}.", doc.Key, path);
             }
 
+            logger.Debug(line);
             return line;
         }
 
@@ -200,6 +204,7 @@ namespace LoadFileAdapter.Exporters
                 Directory.CreateDirectory(ssFile.Directory.FullName);
             }
 
+            logger.Debug("Writing slipsheet to {0}.", ssPath);
             slipsheet.SaveImage(ssPath);
         }
 

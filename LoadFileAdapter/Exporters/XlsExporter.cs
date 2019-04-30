@@ -184,9 +184,9 @@ namespace LoadFileAdapter.Exporters
             public static Builder Start(FileInfo file, string[] exportFields)
             {
                 Builder builder = new Builder();
-                builder.instance.file = file;                
-                builder.instance.exportFields = exportFields;
                 builder.instance.CreateDestination(file);
+                builder.instance.file = file;                
+                builder.instance.exportFields = exportFields;                
                 return builder;
             }
 

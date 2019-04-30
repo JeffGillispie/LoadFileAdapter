@@ -45,6 +45,9 @@ namespace LoadFileAdapter.Exporters
                     writer.WriteLine(page);
                 }
             }
+
+            writer.Flush();
+            writer.Close();
         }
 
         /// <summary>
@@ -117,11 +120,11 @@ namespace LoadFileAdapter.Exporters
             {
                 Builder builder = new Builder();
                 bool append = false;
+                builder.instance.CreateDestination(file);
                 builder.instance.file = file;
                 builder.instance.encoding = encoding;
                 builder.instance.volumeName = Path.GetFileNameWithoutExtension(file.Name);                
-                builder.instance.writer = new StreamWriter(file.FullName, append, encoding);
-                builder.instance.CreateDestination(file);
+                builder.instance.writer = new StreamWriter(file.FullName, append, encoding);                
                 return builder;
             }
 
