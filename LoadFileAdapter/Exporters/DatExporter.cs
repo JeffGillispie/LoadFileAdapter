@@ -41,8 +41,11 @@ namespace LoadFileAdapter.Exporters
             foreach (Document document in docs)
             {
                 string record = getRecord(document, delimiters, exportFields);
-                writer.WriteLine(record);
+                writer.WriteLine(record);                
             }
+
+            writer.Flush();
+            writer.Close();
         }
                 
         /// <summary>
@@ -164,11 +167,11 @@ namespace LoadFileAdapter.Exporters
             {
                 Builder builder = new Builder();
                 bool append = false;
+                builder.instance.CreateDestination(file);
                 builder.instance.file = file;
                 builder.instance.encoding = encoding;
                 builder.instance.exportFields = exportFields;                
-                builder.instance.writer = new StreamWriter(file.FullName, append, encoding);
-                builder.instance.CreateDestination(file);
+                builder.instance.writer = new StreamWriter(file.FullName, append, encoding);                
                 return builder;
             }
 

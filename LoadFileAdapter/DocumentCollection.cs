@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using LoadFileAdapter.Transformers;
 
 namespace LoadFileAdapter
@@ -230,6 +231,21 @@ namespace LoadFileAdapter
             }
 
             propertyReset();
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            builder.AppendLine("\tDocument Collection Statistics:")
+                .AppendFormat("\tDocument Count: {0}", Count).AppendLine()
+                .AppendFormat("\tImage Count: {0}", ImageCount).AppendLine()
+                .AppendFormat("\tText Count: {0}", TextCount).AppendLine()
+                .AppendFormat("\tNative Count: {0}", NativeCount).AppendLine()
+                .AppendFormat("\tParent Count: {0}", ParentCount).AppendLine()
+                .AppendFormat("\tChild Count: {0}", ChildCount).AppendLine()
+                .AppendFormat("\tStand Alone Count: {0}", StandAloneCount).AppendLine();                
+
+            return builder.ToString();
         }
 
         /// <summary>

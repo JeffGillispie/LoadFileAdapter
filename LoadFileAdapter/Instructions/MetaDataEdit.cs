@@ -116,5 +116,33 @@ namespace LoadFileAdapter.Instructions
                 .SetPrependDir(PrependDirectory)
                 .Build();            
         }
+
+        public override string ToString()
+        {
+            string s = $"MetaDataEdit for \"{this.FieldName}\", [{this.FindTextPattern}] >> [{this.ReplaceText}]";
+
+            if (!string.IsNullOrEmpty(this.FilterTextPattern))
+                s = s + $" on ({this.FilterTextPattern})";
+
+            if (!string.IsNullOrEmpty(this.FilterField))
+                s = s + $" in the \"{this.FilterField}\" field";
+
+            if (!string.IsNullOrEmpty(this.AlternateDestinationField))
+                s = s + $", to the \"{this.AlternateDestinationField}\" field";
+
+            if (!string.IsNullOrEmpty(this.PrependDirectoryPath))
+                s = s + $", prepended by [{this.PrependDirectoryPath}]";
+
+            if (!string.IsNullOrEmpty(this.PrependField))
+                s = s + $", prepended by the \"{this.PrependField}\" field";
+
+            if (!string.IsNullOrEmpty(this.AppendField))
+                s = s + $", appended by the \"{this.AppendField}\" field";
+
+            if (!string.IsNullOrEmpty(this.JoinDelimiter))
+                s = s + $", joined by [{this.JoinDelimiter}]";
+
+            return s;
+        }
     }
 }

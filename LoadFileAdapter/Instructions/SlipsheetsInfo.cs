@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using LoadFileAdapter.Exporters;
@@ -68,12 +69,42 @@ namespace LoadFileAdapter.Instructions
         /// </summary>
         public Trigger Trigger;
 
+        [XmlIgnore]
+        private DirectoryInfo destinationFolder;
+
         /// <summary>
         /// Initializes a new instance of <see cref="SlipsheetsInfo"/>.
         /// </summary>
         public SlipsheetsInfo()
         { 
             // do nothing here
+        }
+
+        [XmlIgnore]
+        public DirectoryInfo DestinationFolder
+        {
+            get
+            {
+                return destinationFolder;
+            }
+
+            set
+            {
+                destinationFolder = value;
+            }
+        }
+
+        public string DestinationFolderPath
+        {
+            get
+            {
+                return destinationFolder.FullName;
+            }
+
+            set
+            {
+                destinationFolder = new DirectoryInfo(value);
+            }
         }
 
         /// <summary>
@@ -92,6 +123,7 @@ namespace LoadFileAdapter.Instructions
                 .SetFont(GetFont())
                 .SetResolution(Resolution)
                 .SetAliasMap(Fields.ToDictionary(f => f.FieldName, f=> f.Alias))
+                .SetDestinationFolder(destinationFolder)
                 .Build();            
         }
 

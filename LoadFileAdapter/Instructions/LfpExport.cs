@@ -30,7 +30,7 @@ namespace LoadFileAdapter.Instructions
         {
             return LfpExporter.Builder
                 .Start(File, Encoding)
-                .SetVolumeName(VolumeName)
+                .SetVolumeName(VolumeName ?? File.Name)
                 .Build();
         }
     }

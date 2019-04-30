@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace LoadFileAdapter.Instructions
 {
@@ -24,6 +25,18 @@ namespace LoadFileAdapter.Instructions
 
             return this.FieldName.Equals(field.FieldName) &&
                 this.Alias.Equals(field.Alias);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder(FieldName);
+
+            if (!String.IsNullOrWhiteSpace(Alias))
+            {
+                builder.AppendFormat(" >> {0}", Alias);
+            }
+
+            return builder.ToString();
         }
     }
 }

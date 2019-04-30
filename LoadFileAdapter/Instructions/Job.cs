@@ -180,7 +180,7 @@ namespace LoadFileAdapter.Instructions
 
                     if (datImport.FolderPrependLinks != null)
                     {
-                        Regex find = new Regex("\\?(.+)");
+                        Regex find = new Regex(@"\\?(.+)");
                         string replace = Path.Combine(import.File.Directory.FullName, "$1");
 
                         foreach (var type in datImport.FolderPrependLinks)

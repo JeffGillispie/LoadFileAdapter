@@ -129,7 +129,7 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return InputTimeZone.StandardName;
+                return InputTimeZone?.StandardName;
             }
 
             set
@@ -143,7 +143,7 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return OutputTimeZone.StandardName;
+                return OutputTimeZone?.StandardName;
             }
 
             set
@@ -152,7 +152,7 @@ namespace LoadFileAdapter.Instructions
                     ? null : TimeZoneInfo.FindSystemTimeZoneById(value);
             }
         }
-
+                
         /// <summary>
         /// Gets the <see cref="DateFormatTransformation"/> value of the edit.
         /// </summary>
@@ -169,6 +169,31 @@ namespace LoadFileAdapter.Instructions
                 .SetRangeEnd(RangeEnd)
                 .SetOnFailure(OnFailure)
                 .Build();            
+        }
+
+        public override string ToString()
+        {
+            string s = $"DateEdit for \"{this.FieldName}\", on fail ({this.OnFailure})";
+
+            if (!string.IsNullOrEmpty(this.InputFormat))
+                s = s + $", input format ({this.InputFormat})";
+
+            if (!string.IsNullOrEmpty(this.OutputFormat))
+                s = s + $", output format ({this.OutputFormat})";
+            
+            if (!string.IsNullOrEmpty(this.TimeZoneBefore))
+                s = s + $", input TZ ({this.TimeZoneBefore})";
+
+            if (!string.IsNullOrEmpty(this.TimeZoneAfter))
+                s = s + $", output TZ ({this.TimeZoneAfter})";
+
+            if (!string.IsNullOrEmpty(this.StartDateRange))
+                s = s + $", after {this.StartDateRange}";
+
+            if (!string.IsNullOrEmpty(this.EndDateRange))
+                s = s + $", before {this.EndDateRange}";
+            
+            return s;
         }
     }
 }

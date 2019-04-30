@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
@@ -15,7 +17,17 @@ namespace LoadFileAdapter.Instructions
         /// property.
         /// </summary>                    
         [XmlIgnore]
-        public FileInfo File;
+        private FileInfo file;
+
+        /// <summary>
+        /// Path to the folder that contains the file to import.
+        /// </summary>
+        public string TargetPath;
+
+        /// <summary>
+        /// The extension without the period of the file to import.
+        /// </summary>
+        public string TargetExtension;
 
         /// <summary>
         /// The encoding used to read the import file. The 
@@ -35,6 +47,56 @@ namespace LoadFileAdapter.Instructions
             this.File = file;
             this.Encoding = encoding;            
         }
+
+        /// <summary>
+        /// The file to import. The field is ignored for 
+        /// serialization and replaced by the FilePath
+        /// </summary>
+        [XmlIgnore]
+        public FileInfo File
+        {
+            get
+            {
+                FileInfo result = null;
+
+                if (file != null)
+                {
+                    result = file;
+                }
+                else if (!string.IsNullOrWhiteSpace(TargetPath) && !string.IsNullOrWhiteSpace(TargetExtension))
+                {
+                    DirectoryInfo dir = new DirectoryInfo(TargetPath);
+                    string search = string.Format("*.{0}", TargetExtension);
+                    FileInfo[] files = dir.GetFiles(search, SearchOption.TopDirectoryOnly);
+
+                    if (files.Length == 1)
+                    {
+                        result = files[0];
+                    }
+                    else if (files.Length == 0)
+                    {
+                        string msg = string.Format(
+                            "No files were found with the extension {0} in the folder {1}.", 
+                            TargetExtension, TargetPath);
+                        throw new Exception(msg);
+                    }
+                    else
+                    {
+                        string msg = string.Format(
+                            "Multiple files were found with the extension {0} in the folder {1}. {2}",
+                            TargetExtension, TargetPath, String.Join(", ", files.Select(x => x.FullName).ToList()));
+                        throw new Exception(msg);
+                    }
+                }
+
+                return result;
+            }
+
+            set
+            {
+                file = value;
+            }
+        }
         
         /// <summary>
         /// The path to the import file. It is also used to 
@@ -44,7 +106,7 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return this.File.FullName;
+                return this.File?.FullName;
             }
 
             set
@@ -62,7 +124,7 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return this.Encoding.CodePage;
+                return this.Encoding?.CodePage ?? Encoding.Default.CodePage;
             }
 
             set
@@ -70,7 +132,7 @@ namespace LoadFileAdapter.Instructions
                 this.Encoding = Encoding.GetEncoding(value);
             }
         }
-
+                
         public abstract Importers.IImporter BuildImporter();        
     }
 }

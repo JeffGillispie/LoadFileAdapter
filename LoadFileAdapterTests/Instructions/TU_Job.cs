@@ -234,6 +234,50 @@ namespace LoadFileAdapterTests
         }
 
         [TestMethod]
+        public void Instructions_Job_FileTest()
+        {
+            DatImport datImport = new DatImport();
+            datImport.TargetExtension = "CSV";
+            datImport.CodePage = 1252;
+            datImport.Delimiters = new Separators(Delimiters.PIPE_CARET);
+            LfpImport lfpImport = new LfpImport();
+            lfpImport.CodePage = 1252;
+            lfpImport.TargetExtension = "LFP";
+            List<Import> imports = new List<Import>();
+            imports.Add(datImport);
+            imports.Add(lfpImport);
+            DatExport datExport = new DatExport();
+            datExport.TargetExtension = "TXT";
+            datExport.TargetSuffix = "_suffix";
+            datExport.TargetFolderName = "DATA";
+            LfpExport lfpExport = new LfpExport();
+            lfpExport.TargetExtension = "LFP";
+            lfpExport.TargetFolderName = "DATA";
+            lfpExport.CodePage = 1252;
+            List<Export> exports = new List<Export>();
+            exports.Add(datExport);
+            exports.Add(lfpExport);
+            Job job = new Job(imports.ToArray(), exports.ToArray(), null);
+            string xml = job.ToXml();
+            Job testJob = Job.Deserialize(xml);
+            string volPath = @"X:\dev\TestData\VOL001";
+
+            testJob.Imports.ToList().ForEach(i => {
+                i.TargetPath = volPath;
+            });
+
+            testJob.Exports.ToList().ForEach(e => {
+                e.TargetPath = testJob.Imports.First().File.Directory.FullName;
+                e.TargetName = testJob.Imports.First().File.Directory.Name;
+            });
+
+            Assert.AreEqual(@"X:\dev\TestData\VOL001\TestVol123.csv", testJob.Imports[0].File.FullName);
+            Assert.AreEqual(@"X:\dev\TestData\VOL001\TestVol123.lfp", testJob.Imports[1].File.FullName);
+            Assert.AreEqual(@"X:\dev\TestData\VOL001\DATA\VOL001_suffix.TXT", testJob.Exports[0].File.FullName);
+            Assert.AreEqual(@"X:\dev\TestData\VOL001\DATA\VOL001.LFP", testJob.Exports[1].File.FullName);
+        }
+
+        [TestMethod]
         public void Instructions_Job_All()
         {
             // arrange

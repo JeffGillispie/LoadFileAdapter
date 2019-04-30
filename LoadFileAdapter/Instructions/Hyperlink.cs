@@ -50,5 +50,10 @@ namespace LoadFileAdapter.Instructions
             return new HyperLinkInfo(
                 this.FileType, this.DisplayText, this.ColumnIndex);
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0} Link - {1} {2}", FileType, ColumnIndex, DisplayText);
+        }
     }
 }

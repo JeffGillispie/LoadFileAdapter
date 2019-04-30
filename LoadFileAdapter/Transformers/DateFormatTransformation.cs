@@ -302,7 +302,7 @@ namespace LoadFileAdapter.Transformers
                 pass = false;
             }
 
-            if (!timeOnly && date > rangeEnd)
+            if (!timeOnly && date > rangeEnd && rangeStart < rangeEnd)
             {
                 pass = false;
             }

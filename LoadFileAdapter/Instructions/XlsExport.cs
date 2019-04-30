@@ -20,7 +20,7 @@ namespace LoadFileAdapter.Instructions
         {
             get
             {
-                return base.Encoding.CodePage;
+                return base.Encoding?.CodePage ?? 1252;
             }
 
             set
